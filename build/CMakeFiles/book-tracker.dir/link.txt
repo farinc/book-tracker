@@ -1,0 +1,1 @@
+/bin/clang++-10  -g   CMakeFiles/book-tracker.dir/book-tracker_autogen/mocs_compilation.cpp.o CMakeFiles/book-tracker.dir/main.cpp.o CMakeFiles/book-tracker.dir/mainwindow.cpp.o CMakeFiles/book-tracker.dir/book.cpp.o  -o book-tracker  /usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.12.8 /usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.12.8 /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.12.8 

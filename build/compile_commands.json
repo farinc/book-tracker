@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/home/forrest/Documents/book-tracker/build",
+  "command": "/bin/clang++-10  -DJSON_USE_IMPLICIT_CONVERSIONS=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/home/forrest/Documents/book-tracker/build -I/home/forrest/Documents/book-tracker -I/home/forrest/Documents/book-tracker/build/book-tracker_autogen/include -I/home/forrest/Documents/book-tracker/thirdparty/nlohmann_json/single_include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++  -g   -fPIC -std=gnu++11 -o CMakeFiles/book-tracker.dir/book-tracker_autogen/mocs_compilation.cpp.o -c /home/forrest/Documents/book-tracker/build/book-tracker_autogen/mocs_compilation.cpp",
+  "file": "/home/forrest/Documents/book-tracker/build/book-tracker_autogen/mocs_compilation.cpp"
+},
+{
+  "directory": "/home/forrest/Documents/book-tracker/build",
+  "command": "/bin/clang++-10  -DJSON_USE_IMPLICIT_CONVERSIONS=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/home/forrest/Documents/book-tracker/build -I/home/forrest/Documents/book-tracker -I/home/forrest/Documents/book-tracker/build/book-tracker_autogen/include -I/home/forrest/Documents/book-tracker/thirdparty/nlohmann_json/single_include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++  -g   -fPIC -std=gnu++11 -o CMakeFiles/book-tracker.dir/main.cpp.o -c /home/forrest/Documents/book-tracker/main.cpp",
+  "file": "/home/forrest/Documents/book-tracker/main.cpp"
+},
+{
+  "directory": "/home/forrest/Documents/book-tracker/build",
+  "command": "/bin/clang++-10  -DJSON_USE_IMPLICIT_CONVERSIONS=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/home/forrest/Documents/book-tracker/build -I/home/forrest/Documents/book-tracker -I/home/forrest/Documents/book-tracker/build/book-tracker_autogen/include -I/home/forrest/Documents/book-tracker/thirdparty/nlohmann_json/single_include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++  -g   -fPIC -std=gnu++11 -o CMakeFiles/book-tracker.dir/mainwindow.cpp.o -c /home/forrest/Documents/book-tracker/mainwindow.cpp",
+  "file": "/home/forrest/Documents/book-tracker/mainwindow.cpp"
+},
+{
+  "directory": "/home/forrest/Documents/book-tracker/build",
+  "command": "/bin/clang++-10  -DJSON_USE_IMPLICIT_CONVERSIONS=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/home/forrest/Documents/book-tracker/build -I/home/forrest/Documents/book-tracker -I/home/forrest/Documents/book-tracker/build/book-tracker_autogen/include -I/home/forrest/Documents/book-tracker/thirdparty/nlohmann_json/single_include -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++  -g   -fPIC -std=gnu++11 -o CMakeFiles/book-tracker.dir/book.cpp.o -c /home/forrest/Documents/book-tracker/book.cpp",
+  "file": "/home/forrest/Documents/book-tracker/book.cpp"
+}
+]
