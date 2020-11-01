@@ -1,3 +1,5 @@
+/build
+
 # C++ objects and libs
 *.slo
 *.lo
@@ -32,6 +34,8 @@ Makefile*
 *.qm
 *.prl
 
+# Project files
+
 # Qt unit tests
 target_wrapper.*
 
@@ -52,6 +56,11 @@ compile_commands.json
 *creator.user*
 
 *_qmlcache.qrc
-
-# Project files
+# Ecilipse
+.metadata
+# vscode
+.vscode
+# Kdevelop
+*.kdev
+*.kdev4
 
