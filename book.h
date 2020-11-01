@@ -7,10 +7,6 @@
 using json = nlohmann::json;
 
 namespace books {
-    
-enum State: int {
-    active, inactive
-};
 
 enum BookType: int {
     notype, traditional, coptic, coptic2, stabstich, quater, longstich

@@ -4,6 +4,7 @@ file(REMOVE_RECURSE
   "book-tracker_autogen"
   "CMakeFiles/book-tracker.dir/book-tracker_autogen/mocs_compilation.cpp.o"
   "CMakeFiles/book-tracker.dir/book.cpp.o"
+  "CMakeFiles/book-tracker.dir/bookdialog.cpp.o"
   "CMakeFiles/book-tracker.dir/main.cpp.o"
   "CMakeFiles/book-tracker.dir/mainwindow.cpp.o"
   "book-tracker"

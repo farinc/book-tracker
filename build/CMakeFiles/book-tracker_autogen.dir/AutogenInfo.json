@@ -13,6 +13,11 @@
 			"EWIEGA46WW/moc_book.cpp"
 		],
 		[
+			"/home/forrest/Documents/book-tracker/bookdialog.h",
+			"MU",
+			"EWIEGA46WW/moc_bookdialog.cpp"
+		],
+		[
 			"/home/forrest/Documents/book-tracker/mainwindow.h",
 			"MU",
 			"EWIEGA46WW/moc_mainwindow.cpp"
@@ -77,6 +82,7 @@
 	"SOURCES" : 
 	[
 		[ "/home/forrest/Documents/book-tracker/book.cpp", "MU" ],
+		[ "/home/forrest/Documents/book-tracker/bookdialog.cpp", "MU" ],
 		[ "/home/forrest/Documents/book-tracker/main.cpp", "MU" ],
 		[ "/home/forrest/Documents/book-tracker/mainwindow.cpp", "MU" ]
 	],

@@ -42,6 +42,9 @@ if(ANDROID)
     mainwindow.ui
     book.cpp
     book.h
+    bookdialog.cpp
+    bookdialog.h
+    bookdialog.ui
   )
 else()
   add_executable(book-tracker
@@ -51,6 +54,9 @@ else()
     mainwindow.ui
     book.cpp
     book.h
+    bookdialog.cpp
+    bookdialog.h
+    bookdialog.ui
   )
 endif()
 

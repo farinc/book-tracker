@@ -35,3 +35,9 @@ Project Target=book-tracker,book-tracker
 Use External Terminal=false
 Working Directory=
 isExecutable=false
+
+[Project]
+VersionControlSupport=kdevgit
+
+[SourceFileTemplates]
+LastUsedTemplate=/home/forrest/.local/share/kdevfiletemplates/template_descriptions/cpp_basic.desktop

@@ -600,6 +600,33 @@ book.cpp.s:
 	$(MAKE) -f CMakeFiles/book-tracker.dir/build.make CMakeFiles/book-tracker.dir/book.cpp.s
 .PHONY : book.cpp.s
 
+bookdialog.o: bookdialog.cpp.o
+
+.PHONY : bookdialog.o
+
+# target to build an object file
+bookdialog.cpp.o:
+	$(MAKE) -f CMakeFiles/book-tracker.dir/build.make CMakeFiles/book-tracker.dir/bookdialog.cpp.o
+.PHONY : bookdialog.cpp.o
+
+bookdialog.i: bookdialog.cpp.i
+
+.PHONY : bookdialog.i
+
+# target to preprocess a source file
+bookdialog.cpp.i:
+	$(MAKE) -f CMakeFiles/book-tracker.dir/build.make CMakeFiles/book-tracker.dir/bookdialog.cpp.i
+.PHONY : bookdialog.cpp.i
+
+bookdialog.s: bookdialog.cpp.s
+
+.PHONY : bookdialog.s
+
+# target to generate assembly for a file
+bookdialog.cpp.s:
+	$(MAKE) -f CMakeFiles/book-tracker.dir/build.make CMakeFiles/book-tracker.dir/bookdialog.cpp.s
+.PHONY : bookdialog.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -702,6 +729,9 @@ help:
 	@echo "... book.o"
 	@echo "... book.i"
 	@echo "... book.s"
+	@echo "... bookdialog.o"
+	@echo "... bookdialog.i"
+	@echo "... bookdialog.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

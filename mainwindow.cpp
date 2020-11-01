@@ -7,6 +7,7 @@
 #include <QDoubleSpinBox>
 #include <QLineEdit>
 #include <QPlainTextEdit>
+#include <QAction>
 #include <QDebug>
 #include <fstream>
 #include <iomanip>
@@ -14,14 +15,15 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "book.h"
+#include "bookdialog.h"
 
 using namespace books;
+using namespace gui;
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->state = State::inactive;
-    this->toggleUi(1);
+    this->state = State::active;
     this->setupSlots();
 }
 
@@ -33,8 +35,11 @@ MainWindow::~MainWindow()
 void MainWindow::setupSlots() 
 {
     //General action slots
-    connect(this->ui->comboMode, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::toggleUi);
-    
+    connect(this->ui->actionLoad, &QAction::triggered, [this] (bool const checked)
+        {
+            BookDialog dialog(this);
+            dialog.exec();
+        });
     //Integer inputs
     connect(this->ui->spinSignitures, QOverload<int>::of(&QSpinBox::valueChanged), [this](int const value)
         { 
@@ -148,6 +153,7 @@ void MainWindow::onEntryLoad(const QUrl* path)
 {
     json bookJson = this->loadJson(*path);
     this->book = bookJson;
+    this->state = State::active;
     this->populateUi();
 }
 
@@ -157,22 +163,11 @@ void MainWindow::onEntryClose()
     delete &(this->book);
 }
 
-void MainWindow::toggleUi(const int index)
-{
-    this->state = static_cast<State>(index);
-    if(this->state == State::active){
-        this->ui->discriptionFrame->setEnabled(true);
-    }else if(this->state == State::inactive){
-        this->ui->discriptionFrame->setEnabled(false);
-    }
-}
-
 void MainWindow::populateUi()
 {
     this->ui->labelBookID->setText(QString(this->book.bookID));
     this->ui->labelBatchID->setText(QString(this->book.batchID));
 
-    this->ui->comboMode->setEnabled(true);
     this->ui->actionSaveClose->setEnabled(true);
     this->ui->actionNewCurrent->setEnabled(false);
     this->ui->actionNewNew->setEnabled(false);
@@ -206,7 +201,6 @@ void MainWindow::clearUi()
     this->ui->labelBookID->setText(" <None> ");
     this->ui->labelBatchID->setText(" <None>");
 
-    this->ui->comboMode->setEnabled(false);
     this->ui->actionSaveClose->setEnabled(false);
     this->ui->actionNewCurrent->setEnabled(true);
     this->ui->actionNewNew->setEnabled(true);

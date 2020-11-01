@@ -25,19 +25,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 47,
+				"line" : 50,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 57,
+				"line" : 63,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 58,
+				"line" : 64,
 				"parent" : 0
 			}
 		]
@@ -125,7 +125,8 @@
 				0,
 				1,
 				2,
-				5
+				5,
+				7
 			]
 		}
 	],
@@ -181,7 +182,8 @@
 				0,
 				1,
 				2,
-				5
+				5,
+				7
 			]
 		},
 		{
@@ -189,14 +191,16 @@
 			"sourceIndexes" : 
 			[
 				3,
-				6
+				6,
+				8
 			]
 		},
 		{
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				4
+				4,
+				9
 			]
 		}
 	],
@@ -241,6 +245,22 @@
 			"backtrace" : 1,
 			"path" : "book.h",
 			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "bookdialog.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "bookdialog.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "bookdialog.ui",
+			"sourceGroupIndex" : 2
 		}
 	],
 	"type" : "EXECUTABLE"

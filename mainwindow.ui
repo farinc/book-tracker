@@ -143,40 +143,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QComboBox" name="comboMode">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">#comboMode {
-	background-color: rgb(186, 189, 182);
-}</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>Edit Mode</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>ReadOnly Mode</string>
-          </property>
-         </item>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
@@ -1067,7 +1033,6 @@
   <tabstop>comboBookType</tabstop>
   <tabstop>pushButtonGenStoreDiscription</tabstop>
   <tabstop>buttonCostBreakdown</tabstop>
-  <tabstop>comboMode</tabstop>
   <tabstop>editExtra</tabstop>
   <tabstop>spinPages</tabstop>
   <tabstop>spinCost</tabstop>

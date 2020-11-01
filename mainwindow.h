@@ -9,6 +9,14 @@
 using json = nlohmann::json;
 using namespace books;
 
+namespace gui {
+
+enum State: int {
+    active, inactive
+};
+
+}
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -22,6 +30,7 @@ public:
     ~MainWindow();
 
 private:
+    using State = gui::State;
     Ui::MainWindow *ui;
     
     void setupSlots();
@@ -40,9 +49,11 @@ private:
     void clearUi();
 
 public slots:
+    //Return from dialog slots
     void onEntryLoad(const QUrl* path);
+    
+    //MainWindow slots
     void onEntryClose();
-    void toggleUi(const int index);
 };
 
 #endif // MAINWINDOW_H

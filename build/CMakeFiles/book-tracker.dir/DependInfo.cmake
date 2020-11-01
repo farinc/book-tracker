@@ -6,6 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/forrest/Documents/book-tracker/build/book-tracker_autogen/mocs_compilation.cpp" "/home/forrest/Documents/book-tracker/build/CMakeFiles/book-tracker.dir/book-tracker_autogen/mocs_compilation.cpp.o"
   "/home/forrest/Documents/book-tracker/book.cpp" "/home/forrest/Documents/book-tracker/build/CMakeFiles/book-tracker.dir/book.cpp.o"
+  "/home/forrest/Documents/book-tracker/bookdialog.cpp" "/home/forrest/Documents/book-tracker/build/CMakeFiles/book-tracker.dir/bookdialog.cpp.o"
   "/home/forrest/Documents/book-tracker/main.cpp" "/home/forrest/Documents/book-tracker/build/CMakeFiles/book-tracker.dir/main.cpp.o"
   "/home/forrest/Documents/book-tracker/mainwindow.cpp" "/home/forrest/Documents/book-tracker/build/CMakeFiles/book-tracker.dir/mainwindow.cpp.o"
   )

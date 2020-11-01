@@ -55,7 +55,6 @@ public:
     QLabel *labelBatchID;
     QLabel *label_24;
     QDoubleSpinBox *spinCost;
-    QComboBox *comboMode;
     QScrollArea *scrollAreaDescription;
     QWidget *scrollAreaWidgetContents;
     QGridLayout *gridLayout_5;
@@ -228,32 +227,16 @@ public:
 
         horizontalLayout_2->addWidget(spinCost);
 
-        comboMode = new QComboBox(idFrame);
-        comboMode->addItem(QString());
-        comboMode->addItem(QString());
-        comboMode->setObjectName(QString::fromUtf8("comboMode"));
-        QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        sizePolicy3.setHorizontalStretch(0);
-        sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(comboMode->sizePolicy().hasHeightForWidth());
-        comboMode->setSizePolicy(sizePolicy3);
-        comboMode->setFont(font);
-        comboMode->setStyleSheet(QString::fromUtf8("#comboMode {\n"
-"	background-color: rgb(186, 189, 182);\n"
-"}"));
-
-        horizontalLayout_2->addWidget(comboMode);
-
 
         verticalLayout->addWidget(idFrame);
 
         scrollAreaDescription = new QScrollArea(centralwidget);
         scrollAreaDescription->setObjectName(QString::fromUtf8("scrollAreaDescription"));
-        QSizePolicy sizePolicy4(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
-        sizePolicy4.setHorizontalStretch(0);
-        sizePolicy4.setVerticalStretch(0);
-        sizePolicy4.setHeightForWidth(scrollAreaDescription->sizePolicy().hasHeightForWidth());
-        scrollAreaDescription->setSizePolicy(sizePolicy4);
+        QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(scrollAreaDescription->sizePolicy().hasHeightForWidth());
+        scrollAreaDescription->setSizePolicy(sizePolicy3);
         scrollAreaDescription->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
@@ -268,11 +251,11 @@ public:
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         frame_10 = new QFrame(discriptionFrame);
         frame_10->setObjectName(QString::fromUtf8("frame_10"));
-        QSizePolicy sizePolicy5(QSizePolicy::Ignored, QSizePolicy::Preferred);
-        sizePolicy5.setHorizontalStretch(0);
-        sizePolicy5.setVerticalStretch(0);
-        sizePolicy5.setHeightForWidth(frame_10->sizePolicy().hasHeightForWidth());
-        frame_10->setSizePolicy(sizePolicy5);
+        QSizePolicy sizePolicy4(QSizePolicy::Ignored, QSizePolicy::Preferred);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(frame_10->sizePolicy().hasHeightForWidth());
+        frame_10->setSizePolicy(sizePolicy4);
         frame_10->setFrameShape(QFrame::StyledPanel);
         frame_10->setFrameShadow(QFrame::Raised);
         horizontalLayout_11 = new QHBoxLayout(frame_10);
@@ -292,8 +275,8 @@ public:
 
         frame_6 = new QFrame(discriptionFrame);
         frame_6->setObjectName(QString::fromUtf8("frame_6"));
-        sizePolicy5.setHeightForWidth(frame_6->sizePolicy().hasHeightForWidth());
-        frame_6->setSizePolicy(sizePolicy5);
+        sizePolicy4.setHeightForWidth(frame_6->sizePolicy().hasHeightForWidth());
+        frame_6->setSizePolicy(sizePolicy4);
         frame_6->setFrameShape(QFrame::StyledPanel);
         frame_6->setFrameShadow(QFrame::Raised);
         horizontalLayout_6 = new QHBoxLayout(frame_6);
@@ -308,11 +291,11 @@ public:
 
         spinSpineDim = new QDoubleSpinBox(frame_6);
         spinSpineDim->setObjectName(QString::fromUtf8("spinSpineDim"));
-        QSizePolicy sizePolicy6(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-        sizePolicy6.setHorizontalStretch(0);
-        sizePolicy6.setVerticalStretch(0);
-        sizePolicy6.setHeightForWidth(spinSpineDim->sizePolicy().hasHeightForWidth());
-        spinSpineDim->setSizePolicy(sizePolicy6);
+        QSizePolicy sizePolicy5(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+        sizePolicy5.setHorizontalStretch(0);
+        sizePolicy5.setVerticalStretch(0);
+        sizePolicy5.setHeightForWidth(spinSpineDim->sizePolicy().hasHeightForWidth());
+        spinSpineDim->setSizePolicy(sizePolicy5);
 
         horizontalLayout_6->addWidget(spinSpineDim);
 
@@ -321,11 +304,11 @@ public:
 
         groupBox_9 = new QGroupBox(discriptionFrame);
         groupBox_9->setObjectName(QString::fromUtf8("groupBox_9"));
-        QSizePolicy sizePolicy7(QSizePolicy::Ignored, QSizePolicy::Maximum);
-        sizePolicy7.setHorizontalStretch(0);
-        sizePolicy7.setVerticalStretch(0);
-        sizePolicy7.setHeightForWidth(groupBox_9->sizePolicy().hasHeightForWidth());
-        groupBox_9->setSizePolicy(sizePolicy7);
+        QSizePolicy sizePolicy6(QSizePolicy::Ignored, QSizePolicy::Maximum);
+        sizePolicy6.setHorizontalStretch(0);
+        sizePolicy6.setVerticalStretch(0);
+        sizePolicy6.setHeightForWidth(groupBox_9->sizePolicy().hasHeightForWidth());
+        groupBox_9->setSizePolicy(sizePolicy6);
         gridLayout_4 = new QGridLayout(groupBox_9);
         gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
         editExtra = new QPlainTextEdit(groupBox_9);
@@ -339,11 +322,11 @@ public:
 
         frame_9 = new QFrame(discriptionFrame);
         frame_9->setObjectName(QString::fromUtf8("frame_9"));
-        QSizePolicy sizePolicy8(QSizePolicy::Ignored, QSizePolicy::MinimumExpanding);
-        sizePolicy8.setHorizontalStretch(0);
-        sizePolicy8.setVerticalStretch(0);
-        sizePolicy8.setHeightForWidth(frame_9->sizePolicy().hasHeightForWidth());
-        frame_9->setSizePolicy(sizePolicy8);
+        QSizePolicy sizePolicy7(QSizePolicy::Ignored, QSizePolicy::MinimumExpanding);
+        sizePolicy7.setHorizontalStretch(0);
+        sizePolicy7.setVerticalStretch(0);
+        sizePolicy7.setHeightForWidth(frame_9->sizePolicy().hasHeightForWidth());
+        frame_9->setSizePolicy(sizePolicy7);
         frame_9->setFrameShape(QFrame::StyledPanel);
         frame_9->setFrameShadow(QFrame::Raised);
         gridLayout_6 = new QGridLayout(frame_9);
@@ -357,8 +340,8 @@ public:
 
         spinExtra = new QDoubleSpinBox(frame_9);
         spinExtra->setObjectName(QString::fromUtf8("spinExtra"));
-        sizePolicy6.setHeightForWidth(spinExtra->sizePolicy().hasHeightForWidth());
-        spinExtra->setSizePolicy(sizePolicy6);
+        sizePolicy5.setHeightForWidth(spinExtra->sizePolicy().hasHeightForWidth());
+        spinExtra->setSizePolicy(sizePolicy5);
         spinExtra->setSingleStep(0.250000000000000);
 
         gridLayout_6->addWidget(spinExtra, 0, 1, 1, 1);
@@ -368,60 +351,60 @@ public:
 
         label_12 = new QLabel(discriptionFrame);
         label_12->setObjectName(QString::fromUtf8("label_12"));
-        sizePolicy5.setHeightForWidth(label_12->sizePolicy().hasHeightForWidth());
-        label_12->setSizePolicy(sizePolicy5);
+        sizePolicy4.setHeightForWidth(label_12->sizePolicy().hasHeightForWidth());
+        label_12->setSizePolicy(sizePolicy4);
         label_12->setFont(font);
 
         gridLayout->addWidget(label_12, 2, 0, 1, 1);
 
         editCoverMaterial = new QLineEdit(discriptionFrame);
         editCoverMaterial->setObjectName(QString::fromUtf8("editCoverMaterial"));
-        sizePolicy6.setHeightForWidth(editCoverMaterial->sizePolicy().hasHeightForWidth());
-        editCoverMaterial->setSizePolicy(sizePolicy6);
+        sizePolicy5.setHeightForWidth(editCoverMaterial->sizePolicy().hasHeightForWidth());
+        editCoverMaterial->setSizePolicy(sizePolicy5);
 
         gridLayout->addWidget(editCoverMaterial, 1, 1, 1, 1);
 
         label_21 = new QLabel(discriptionFrame);
         label_21->setObjectName(QString::fromUtf8("label_21"));
-        sizePolicy5.setHeightForWidth(label_21->sizePolicy().hasHeightForWidth());
-        label_21->setSizePolicy(sizePolicy5);
+        sizePolicy4.setHeightForWidth(label_21->sizePolicy().hasHeightForWidth());
+        label_21->setSizePolicy(sizePolicy4);
         label_21->setFont(font);
 
         gridLayout->addWidget(label_21, 4, 0, 1, 1);
 
         editEndPageColor = new QLineEdit(discriptionFrame);
         editEndPageColor->setObjectName(QString::fromUtf8("editEndPageColor"));
-        sizePolicy6.setHeightForWidth(editEndPageColor->sizePolicy().hasHeightForWidth());
-        editEndPageColor->setSizePolicy(sizePolicy6);
+        sizePolicy5.setHeightForWidth(editEndPageColor->sizePolicy().hasHeightForWidth());
+        editEndPageColor->setSizePolicy(sizePolicy5);
 
         gridLayout->addWidget(editEndPageColor, 4, 1, 1, 1);
 
         label_9 = new QLabel(discriptionFrame);
         label_9->setObjectName(QString::fromUtf8("label_9"));
-        sizePolicy5.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
-        label_9->setSizePolicy(sizePolicy5);
+        sizePolicy4.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
+        label_9->setSizePolicy(sizePolicy4);
         label_9->setFont(font);
 
         gridLayout->addWidget(label_9, 0, 0, 1, 1);
 
         editThreadColor = new QLineEdit(discriptionFrame);
         editThreadColor->setObjectName(QString::fromUtf8("editThreadColor"));
-        sizePolicy6.setHeightForWidth(editThreadColor->sizePolicy().hasHeightForWidth());
-        editThreadColor->setSizePolicy(sizePolicy6);
+        sizePolicy5.setHeightForWidth(editThreadColor->sizePolicy().hasHeightForWidth());
+        editThreadColor->setSizePolicy(sizePolicy5);
 
         gridLayout->addWidget(editThreadColor, 2, 1, 1, 1);
 
         editPageMaterial = new QLineEdit(discriptionFrame);
         editPageMaterial->setObjectName(QString::fromUtf8("editPageMaterial"));
-        sizePolicy6.setHeightForWidth(editPageMaterial->sizePolicy().hasHeightForWidth());
-        editPageMaterial->setSizePolicy(sizePolicy6);
+        sizePolicy5.setHeightForWidth(editPageMaterial->sizePolicy().hasHeightForWidth());
+        editPageMaterial->setSizePolicy(sizePolicy5);
 
         gridLayout->addWidget(editPageMaterial, 0, 1, 1, 1);
 
         label_19 = new QLabel(discriptionFrame);
         label_19->setObjectName(QString::fromUtf8("label_19"));
-        sizePolicy5.setHeightForWidth(label_19->sizePolicy().hasHeightForWidth());
-        label_19->setSizePolicy(sizePolicy5);
+        sizePolicy4.setHeightForWidth(label_19->sizePolicy().hasHeightForWidth());
+        label_19->setSizePolicy(sizePolicy4);
         label_19->setFont(font);
 
         gridLayout->addWidget(label_19, 9, 0, 1, 1);
@@ -456,15 +439,15 @@ public:
 
         editSection = new QLineEdit(discriptionFrame);
         editSection->setObjectName(QString::fromUtf8("editSection"));
-        sizePolicy6.setHeightForWidth(editSection->sizePolicy().hasHeightForWidth());
-        editSection->setSizePolicy(sizePolicy6);
+        sizePolicy5.setHeightForWidth(editSection->sizePolicy().hasHeightForWidth());
+        editSection->setSizePolicy(sizePolicy5);
 
         gridLayout->addWidget(editSection, 9, 1, 1, 1);
 
         frame_5 = new QFrame(discriptionFrame);
         frame_5->setObjectName(QString::fromUtf8("frame_5"));
-        sizePolicy5.setHeightForWidth(frame_5->sizePolicy().hasHeightForWidth());
-        frame_5->setSizePolicy(sizePolicy5);
+        sizePolicy4.setHeightForWidth(frame_5->sizePolicy().hasHeightForWidth());
+        frame_5->setSizePolicy(sizePolicy4);
         frame_5->setFrameShape(QFrame::StyledPanel);
         frame_5->setFrameShadow(QFrame::Raised);
         horizontalLayout_7 = new QHBoxLayout(frame_5);
@@ -479,8 +462,8 @@ public:
 
         spinWeight = new QDoubleSpinBox(frame_5);
         spinWeight->setObjectName(QString::fromUtf8("spinWeight"));
-        sizePolicy6.setHeightForWidth(spinWeight->sizePolicy().hasHeightForWidth());
-        spinWeight->setSizePolicy(sizePolicy6);
+        sizePolicy5.setHeightForWidth(spinWeight->sizePolicy().hasHeightForWidth());
+        spinWeight->setSizePolicy(sizePolicy5);
 
         horizontalLayout_7->addWidget(spinWeight);
 
@@ -489,8 +472,8 @@ public:
 
         label_4 = new QLabel(discriptionFrame);
         label_4->setObjectName(QString::fromUtf8("label_4"));
-        sizePolicy5.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
-        label_4->setSizePolicy(sizePolicy5);
+        sizePolicy4.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
+        label_4->setSizePolicy(sizePolicy4);
         label_4->setFont(font);
 
         gridLayout->addWidget(label_4, 1, 0, 1, 1);
@@ -510,8 +493,8 @@ public:
 
         label_8 = new QLabel(frame_2);
         label_8->setObjectName(QString::fromUtf8("label_8"));
-        sizePolicy5.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
-        label_8->setSizePolicy(sizePolicy5);
+        sizePolicy4.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
+        label_8->setSizePolicy(sizePolicy4);
         label_8->setFont(font);
 
         gridLayout_3->addWidget(label_8, 1, 0, 1, 1);
@@ -523,8 +506,8 @@ public:
 
         label_5 = new QLabel(frame_2);
         label_5->setObjectName(QString::fromUtf8("label_5"));
-        sizePolicy5.setHeightForWidth(label_5->sizePolicy().hasHeightForWidth());
-        label_5->setSizePolicy(sizePolicy5);
+        sizePolicy4.setHeightForWidth(label_5->sizePolicy().hasHeightForWidth());
+        label_5->setSizePolicy(sizePolicy4);
         label_5->setFont(font);
         label_5->setStyleSheet(QString::fromUtf8("#label_5 {\n"
 "	\n"
@@ -539,11 +522,11 @@ public:
 
         label_7 = new QLabel(frame_2);
         label_7->setObjectName(QString::fromUtf8("label_7"));
-        QSizePolicy sizePolicy9(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        sizePolicy9.setHorizontalStretch(0);
-        sizePolicy9.setVerticalStretch(0);
-        sizePolicy9.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
-        label_7->setSizePolicy(sizePolicy9);
+        QSizePolicy sizePolicy8(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        sizePolicy8.setHorizontalStretch(0);
+        sizePolicy8.setVerticalStretch(0);
+        sizePolicy8.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
+        label_7->setSizePolicy(sizePolicy8);
 
         gridLayout_3->addWidget(label_7, 1, 3, 1, 1);
 
@@ -564,11 +547,11 @@ public:
 
         spinCoverDimX = new QDoubleSpinBox(frame_2);
         spinCoverDimX->setObjectName(QString::fromUtf8("spinCoverDimX"));
-        QSizePolicy sizePolicy10(QSizePolicy::Minimum, QSizePolicy::Preferred);
-        sizePolicy10.setHorizontalStretch(0);
-        sizePolicy10.setVerticalStretch(0);
-        sizePolicy10.setHeightForWidth(spinCoverDimX->sizePolicy().hasHeightForWidth());
-        spinCoverDimX->setSizePolicy(sizePolicy10);
+        QSizePolicy sizePolicy9(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        sizePolicy9.setHorizontalStretch(0);
+        sizePolicy9.setVerticalStretch(0);
+        sizePolicy9.setHeightForWidth(spinCoverDimX->sizePolicy().hasHeightForWidth());
+        spinCoverDimX->setSizePolicy(sizePolicy9);
 
         gridLayout_3->addWidget(spinCoverDimX, 2, 2, 1, 1);
 
@@ -609,15 +592,18 @@ public:
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         spinPagesPerSig = new QSpinBox(frame_7);
         spinPagesPerSig->setObjectName(QString::fromUtf8("spinPagesPerSig"));
-        sizePolicy3.setHeightForWidth(spinPagesPerSig->sizePolicy().hasHeightForWidth());
-        spinPagesPerSig->setSizePolicy(sizePolicy3);
+        QSizePolicy sizePolicy10(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        sizePolicy10.setHorizontalStretch(0);
+        sizePolicy10.setVerticalStretch(0);
+        sizePolicy10.setHeightForWidth(spinPagesPerSig->sizePolicy().hasHeightForWidth());
+        spinPagesPerSig->setSizePolicy(sizePolicy10);
 
         gridLayout_2->addWidget(spinPagesPerSig, 2, 1, 1, 1);
 
         label_14 = new QLabel(frame_7);
         label_14->setObjectName(QString::fromUtf8("label_14"));
-        sizePolicy10.setHeightForWidth(label_14->sizePolicy().hasHeightForWidth());
-        label_14->setSizePolicy(sizePolicy10);
+        sizePolicy9.setHeightForWidth(label_14->sizePolicy().hasHeightForWidth());
+        label_14->setSizePolicy(sizePolicy9);
         label_14->setFont(font);
 
         gridLayout_2->addWidget(label_14, 2, 0, 1, 1);
@@ -630,23 +616,23 @@ public:
 
         label_11 = new QLabel(frame_7);
         label_11->setObjectName(QString::fromUtf8("label_11"));
-        sizePolicy10.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
-        label_11->setSizePolicy(sizePolicy10);
+        sizePolicy9.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
+        label_11->setSizePolicy(sizePolicy9);
         label_11->setFont(font);
 
         gridLayout_2->addWidget(label_11, 3, 0, 1, 1);
 
         spinSignitures = new QSpinBox(frame_7);
         spinSignitures->setObjectName(QString::fromUtf8("spinSignitures"));
-        sizePolicy3.setHeightForWidth(spinSignitures->sizePolicy().hasHeightForWidth());
-        spinSignitures->setSizePolicy(sizePolicy3);
+        sizePolicy10.setHeightForWidth(spinSignitures->sizePolicy().hasHeightForWidth());
+        spinSignitures->setSizePolicy(sizePolicy10);
 
         gridLayout_2->addWidget(spinSignitures, 0, 1, 1, 1);
 
         spinPages = new QSpinBox(frame_7);
         spinPages->setObjectName(QString::fromUtf8("spinPages"));
-        sizePolicy3.setHeightForWidth(spinPages->sizePolicy().hasHeightForWidth());
-        spinPages->setSizePolicy(sizePolicy3);
+        sizePolicy10.setHeightForWidth(spinPages->sizePolicy().hasHeightForWidth());
+        spinPages->setSizePolicy(sizePolicy10);
         spinPages->setReadOnly(true);
         spinPages->setButtonSymbols(QAbstractSpinBox::NoButtons);
         spinPages->setMaximum(1000);
@@ -699,8 +685,7 @@ public:
         QWidget::setTabOrder(comboStatus, comboBookType);
         QWidget::setTabOrder(comboBookType, pushButtonGenStoreDiscription);
         QWidget::setTabOrder(pushButtonGenStoreDiscription, buttonCostBreakdown);
-        QWidget::setTabOrder(buttonCostBreakdown, comboMode);
-        QWidget::setTabOrder(comboMode, editExtra);
+        QWidget::setTabOrder(buttonCostBreakdown, editExtra);
         QWidget::setTabOrder(editExtra, spinPages);
         QWidget::setTabOrder(spinPages, spinCost);
 
@@ -737,9 +722,6 @@ public:
         labelBatchID->setText(QApplication::translate("MainWindow", "<None>", nullptr));
         label_24->setText(QApplication::translate("MainWindow", "Cost", nullptr));
         spinCost->setPrefix(QApplication::translate("MainWindow", "$", nullptr));
-        comboMode->setItemText(0, QApplication::translate("MainWindow", "Edit Mode", nullptr));
-        comboMode->setItemText(1, QApplication::translate("MainWindow", "ReadOnly Mode", nullptr));
-
         pushButtonGenStoreDiscription->setText(QApplication::translate("MainWindow", "Generate Store Description", nullptr));
         buttonCostBreakdown->setText(QApplication::translate("MainWindow", "Cost Breakdown", nullptr));
         label_13->setText(QApplication::translate("MainWindow", "Spine Dimension", nullptr));
