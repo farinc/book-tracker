@@ -2,7 +2,7 @@
 #define BOOK_H
 
 #include <string>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 using json = nlohmann::json;
 

@@ -1,4 +1,4 @@
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 #include <QUrl>
 #include <QObject>
@@ -35,7 +35,7 @@ MainWindow::~MainWindow()
 void MainWindow::setupSlots() 
 {
     //General action slots
-    connect(this->ui->actionLoad, &QAction::triggered, [this] (bool const checked)
+    connect(this->ui->actionLoad, &QAction::triggered, [this] ()
         {
             BookDialog dialog(this);
             dialog.exec();
