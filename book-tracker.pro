@@ -13,17 +13,22 @@ INCLUDEPATH += thirdparty/nlohmann_json/single_include/nlohmann/
 SOURCES += \
     book.cpp \
     bookdialog.cpp \
+    bookmodel.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    settingsdialog.cpp
 
 HEADERS += \
     book.h \
     bookdialog.h \
-    mainwindow.h
+    bookmodel.h \
+    mainwindow.h \
+    settingsdialog.h
 
 FORMS += \
     bookdialog.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    settingsdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -7,7 +7,6 @@
 #include "book.h"
 
 using json = nlohmann::json;
-using namespace books;
 
 namespace gui {
 
@@ -36,24 +35,26 @@ private:
     void setupSlots();
     
     CostConstants constants;
-    BookEntry book;
+    Book book;
     State state;
+    QString bookDirectory;
+
+    QMap<int, Book*> loadedBooks;
     
     void updateCosts();
     void updatePages();
-    
-    json loadJson(QUrl);
-    void saveJson(json, QUrl);
     
     void populateUi();
     void clearUi();
 
 public slots:
-    //Return from dialog slots
-    void onEntryLoad(const QUrl* path);
+    //once a book is selected for edit slots
+    void onEntryLoad(const json);
     
     //MainWindow slots
     void onEntryClose();
+
+    void onBookDirectoryChange(QUrl directory);
 };
 
 #endif // MAINWINDOW_H

@@ -16,13 +16,15 @@
 #include "./ui_mainwindow.h"
 #include "book.h"
 #include "bookdialog.h"
+#include "settingsdialog.h"
 
-using namespace books;
 using namespace gui;
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->loadedBooks = QMap<int, Book*>();
+
     this->state = State::active;
     this->setupSlots();
 }
@@ -30,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
 MainWindow::~MainWindow()
 {
     delete ui;
+    qDeleteAll(loadedBooks);
 }
 
 void MainWindow::setupSlots() 
@@ -37,7 +40,18 @@ void MainWindow::setupSlots()
     //General action slots
     connect(this->ui->actionLoad, &QAction::triggered, [this] ()
         {
-            BookDialog dialog(this);
+            BookDialog dialog(this, this->bookDirectory);
+            dialog.exec();
+        });
+    connect(this->ui->actionSetting, &QAction::triggered, [this] ()
+        {
+            SettingsDialog dialog(this);
+
+            this->connect(&dialog, &SettingsDialog::bookDirectoryChange, [this] (QString const value)
+                {
+                    this->bookDirectory = value;
+                });
+
             dialog.exec();
         });
     //Integer inputs
@@ -117,19 +131,6 @@ void MainWindow::setupSlots()
         });
 }
 
-json MainWindow::loadJson(QUrl path)
-{
-    if(path.isLocalFile()){
-        std::ifstream t(path.toString().toStdString());
-        json jsonObj;
-        t >> jsonObj;
-        t.close();
-        return jsonObj;
-    }
-    
-    return nullptr;
-}
-
 void MainWindow::updateCosts()
 {
     
@@ -140,18 +141,8 @@ void MainWindow::updatePages()
     this->ui->spinPages->setValue(this->book.calculatePageCount());
 }
 
-void MainWindow::saveJson(json jsonObj, QUrl path)
+void MainWindow::onEntryLoad(const json bookJson)
 {
-    if(path.isValid()){
-        std::ofstream t(path.toString().toStdString());
-        t << std::setw(4) << jsonObj << std::endl;
-        t.close();
-    }
-}
-
-void MainWindow::onEntryLoad(const QUrl* path)
-{
-    json bookJson = this->loadJson(*path);
     this->book = bookJson;
     this->state = State::active;
     this->populateUi();

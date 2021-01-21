@@ -3,27 +3,14 @@
 #include <string>
 #include <cmath>
 #include <json.hpp>
+#include <QAbstractItemModel>
+#include <QUrl>
+#include <fstream>
+#include <iomanip>
 
 using json = nlohmann::json;
-using namespace books; 
 
-Dimension::Dimension()
-{
-}
-
-Dimension::Dimension (float width, float height)
-{
-    Dimension();
-    this->width = width;
-    this->height = height;
-}
-
-Dimension::~Dimension()
-{
-}
-
-
-BookEntry::BookEntry(): coverDim(0, 0), pageDim(0, 0)
+Book::Book()
 {
     this->bookID = -1;
     this->batchID = -1;
@@ -41,22 +28,24 @@ BookEntry::BookEntry(): coverDim(0, 0), pageDim(0, 0)
     this->pageMaterial = std::string();
     this->coverMaterial = std::string();
     this->extra = std::string();
-    
+
+    this->coverDim = {0, 0};
+    this->pageDim = {0,0};
     this->status = Status::nostatus;
     this->bookType = BookType::notype;
 }
 
-BookEntry::BookEntry(int bookID, int batchID, CostConstants constants): BookEntry()
+Book::Book(int bookID, int batchID, CostConstants constants): Book()
 {
     this->batchID = batchID;
     this->bookID = bookID;
     this->constants = constants;
 }
 
-BookEntry::~BookEntry()
+Book::~Book()
 {}
 
-bool BookEntry::isCalculatable()
+bool Book::isCalculatable()
 {
     bool flag = true;
     flag &= this->coverDim.height > 0;
@@ -71,22 +60,22 @@ bool BookEntry::isCalculatable()
     return flag;
 }
 
-int BookEntry::calculatePageCount()
+int Book::calculatePageCount()
 {
     return this->signitures * this->pagesPerSignitures;
 }
 
-float BookEntry::getCostByElement(std::string costType)
+float Book::getCostByElement(std::string costType)
 {
     return 0;
 }
 
-float BookEntry::getExtraCosts()
+float Book::getExtraCosts()
 {
     return this->costExtra + this->constants.pvaCost + this->constants.endpageCost;
 }
 
-float BookEntry::getBoardCost()
+float Book::getBoardCost()
 {
     float paddedWidth = this->coverDim.width + constants.paddingWidthBoard;
     float paddedHeight = this->coverDim.height + constants.paddingHeightBoard;
@@ -95,7 +84,7 @@ float BookEntry::getBoardCost()
     return sqInchBoard * this->constants.sqInchBoardPrice;
 }
 
-float BookEntry::getPageCost()
+float Book::getPageCost()
 {
     int sheets = std::ceil(this->calculatePageCount() / 2);
     bool isHalfSheet = this->pageDim.width <= 4.25 || this->pageDim.height <= 5;
@@ -108,7 +97,7 @@ float BookEntry::getPageCost()
     return pricePages;
 }
 
-float BookEntry::getThreadRibbonCost()
+float Book::getThreadRibbonCost()
 {
     if(this->bookType != BookType::stabstich){
         float threadLength = (this->signitures * this->coverDim.height) + this->coverDim.height;
@@ -125,7 +114,7 @@ float BookEntry::getThreadRibbonCost()
     }
 }
 
-float BookEntry::getHeadbandCost()
+float Book::getHeadbandCost()
 {
     if(this->bookType == BookType::traditional || this->bookType == BookType::quater){
         return this->spine * 2 * this->constants.headbandPrice;
@@ -134,7 +123,7 @@ float BookEntry::getHeadbandCost()
     return 0;
 }
 
-float BookEntry::getSuperCost()
+float Book::getSuperCost()
 {
     if(this->bookType == BookType::traditional or this->bookType == BookType::quater){
         float paddedSpine = this->spine + this->constants.paddingSpineForSuper;
@@ -145,7 +134,7 @@ float BookEntry::getSuperCost()
     return 0;
 }
 
-float BookEntry::getClothCost()
+float Book::getClothCost()
 {
     float paddedHeight = this->coverDim.height + this->constants.paddingHeightBoard;
     if(this->bookType == BookType::coptic || this->bookType == BookType::coptic2 || this->bookType == BookType::stabstich) {
@@ -166,6 +155,28 @@ float BookEntry::getClothCost()
     }
     
     return 0;
+}
+
+json Book::loadJson(QUrl path)
+{
+    if(path.isLocalFile()){
+        std::ifstream t(path.toString().toStdString());
+        json jsonObj;
+        t >> jsonObj;
+        t.close();
+        return jsonObj;
+    }
+
+    return nullptr;
+}
+
+void Book::saveJson(json jsonObj, QUrl path)
+{
+    if(path.isValid()){
+        std::ofstream t(path.toString().toStdString());
+        t << std::setw(4) << jsonObj << std::endl;
+        t.close();
+    }
 }
 
 

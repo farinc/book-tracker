@@ -1,12 +1,10 @@
 #ifndef BOOK_H
 #define BOOK_H
 
-#include <string>
 #include <json.hpp>
+#include <QAbstractItemModel>
 
 using json = nlohmann::json;
-
-namespace books {
 
 enum BookType: int {
     notype, traditional, coptic, coptic2, stabstich, quater, longstich
@@ -15,6 +13,24 @@ enum BookType: int {
 enum Status: int {
     nostatus, nophoto, draft, draftphoto, published, sold
 };
+
+NLOHMANN_JSON_SERIALIZE_ENUM( BookType, {
+    {notype, nullptr},
+    {traditional, "traditional"},
+    {coptic, "coptic"},
+    {coptic2, "coptic2"},
+    {stabstich, "stabstich"},
+    {quater, "quater"},
+    {longstich, "longstich"}
+});
+NLOHMANN_JSON_SERIALIZE_ENUM( Status, {
+    {nostatus, nullptr},
+    {nophoto, "nophoto"},
+    {draft, "draft"},
+    {draftphoto, "draftphoto"},
+    {published, "published"},
+    {sold, "sold"}
+});
 
 struct CostConstants {
     // Padding Constants
@@ -34,27 +50,27 @@ struct CostConstants {
     float ribbonPrice = 0.10F;
     float pvaCost = 0.5F;
     float endpageCost = 0.5F;
+
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(CostConstants, paddingWidthBoard, paddingHeightBoard, paddingSpineLongTrad, paddingSpineQuarter, paddingSpineForSuper, sqInchBoardPrice, sheetPrice, sqInchClothPrice, threadLengthPrice, headbandPrice, superPrice, ribbonPrice, pvaCost, endpageCost);
 };
 
-class Dimension {
-    
-public:
-    Dimension();
-    Dimension(float, float);
-    ~Dimension();
+struct Dimension {
     float width;
     float height;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Dimension, width, height);
 };
 
-class BookEntry {
+
+class Book {
 
 public:
-    BookEntry ();
-    BookEntry ( int bookID, int batchID, CostConstants constants );
-    ~BookEntry ();
-    
+    Book ();
+    Book ( int bookID, int batchID, CostConstants constants );
+    ~Book ();
+
     int bookID;
     int batchID;
+
     int signitures;
     int pagesPerSignitures;
 
@@ -82,7 +98,12 @@ public:
      **/
     bool isCalculatable();
     int calculatePageCount();
-    float getCostByElement(std::string);
+    float getCostByElement(const std::string);
+
+    static json loadJson(const QUrl path);
+    static void saveJson(const json jsonObj, const QUrl path);
+
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Book, bookID, batchID, signitures, pagesPerSignitures, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
 
 private:
     float getExtraCosts();
@@ -93,27 +114,5 @@ private:
     float getSuperCost();
     float getClothCost();
 };
-
-NLOHMANN_JSON_SERIALIZE_ENUM( BookType, {
-    {notype, nullptr},
-    {traditional, "traditional"},
-    {coptic, "coptic"},
-    {coptic2, "coptic2"},
-    {stabstich, "stabstich"},
-    {quater, "quater"},
-    {longstich, "longstich"}
-});
-NLOHMANN_JSON_SERIALIZE_ENUM( Status, {
-    {nostatus, nullptr},
-    {nophoto, "nophoto"},
-    {draft, "draft"},
-    {draftphoto, "draftphoto"},
-    {published, "published"},
-    {sold, "sold"}
-});
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CostConstants, paddingWidthBoard, paddingHeightBoard, paddingSpineLongTrad, paddingSpineQuarter, paddingSpineForSuper, sqInchBoardPrice, sheetPrice, sqInchClothPrice, threadLengthPrice, headbandPrice, superPrice, ribbonPrice, pvaCost, endpageCost);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Dimension, width, height);
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(BookEntry, bookID, batchID, signitures, pagesPerSignitures, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
-}
 
 #endif // BOOK_H
