@@ -3,6 +3,7 @@
 
 #include <json.hpp>
 #include <QAbstractItemModel>
+#include <ctime>
 
 using json = nlohmann::json;
 
@@ -74,6 +75,9 @@ public:
     int signitures;
     int pagesPerSignitures;
 
+    time_t lastEdit;
+    time_t creation;
+
     float weight;
     float spine;
     float costExtra;
@@ -99,11 +103,12 @@ public:
     bool isCalculatable();
     int calculatePageCount();
     float getCostByElement(const std::string);
+    std::string getName();
 
-    static json loadJson(const QUrl path);
-    static void saveJson(const json jsonObj, const QUrl path);
+    static Book loadBook(const std::string path);
+    static void saveBook(Book book, const std::string path);
 
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Book, bookID, batchID, signitures, pagesPerSignitures, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Book, bookID, batchID, signitures, pagesPerSignitures, lastEdit, creation, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
 
 private:
     float getExtraCosts();

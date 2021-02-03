@@ -5,6 +5,7 @@
 #include <json.hpp>
 #include <QAbstractItemModel>
 #include <QUrl>
+#include <QDebug>
 #include <fstream>
 #include <iomanip>
 
@@ -14,6 +15,8 @@ Book::Book()
 {
     this->bookID = -1;
     this->batchID = -1;
+
+    /*
     this->signitures = 0;
     this->pagesPerSignitures = 0;
 
@@ -28,6 +31,7 @@ Book::Book()
     this->pageMaterial = std::string();
     this->coverMaterial = std::string();
     this->extra = std::string();
+    */
 
     this->coverDim = {0, 0};
     this->pageDim = {0,0};
@@ -68,6 +72,11 @@ int Book::calculatePageCount()
 float Book::getCostByElement(std::string costType)
 {
     return 0;
+}
+
+std::string Book::getName()
+{
+    return std::string("book-") + std::to_string(this->batchID) + std::to_string(this->bookID);
 }
 
 float Book::getExtraCosts()
@@ -157,26 +166,32 @@ float Book::getClothCost()
     return 0;
 }
 
-json Book::loadJson(QUrl path)
+Book Book::loadBook(const std::string path)
 {
-    if(path.isLocalFile()){
-        std::ifstream t(path.toString().toStdString());
-        json jsonObj;
-        t >> jsonObj;
-        t.close();
-        return jsonObj;
-    }
-
-    return nullptr;
+    std::ifstream t(path);
+    std::string str((std::istreambuf_iterator<char>(t)),
+                     std::istreambuf_iterator<char>());
+    json jsonObj = json::parse(str);
+    t.close();
+    Book b = jsonObj;
+    return b;
 }
 
-void Book::saveJson(json jsonObj, QUrl path)
+void Book::saveBook(Book book, const std::string path)
 {
-    if(path.isValid()){
-        std::ofstream t(path.toString().toStdString());
-        t << std::setw(4) << jsonObj << std::endl;
-        t.close();
+    std::ifstream w(path);
+    time_t now;
+    time(&now);
+
+    book.lastEdit = now;
+    if (!w)
+    {
+        book.creation = now; //if file did not exist, it is the first of its creation
     }
+    std::ofstream t(path);
+    json jsonObj = book;
+    t << std::setw(4) << jsonObj << std::endl;
+    t.close();
 }
 
 

@@ -19,7 +19,7 @@ SettingsDialog::~SettingsDialog()
 
 void SettingsDialog::onBrowse()
 {
-    QString directory = QFileDialog::getExistingDirectory(this, tr("Find Files"), QDir::currentPath());
+    QString directory = QFileDialog::getExistingDirectory(this, tr("Select Directory"), QDir::currentPath());
     ui->lineEditBookDirectory->setText(directory);
-
+    emit bookDirectoryChange(directory);
 }

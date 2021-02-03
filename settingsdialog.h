@@ -19,7 +19,7 @@ public slots:
     void onBrowse();
 
 signals:
-    void bookDirectoryChange(QUrl directory);
+    void bookDirectoryChange(QString directory);
 
 private:
     Ui::SettingsDialog *ui;

@@ -6,16 +6,6 @@
 
 #include "book.h"
 
-using json = nlohmann::json;
-
-namespace gui {
-
-enum State: int {
-    active, inactive
-};
-
-}
-
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -29,17 +19,13 @@ public:
     ~MainWindow();
 
 private:
-    using State = gui::State;
     Ui::MainWindow *ui;
     
     void setupSlots();
     
     CostConstants constants;
     Book book;
-    State state;
     QString bookDirectory;
-
-    QMap<int, Book*> loadedBooks;
     
     void updateCosts();
     void updatePages();
@@ -48,13 +34,10 @@ private:
     void clearUi();
 
 public slots:
-    //once a book is selected for edit slots
-    void onEntryLoad(const json);
+    void onBookEdit(const Book book);
     
     //MainWindow slots
     void onEntryClose();
-
-    void onBookDirectoryChange(QUrl directory);
 };
 
 #endif // MAINWINDOW_H

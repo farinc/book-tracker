@@ -15,14 +15,14 @@ class BookDialog : public QDialog
     Q_OBJECT
 
 public:
-    BookDialog(QWidget* parent, QDir bookDirectory);
+    BookDialog(QWidget* parent, QDir bookDirectory, QString type);
     ~BookDialog();
 
 private:
     Ui::BookDialog *ui;
 
 signals:
-    void onBooksLoaded(QList<Book*>);
+    void bookEdit(Book book);
 };
 
 #endif // BOOKDIALOG_H

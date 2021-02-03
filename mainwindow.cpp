@@ -1,6 +1,5 @@
 #include <json.hpp>
 
-#include <QUrl>
 #include <QObject>
 #include <QString>
 #include <QSpinBox>
@@ -18,46 +17,50 @@
 #include "bookdialog.h"
 #include "settingsdialog.h"
 
-using namespace gui;
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->loadedBooks = QMap<int, Book*>();
-
-    this->state = State::active;
     this->setupSlots();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    qDeleteAll(loadedBooks);
 }
 
 void MainWindow::setupSlots() 
 {
     //General action slots
-    connect(this->ui->actionLoad, &QAction::triggered, [this] ()
+    connect(this->ui->actionNew_Entry, &QAction::triggered, [this] ()
         {
-            BookDialog dialog(this, this->bookDirectory);
+            BookDialog dialog(this, this->bookDirectory, "new");
+            dialog.exec();
+        });
+    connect(this->ui->actionEdit_Entry, &QAction::triggered, [this] ()
+        {
+            BookDialog dialog(this, this->bookDirectory, "edit");
             dialog.exec();
         });
     connect(this->ui->actionSetting, &QAction::triggered, [this] ()
         {
             SettingsDialog dialog(this);
-
-            this->connect(&dialog, &SettingsDialog::bookDirectoryChange, [this] (QString const value)
+            this->connect(&dialog, &SettingsDialog::bookDirectoryChange, [this] (QString value)
                 {
                     this->bookDirectory = value;
                 });
 
             dialog.exec();
         });
+    connect(this->ui->actionSave, &QAction::triggered, [this] ()
+        {
+            QString path = this->bookDirectory + QDir::separator() + QString::fromStdString(this->book.getName()) + ".json";
+            Book::saveBook(this->book, path.toStdString());
+        });
     //Integer inputs
     connect(this->ui->spinSignitures, QOverload<int>::of(&QSpinBox::valueChanged), [this](int const value)
         { 
-            this->book.signitures = value; 
+            this->book.signitures = value;
             this->updatePages();
         });
     connect(this->ui->spinPagesPerSig, QOverload<int>::of(&QSpinBox::valueChanged), [this](int const value)
@@ -136,22 +139,20 @@ void MainWindow::updateCosts()
     
 }
 
+void MainWindow::onEntryClose()
+{
+
+}
+
 void MainWindow::updatePages()
 {
     this->ui->spinPages->setValue(this->book.calculatePageCount());
 }
 
-void MainWindow::onEntryLoad(const json bookJson)
+void MainWindow::onBookEdit(const Book book)
 {
-    this->book = bookJson;
-    this->state = State::active;
+    this->book = book;
     this->populateUi();
-}
-
-void MainWindow::onEntryClose()
-{
-    this->clearUi();
-    delete &(this->book);
 }
 
 void MainWindow::populateUi()
@@ -187,6 +188,7 @@ void MainWindow::populateUi()
     this->ui->comboStatus->setCurrentIndex(this->book.status);
 }
 
+/*
 void MainWindow::clearUi()
 {
     this->ui->labelBookID->setText(" <None> ");
@@ -222,3 +224,4 @@ void MainWindow::clearUi()
     this->ui->spinCost->setValue(0.0);
     this->ui->spinPages->setValue(0);
 }
+*/
