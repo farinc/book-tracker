@@ -33,11 +33,10 @@ private:
     void populateUi();
     void clearUi();
 
+    void saveBook();
+
 public slots:
-    void onBookEdit(const Book book);
-    
-    //MainWindow slots
-    void onEntryClose();
+    void onBookEdit(Book book);
 };
 
 #endif // MAINWINDOW_H

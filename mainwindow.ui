@@ -910,9 +910,9 @@
      <string>Options</string>
     </property>
     <addaction name="actionSave"/>
-    <addaction name="actionSaveClose"/>
     <addaction name="actionNew_Entry"/>
     <addaction name="actionEdit_Entry"/>
+    <addaction name="actionSaveClose"/>
     <addaction name="separator"/>
     <addaction name="actionSetting"/>
    </widget>
@@ -979,6 +979,11 @@
   <action name="actionNew_Entry">
    <property name="text">
     <string>New Entry</string>
+   </property>
+  </action>
+  <action name="actionMove_Entry">
+   <property name="text">
+    <string>Move Entry</string>
    </property>
   </action>
  </widget>

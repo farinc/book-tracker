@@ -13,26 +13,6 @@ using json = nlohmann::json;
 
 Book::Book()
 {
-    this->bookID = -1;
-    this->batchID = -1;
-
-    /*
-    this->signitures = 0;
-    this->pagesPerSignitures = 0;
-
-    this->weight = 0;
-    this->spine = 0;
-    this->costExtra = 0;
-
-    this->box = std::string();
-    this->section = std::string();
-    this->threadColor = std::string();
-    this->endpageColor = std::string();
-    this->pageMaterial = std::string();
-    this->coverMaterial = std::string();
-    this->extra = std::string();
-    */
-
     this->coverDim = {0, 0};
     this->pageDim = {0,0};
     this->status = Status::nostatus;
@@ -45,9 +25,6 @@ Book::Book(int bookID, int batchID, CostConstants constants): Book()
     this->bookID = bookID;
     this->constants = constants;
 }
-
-Book::~Book()
-{}
 
 bool Book::isCalculatable()
 {

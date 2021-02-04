@@ -20,6 +20,7 @@ public:
 
 private:
     Ui::BookDialog *ui;
+    void setupModel(QWidget *parent, QDir bookDirectory, QString type);
 
 signals:
     void bookEdit(Book book);

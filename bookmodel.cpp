@@ -4,6 +4,7 @@
 #include <QUrl>
 
 #include <QDebug>
+#include <QDialog>
 
 Item::Item()
 {
@@ -38,6 +39,11 @@ Item* Item::child(int row) const
     return this->childList.at(row);
 }
 
+void Item::setChild(int row, Item *child)
+{
+    this->childList.insert(row, child);
+}
+
 bool Item::hasChild(int row) const
 {
     return this->child(row) != nullptr ? true : false;
@@ -51,13 +57,15 @@ int Item::childCount() const
 void Item::appendChild(Item *item)
 {
     this->childList.append(item);
-    item->setParent(this);
+    if (item != nullptr)
+        item->setParent(this);
 }
 
 void Item::removeChild(Item *item)
 {
     this->childList.removeOne(item);
-    item->setParent(nullptr);
+    if (item != nullptr)
+        item->setParent(nullptr);
 }
 
 void Item::setData(int column, QString data)
@@ -89,8 +97,8 @@ BatchItem::BatchItem(int batchID): Item()
     this->setData(2, "");
     this->setData(3, "");
     this->setData(4, "");
-    this->setData(5, "");
-    this->setData(6, "");
+
+    this->batchID = batchID;
 
     itemType = "batch";
 }
@@ -100,12 +108,22 @@ void BatchItem::appendBook(BookItem *book)
     this->appendChild(book);
 }
 
+void BatchItem::setBook(int row, BookItem *book)
+{
+    this->setChild(row, book);
+}
+
 void BatchItem::removeBook(BookItem *book)
 {
     this->removeChild(book);
 }
 
-BookItem::BookItem(const Book book): Item()
+int BatchItem::id() const
+{
+    return this->batchID;
+}
+
+BookItem::BookItem(Book &book): Item(), book(book)
 {    
     char lastEditStr[80];
     char creationStr[80];
@@ -118,8 +136,6 @@ BookItem::BookItem(const Book book): Item()
     this->setData(2, QString::fromLocal8Bit(creationStr));
     this->setData(3, QString::fromStdString(book.box));
     this->setData(4, QString::fromStdString(book.section));
-    this->setData(5, QString::number(book.bookID));
-    this->setData(6, QString::number(book.batchID));
 
     itemType = "book";
 }
@@ -131,8 +147,6 @@ RootItem::RootItem(): Item()
     this->setData(2, "First Created");
     this->setData(3, "Box");
     this->setData(4, "Section");
-    this->setData(5, "Book ID");
-    this->setData(6, "Batch ID");
 
     itemType = "root";
 }
@@ -165,18 +179,48 @@ void BookModel::populateModel(QMultiMap<int, Book> data)
             //Ok, create a batch node (item) and append it to root
             BatchItem *batchItem = new BatchItem(batch);
             QList<Book> booksInBatch = data.values(batch);
-            for(const Book &bk: booksInBatch)
+            for(Book bk: booksInBatch)
             {
                 batchItem->appendBook(new BookItem(bk));
             }
             rootItem->appendBatch(batchItem);
         }else{
-            //At the end however, add a "batch" that repersents a new batch yet to be created.
-            BatchItem *newBatchItem = new BatchItem(batch); //this particular batchID is outside of range, so it must be the future batchID
-            rootItem->appendBatch(newBatchItem);
+            if (this->type == "new" || this->type == "move")
+            {
+                //At the end however, add a "batch" that repersents a new batch yet to be created.
+                BatchItem *newBatchItem = new BatchItem(batch); //this particular batchID is outside of range, so it must be the future batchID
+                rootItem->appendBatch(newBatchItem);
+            }
+
             flag = false;
         }
     }
+}
+
+void BookModel::onDoubleClicked(const QModelIndex &selection)
+{
+    if (type == "edit")
+    {
+        Item *item = static_cast<Item*>(selection.internalPointer());
+
+        if(item->type() == "book")
+        {
+            Book book = static_cast<BookItem*>(item)->book;
+            emit bookLoad(book);
+            emit done(QDialog::Accepted);
+        }
+    }
+    else if(type == "new")
+    {
+        Item *item = static_cast<Item*>(selection.internalPointer());
+
+        if(item->type() == "batch")
+        {
+            //do something!!
+            emit done(QDialog::Accepted);
+        }
+    }
+    emit done(QDialog::Rejected);
 }
 
 BookModel::~BookModel()
@@ -197,8 +241,7 @@ QVariant BookModel::data(const QModelIndex &index, int role) const
     return item->data(index.column());
 }
 
-QVariant BookModel::headerData(int section, Qt::Orientation orientation,
-                               int role) const
+QVariant BookModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return rootItem->data(section);
@@ -206,19 +249,8 @@ QVariant BookModel::headerData(int section, Qt::Orientation orientation,
     return QVariant();
 }
 
-
 Qt::ItemFlags BookModel::flags(const QModelIndex &index) const
 {
-    auto flags = QAbstractItemModel::flags(index);
-
-    if(index.column() > 0)
-        return flags;
-
-    if(!index.isValid())
-    {
-        return Qt::ItemIsDropEnabled | flags;
-    }
-
     QString typeItem = static_cast<Item*>(index.internalPointer())->type();
 
     //select only books and allow the books to be dragable
@@ -226,11 +258,11 @@ Qt::ItemFlags BookModel::flags(const QModelIndex &index) const
     {
         if(typeItem == "batch")
         {
-             return Qt::ItemIsSelectable | Qt::ItemIsDropEnabled | flags;
+             return Qt::ItemIsEnabled;
         }
         else if(typeItem == "book")
         {
-            return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | flags;
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
         }
     }
     //select only batchs
@@ -238,7 +270,22 @@ Qt::ItemFlags BookModel::flags(const QModelIndex &index) const
     {
         if(typeItem == "batch")
         {
-            return Qt::ItemIsEnabled | Qt::ItemIsSelectable | flags;
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        }
+        else if(typeItem == "book")
+        {
+            return Qt::ItemIsEnabled;
+        }
+    }
+    else if(type == "move")
+    {
+        if(typeItem == "batch")
+        {
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        }
+        else if(typeItem == "book")
+        {
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
         }
     }
 
@@ -272,7 +319,8 @@ QModelIndex BookModel::index(int row, int column, const QModelIndex &parent) con
 
 QModelIndex BookModel::parent(const QModelIndex &index) const
 {
-    if(!index.isValid()){
+    if(!index.isValid())
+    {
         return QModelIndex();
     }
 
@@ -287,39 +335,18 @@ QModelIndex BookModel::parent(const QModelIndex &index) const
     return QModelIndex();
 }
 
-bool BookModel::insertRows(int row, int count, const QModelIndex &parent)
-{
-    qDebug() << "[insertRows]row: " << row;
-    qDebug() << "[insertRows]count: " << count;
-    qDebug() << "[insertRows]parent row: " << parent.row();
-    qDebug() << "[insertRows]parent column: " << parent.column();
-    return false;
-}
-
-bool BookModel::removeRows(int row, int count, const QModelIndex &parent)
-{
-    qDebug() << "[removeRows]row: " << row;
-    qDebug() << "[removeRows]count: " << count;
-    qDebug() << "[removeRows]parent row: " << parent.row();
-    qDebug() << "[removeRows]parent column: " << parent.column();
-    return false;
-}
-
-Qt::DropActions BookModel::supportedDropActions() const
-{
-    return Qt::MoveAction;
-}
-
 int BookModel::rowCount(const QModelIndex &parent) const
 {
     Item *parentItem;
-    if(parent.column() > 0){
+    if(parent.column() > 0)
         return 0;
-    }
 
-    if(!parent.isValid()){
+    if(!parent.isValid())
+    {
         parentItem = rootItem;
-    }else{
+    }
+    else
+    {
         parentItem = static_cast<Item*>(parent.internalPointer());
     }
 
@@ -329,9 +356,12 @@ int BookModel::rowCount(const QModelIndex &parent) const
 int BookModel::columnCount(const QModelIndex &parent) const
 {
     Item* parentItem;
-    if(!parent.isValid()){
+    if(!parent.isValid())
+    {
         parentItem = rootItem;
-    }else{
+    }
+    else
+    {
         parentItem = static_cast<Item*>(parent.internalPointer());
     }
 

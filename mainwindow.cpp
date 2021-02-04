@@ -7,9 +7,6 @@
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QAction>
-#include <QDebug>
-#include <fstream>
-#include <iomanip>
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -52,11 +49,16 @@ void MainWindow::setupSlots()
 
             dialog.exec();
         });
+    connect(this->ui->actionSaveClose, &QAction::triggered, [this] ()
+        {
+            saveBook();
+            this->close();
+        });
     connect(this->ui->actionSave, &QAction::triggered, [this] ()
         {
-            QString path = this->bookDirectory + QDir::separator() + QString::fromStdString(this->book.getName()) + ".json";
-            Book::saveBook(this->book, path.toStdString());
+            saveBook();
         });
+
     //Integer inputs
     connect(this->ui->spinSignitures, QOverload<int>::of(&QSpinBox::valueChanged), [this](int const value)
         { 
@@ -65,19 +67,19 @@ void MainWindow::setupSlots()
         });
     connect(this->ui->spinPagesPerSig, QOverload<int>::of(&QSpinBox::valueChanged), [this](int const value)
         { 
-            this->book.pagesPerSignitures = value; 
+            this->book.pagesPerSignitures = value;
             this->updatePages();
         });
     connect(this->ui->comboStatus, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int const index)
         { 
-            this->book.status = static_cast<Status>(index);
+            this->book.status = static_cast<Status>(index + 1);
         });
     connect(this->ui->comboBookType, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int const index)
         { 
-            this->book.bookType = static_cast<BookType>(index);
+            this->book.bookType = static_cast<BookType>(index + 1);
         });
     
-    //Float inputs (Technically doubles, but they are down-casted)
+    //Float inputs
     connect(this->ui->spinWeight, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double const value)
         { 
             this->book.weight = value;
@@ -139,17 +141,12 @@ void MainWindow::updateCosts()
     
 }
 
-void MainWindow::onEntryClose()
-{
-
-}
-
 void MainWindow::updatePages()
 {
     this->ui->spinPages->setValue(this->book.calculatePageCount());
 }
 
-void MainWindow::onBookEdit(const Book book)
+void MainWindow::onBookEdit(Book book)
 {
     this->book = book;
     this->populateUi();
@@ -157,8 +154,8 @@ void MainWindow::onBookEdit(const Book book)
 
 void MainWindow::populateUi()
 {
-    this->ui->labelBookID->setText(QString(this->book.bookID));
-    this->ui->labelBatchID->setText(QString(this->book.batchID));
+    this->ui->labelBookID->setText(QString::number(this->book.bookID));
+    this->ui->labelBatchID->setText(QString::number(this->book.batchID));
 
     this->ui->actionSaveClose->setEnabled(true);
     this->ui->actionNewCurrent->setEnabled(false);
@@ -188,40 +185,8 @@ void MainWindow::populateUi()
     this->ui->comboStatus->setCurrentIndex(this->book.status);
 }
 
-/*
-void MainWindow::clearUi()
+void MainWindow::saveBook()
 {
-    this->ui->labelBookID->setText(" <None> ");
-    this->ui->labelBatchID->setText(" <None>");
-
-    this->ui->actionSaveClose->setEnabled(false);
-    this->ui->actionNewCurrent->setEnabled(true);
-    this->ui->actionNewNew->setEnabled(true);
-    this->ui->actionLoad->setEnabled(true);
-    this->ui->actionMove->setEnabled(false);
-
-    this->ui->spinPageDimX->setValue(0.0);
-    this->ui->spinPageDimY->setValue(0.0);
-    this->ui->spinCoverDimX->setValue(0.0);
-    this->ui->spinCoverDimY->setValue(0.0);
-    this->ui->spinSpineDim->setValue(0.0);
-    this->ui->spinWeight->setValue(0.0);
-    this->ui->spinSignitures->setValue(0);
-    this->ui->spinPagesPerSig->setValue(0);
-    this->ui->spinExtra->setValue(0.0);
-
-    this->ui->editEndPageColor->setText("");
-    this->ui->editBox->setText("");
-    this->ui->editSection->setText("");
-    this->ui->editThreadColor->setText("");
-    this->ui->editCoverMaterial->setText("");
-    this->ui->editPageMaterial->setText("");
-    this->ui->editExtra->setPlainText("");
-
-    this->ui->comboBookType->setCurrentIndex(0);
-    this->ui->comboStatus->setCurrentIndex(0);
-
-    this->ui->spinCost->setValue(0.0);
-    this->ui->spinPages->setValue(0);
+    QString path = this->bookDirectory + QDir::separator() + QString::fromStdString(this->book.getName()) + ".json";
+    Book::saveBook(this->book, path.toStdString());
 }
-*/

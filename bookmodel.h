@@ -3,6 +3,7 @@
 
 #include "book.h"
 #include <QAbstractItemModel>
+#include <QAbstractItemView>
 #include <QDir>
 
 class Item {
@@ -13,6 +14,7 @@ public:
     void setParent(Item*);
     int row() const;
     Item* child(int row) const;
+    void setChild(int row, Item*);
     bool hasChild(int row) const;
     int childCount() const;
     QString data(int column);
@@ -35,7 +37,8 @@ class BookItem: public Item
 {
 
 public:
-    BookItem (Book book);
+    BookItem (Book &book);
+    Book book;
 };
 
 class BatchItem: public Item
@@ -44,7 +47,11 @@ class BatchItem: public Item
 public:
     BatchItem(int batchID);
     void appendBook(BookItem *book);
+    void setBook(int row, BookItem* book);
     void removeBook(BookItem *book);
+    int id() const;
+private:
+    int batchID;
 };
 
 class RootItem: public Item
@@ -66,17 +73,21 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
-    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
-    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
-    Qt::DropActions supportedDropActions() const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
-    void update(int batchID);
     void populateModel(QMultiMap<int, Book> data);
     RootItem *rootItem;
+public slots:
+    void onDoubleClicked(const QModelIndex &index);
+private:
     QString type;
+
+signals:
+    void done(int r);
+    void bookLoad(Book &book);
+    void bookMove(Book &book, int batchID);
 };
 
 #endif // BOOKMODEL_H

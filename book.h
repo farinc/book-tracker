@@ -67,7 +67,6 @@ class Book {
 public:
     Book ();
     Book ( int bookID, int batchID, CostConstants constants );
-    ~Book ();
 
     int bookID;
     int batchID;

@@ -1,7 +1,9 @@
 #include "bookdialog.h"
+#include "mainwindow.h"
 #include "./ui_bookdialog.h"
 #include <QDir>
 #include <QUrl>
+#include <QHeaderView>
 
 #include <QDebug>
 
@@ -13,32 +15,54 @@ BookDialog::BookDialog(QWidget *parent, QDir bookDirectory, QString type) :
 {
     ui->setupUi(this);
 
-    QMultiMap<int, Book> books = QMultiMap<int, Book>();
-    QStringList files = bookDirectory.entryList(QStringList() << "*.json", QDir::Files);
-    Book indexedBook;
-    QString indexedPath;
-
-    for(QString filename : files)
+    if(type == "edit")
     {
-        indexedPath = bookDirectory.path() + QDir::separator() + filename;
-        indexedBook = Book::loadBook(indexedPath.toStdString());
-        books.insert(indexedBook.batchID, indexedBook);
+        this->ui->infoLabel->setText("Please select a book to be edited");
+        this->setWindowTitle("Edit Entry");
+    }
+    else if(type == "new")
+    {
+        this->ui->infoLabel->setText("Please select a batch to create a new book in");
+        this->setWindowTitle("New Entry");
     }
 
-    BookModel *model = new BookModel(books, type, this);
-    //ui->treeView->setHeaderHidden(true);
-    ui->treeView->setModel(model);
-    ui->treeView->setAcceptDrops(true);
-
-    //testing
-    connect(ui->treeView, &QAbstractItemView::doubleClicked, [model] (const QModelIndex index)
-    {
-        qDebug() << "column: " << index.column();
-        qDebug() << "row: " << index.row();
-    });
+    this->setupModel(parent, bookDirectory, type);
+    auto header = new QHeaderView(Qt::Horizontal);
+    header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
+    ui->treeView->setHeader(header);
 }
 
 BookDialog::~BookDialog()
 {
     delete ui;
+}
+
+void BookDialog::setupModel(QWidget *parent, QDir bookDirectory, QString type)
+{
+    QMultiMap<int, Book> books = QMultiMap<int, Book>();
+    QStringList files = bookDirectory.entryList(QStringList() << "*.json", QDir::Files);
+    QString indexedPath;
+
+    for(QString filename : files)
+    {
+        indexedPath = bookDirectory.path() + QDir::separator() + filename;
+        Book indexedBook = Book::loadBook(indexedPath.toStdString());
+        books.insert(indexedBook.batchID, indexedBook);
+    }
+
+    BookModel *model = new BookModel(books, type, this);
+    ui->treeView->setModel(model);
+    ui->treeView->setAcceptDrops(true);
+    if (type == "edit" || type == "new")
+    {
+        ui->treeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
+    }
+    else if(type == "move")
+    {
+        ui->treeView->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
+    }
+
+    connect(this->ui->treeView, &QAbstractItemView::doubleClicked, model, &BookModel::onDoubleClicked);
+    connect(model, &BookModel::bookLoad, static_cast<MainWindow*>(parent), &MainWindow::onBookEdit);
+    connect(model, &BookModel::done, this, &QDialog::done);
 }
