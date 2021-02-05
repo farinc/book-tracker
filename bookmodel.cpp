@@ -161,10 +161,11 @@ void RootItem::removeBatch(BatchItem *batch)
     this->removeChild(batch);
 }
 
-BookModel::BookModel(QMultiMap<int, Book> data, QString type, QObject *parent): QAbstractItemModel(parent)
+BookModel::BookModel(QMultiMap<int, Book> data, QString type, int nextBookID, QObject *parent): QAbstractItemModel(parent)
 {
     rootItem = new RootItem();
     this->type = type;
+    this->nextBookID = nextBookID;
     populateModel(data);
 }
 
@@ -216,7 +217,9 @@ void BookModel::onDoubleClicked(const QModelIndex &selection)
 
         if(item->type() == "batch")
         {
-            //do something!!
+            BatchItem *batchItem = static_cast<BatchItem*>(item);
+            Book book = Book(nextBookID, batchItem->id());
+            emit bookLoad(book);
             emit done(QDialog::Accepted);
         }
     }

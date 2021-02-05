@@ -1,5 +1,3 @@
-#include <json.hpp>
-
 #include <QObject>
 #include <QString>
 #include <QSpinBox>
@@ -8,16 +6,24 @@
 #include <QPlainTextEdit>
 #include <QAction>
 
+#include <fstream>
+#include <json.hpp>
+#include <iomanip>
+
+#include <QDebug>
+
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "book.h"
 #include "bookdialog.h"
 #include "settingsdialog.h"
 
+using json = nlohmann::json;
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    loadSettings();
     this->setupSlots();
 }
 
@@ -31,22 +37,22 @@ void MainWindow::setupSlots()
     //General action slots
     connect(this->ui->actionNew_Entry, &QAction::triggered, [this] ()
         {
-            BookDialog dialog(this, this->bookDirectory, "new");
+            BookDialog dialog(this, QString::fromStdString(settings.bookDirectory), "new");
             dialog.exec();
         });
     connect(this->ui->actionEdit_Entry, &QAction::triggered, [this] ()
         {
-            BookDialog dialog(this, this->bookDirectory, "edit");
+            BookDialog dialog(this, QString::fromStdString(settings.bookDirectory), "edit");
             dialog.exec();
         });
     connect(this->ui->actionSetting, &QAction::triggered, [this] ()
         {
-            SettingsDialog dialog(this);
-            this->connect(&dialog, &SettingsDialog::bookDirectoryChange, [this] (QString value)
+            SettingsDialog dialog(settings, this);
+            connect(&dialog, &QDialog::accepted, [this, &dialog] ()
                 {
-                    this->bookDirectory = value;
+                    this->settings = dialog.settings();
+                    this->saveSettings();
                 });
-
             dialog.exec();
         });
     connect(this->ui->actionSaveClose, &QAction::triggered, [this] ()
@@ -149,6 +155,7 @@ void MainWindow::updatePages()
 void MainWindow::onBookEdit(Book book)
 {
     this->book = book;
+    this->book.constants = settings.bookconstants;
     this->populateUi();
 }
 
@@ -187,6 +194,35 @@ void MainWindow::populateUi()
 
 void MainWindow::saveBook()
 {
-    QString path = this->bookDirectory + QDir::separator() + QString::fromStdString(this->book.getName()) + ".json";
-    Book::saveBook(this->book, path.toStdString());
+    Book::saveBook(this->book, pathBook());
+}
+
+void MainWindow::saveSettings()
+{
+    qDebug() << "hello!";
+    std::ofstream t(pathSettings());
+    json jsonObj = settings;
+    t << std::setw(4) << jsonObj << std::endl;
+}
+
+void MainWindow::loadSettings()
+{
+    std::ifstream t(pathSettings());
+
+    if (t)
+    {
+        std::string str((std::istreambuf_iterator<char>(t)),
+                         std::istreambuf_iterator<char>());
+        settings = json::parse(str);
+    }
+}
+
+std::string MainWindow::pathSettings()
+{
+    return QString(QDir::currentPath() + QDir::separator()).toStdString() + "settings.json";
+}
+
+std::string MainWindow::pathBook()
+{
+    return settings.bookDirectory + QString(QDir::separator()).toStdString() +this->book.getName() + ".json";
 }

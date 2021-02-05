@@ -2,9 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <json.hpp>
+#include <QDir>
 
 #include "book.h"
+#include "settingsdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,10 +23,11 @@ private:
     Ui::MainWindow *ui;
     
     void setupSlots();
+    std::string pathSettings();
+    std::string pathBook();
     
-    CostConstants constants;
     Book book;
-    QString bookDirectory;
+    Settings settings;
     
     void updateCosts();
     void updatePages();
@@ -37,6 +39,8 @@ private:
 
 public slots:
     void onBookEdit(Book book);
+    void saveSettings();
+    void loadSettings();
 };
 
 #endif // MAINWINDOW_H

@@ -9,7 +9,7 @@
 
 #include "bookmodel.h"
 
-BookDialog::BookDialog(QWidget *parent, QDir bookDirectory, QString type) :
+BookDialog::BookDialog(QWidget *parent, QString bookDirectory, QString type) :
     QDialog(parent),
     ui(new Ui::BookDialog)
 {
@@ -43,16 +43,19 @@ void BookDialog::setupModel(QWidget *parent, QDir bookDirectory, QString type)
     QStringList files = bookDirectory.entryList(QStringList() << "*.json", QDir::Files);
     QString indexedPath;
 
+    int maxBookID = 0;
+
     for(QString filename : files)
     {
         indexedPath = bookDirectory.path() + QDir::separator() + filename;
         Book indexedBook = Book::loadBook(indexedPath.toStdString());
+        if (maxBookID < indexedBook.bookID)
+            maxBookID = indexedBook.bookID;
         books.insert(indexedBook.batchID, indexedBook);
     }
 
-    BookModel *model = new BookModel(books, type, this);
+    BookModel *model = new BookModel(books, type, ++maxBookID, this);
     ui->treeView->setModel(model);
-    ui->treeView->setAcceptDrops(true);
     if (type == "edit" || type == "new")
     {
         ui->treeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);

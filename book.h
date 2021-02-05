@@ -5,8 +5,6 @@
 #include <QAbstractItemModel>
 #include <ctime>
 
-using json = nlohmann::json;
-
 enum BookType: int {
     notype, traditional, coptic, coptic2, stabstich, quater, longstich
 };
@@ -24,6 +22,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM( BookType, {
     {quater, "quater"},
     {longstich, "longstich"}
 });
+
 NLOHMANN_JSON_SERIALIZE_ENUM( Status, {
     {nostatus, nullptr},
     {nophoto, "nophoto"},
@@ -35,38 +34,35 @@ NLOHMANN_JSON_SERIALIZE_ENUM( Status, {
 
 struct CostConstants {
     // Padding Constants
-    float paddingWidthBoard = 2.0F;
-    float paddingHeightBoard = 2.0F;
-    float paddingSpineLongTrad = 3.0F;
-    float paddingSpineQuarter = 5.0F;
-    float paddingSpineForSuper = 2.0F;
-
-    // Pricing Constants
-    float sqInchBoardPrice = 0.02F;
-    float sheetPrice = 0.05F;
-    float sqInchClothPrice = 0.02F;
-    float threadLengthPrice = 0.002F;
-    float headbandPrice = 0.1F;
-    float superPrice = 0.02F;
-    float ribbonPrice = 0.10F;
-    float pvaCost = 0.5F;
-    float endpageCost = 0.5F;
+    double paddingWidthBoard = 2.0;
+    double paddingHeightBoard = 2.0;
+    double paddingSpineLongTrad = 3.0;
+    double paddingSpineQuarter = 5.0;
+    double paddingSpineForSuper = 2.0;
+    double sqInchBoardPrice = 0.02;
+    double sheetPrice = 0.05;
+    double sqInchClothPrice = 0.02;
+    double threadLengthPrice = 0.002;
+    double headbandPrice = 0.1;
+    double superPrice = 0.02;
+    double ribbonPrice = 0.10;
+    double pvaCost = 0.5;
+    double endpageCost = 0.5;
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(CostConstants, paddingWidthBoard, paddingHeightBoard, paddingSpineLongTrad, paddingSpineQuarter, paddingSpineForSuper, sqInchBoardPrice, sheetPrice, sqInchClothPrice, threadLengthPrice, headbandPrice, superPrice, ribbonPrice, pvaCost, endpageCost);
 };
 
 struct Dimension {
-    float width;
-    float height;
+    double width;
+    double height;
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Dimension, width, height);
 };
-
 
 class Book {
 
 public:
     Book ();
-    Book ( int bookID, int batchID, CostConstants constants );
+    Book ( int bookID, int batchID );
 
     int bookID;
     int batchID;
@@ -77,9 +73,9 @@ public:
     time_t lastEdit;
     time_t creation;
 
-    float weight;
-    float spine;
-    float costExtra;
+    double weight;
+    double spine;
+    double costExtra;
 
     std::string box;
     std::string section;
@@ -91,17 +87,17 @@ public:
 
     Dimension coverDim;
     Dimension pageDim;
-    CostConstants constants;
 
     Status status;
     BookType bookType;
+    CostConstants constants;
 
     /**
      *  Determines if the book is at a minimum complete enough to get a price.
      **/
     bool isCalculatable();
     int calculatePageCount();
-    float getCostByElement(const std::string);
+    double getCostByElement(const std::string);
     std::string getName();
 
     static Book loadBook(const std::string path);
@@ -110,13 +106,13 @@ public:
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Book, bookID, batchID, signitures, pagesPerSignitures, lastEdit, creation, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
 
 private:
-    float getExtraCosts();
-    float getBoardCost();
-    float getPageCost();
-    float getThreadRibbonCost();
-    float getHeadbandCost();
-    float getSuperCost();
-    float getClothCost();
+    double getExtraCosts();
+    double getBoardCost();
+    double getPageCost();
+    double getThreadRibbonCost();
+    double getHeadbandCost();
+    double getSuperCost();
+    double getClothCost();
 };
 
 #endif // BOOK_H

@@ -19,11 +19,10 @@ Book::Book()
     this->bookType = BookType::notype;
 }
 
-Book::Book(int bookID, int batchID, CostConstants constants): Book()
+Book::Book(int bookID, int batchID): Book()
 {
     this->batchID = batchID;
     this->bookID = bookID;
-    this->constants = constants;
 }
 
 bool Book::isCalculatable()
@@ -46,7 +45,7 @@ int Book::calculatePageCount()
     return this->signitures * this->pagesPerSignitures;
 }
 
-float Book::getCostByElement(std::string costType)
+double Book::getCostByElement(std::string costType)
 {
     return 0;
 }
@@ -56,25 +55,25 @@ std::string Book::getName()
     return std::string("book-") + std::to_string(this->batchID) + std::to_string(this->bookID);
 }
 
-float Book::getExtraCosts()
+double Book::getExtraCosts()
 {
-    return this->costExtra + this->constants.pvaCost + this->constants.endpageCost;
+    return this->costExtra + constants.pvaCost + constants.endpageCost;
 }
 
-float Book::getBoardCost()
+double Book::getBoardCost()
 {
-    float paddedWidth = this->coverDim.width + constants.paddingWidthBoard;
-    float paddedHeight = this->coverDim.height + constants.paddingHeightBoard;
+    double paddedWidth = this->coverDim.width + constants.paddingWidthBoard;
+    double paddedHeight = this->coverDim.height + constants.paddingHeightBoard;
     
-    float sqInchBoard = paddedHeight * paddedWidth;
-    return sqInchBoard * this->constants.sqInchBoardPrice;
+    double sqInchBoard = paddedHeight * paddedWidth;
+    return sqInchBoard * constants.sqInchBoardPrice;
 }
 
-float Book::getPageCost()
+double Book::getPageCost()
 {
     int sheets = std::ceil(this->calculatePageCount() / 2);
     bool isHalfSheet = this->pageDim.width <= 4.25 || this->pageDim.height <= 5;
-    float pricePages = sheets * this->constants.sheetPrice;
+    double pricePages = sheets * constants.sheetPrice;
     
     if(isHalfSheet) {
         return pricePages / 2;
@@ -83,11 +82,11 @@ float Book::getPageCost()
     return pricePages;
 }
 
-float Book::getThreadRibbonCost()
+double Book::getThreadRibbonCost()
 {
     if(this->bookType != BookType::stabstich){
-        float threadLength = (this->signitures * this->coverDim.height) + this->coverDim.height;
-        float priceThread = threadLength * this->constants.threadLengthPrice;
+        double threadLength = (this->signitures * this->coverDim.height) + this->coverDim.height;
+        double priceThread = threadLength * constants.threadLengthPrice;
         
         if(this->bookType == BookType::coptic2){
             priceThread *= 2;
@@ -96,48 +95,48 @@ float Book::getThreadRibbonCost()
         return priceThread;
         
     }else{
-        return this->coverDim.height * this->constants.ribbonPrice;
+        return this->coverDim.height * constants.ribbonPrice;
     }
 }
 
-float Book::getHeadbandCost()
+double Book::getHeadbandCost()
 {
     if(this->bookType == BookType::traditional || this->bookType == BookType::quater){
-        return this->spine * 2 * this->constants.headbandPrice;
+        return this->spine * 2 * constants.headbandPrice;
     }
     
     return 0;
 }
 
-float Book::getSuperCost()
+double Book::getSuperCost()
 {
     if(this->bookType == BookType::traditional or this->bookType == BookType::quater){
-        float paddedSpine = this->spine + this->constants.paddingSpineForSuper;
-        float sqInchSuper = paddedSpine * this->coverDim.height;
-        return sqInchSuper * this->constants.superPrice;
+        double paddedSpine = this->spine + constants.paddingSpineForSuper;
+        double sqInchSuper = paddedSpine * this->coverDim.height;
+        return sqInchSuper * constants.superPrice;
     }
     
     return 0;
 }
 
-float Book::getClothCost()
+double Book::getClothCost()
 {
-    float paddedHeight = this->coverDim.height + this->constants.paddingHeightBoard;
+    double paddedHeight = this->coverDim.height + constants.paddingHeightBoard;
     if(this->bookType == BookType::coptic || this->bookType == BookType::coptic2 || this->bookType == BookType::stabstich) {
-        float paddedWidth = this->coverDim.width + this->constants.paddingWidthBoard;
-        float sqInchCloth = paddedHeight * paddedWidth * 2;
-        return sqInchCloth * this->constants.sqInchClothPrice;
+        double paddedWidth = this->coverDim.width + constants.paddingWidthBoard;
+        double sqInchCloth = paddedHeight * paddedWidth * 2;
+        return sqInchCloth * constants.sqInchClothPrice;
     }else{
-        float paddedSpine = this->spine;
+        double paddedSpine = this->spine;
         if(this->bookType == BookType::quater){
-            paddedSpine += this->constants.paddingSpineQuarter;
+            paddedSpine += constants.paddingSpineQuarter;
         }else if(this->bookType == BookType::longstich || this->bookType == BookType::traditional){
-            paddedSpine += this->constants.paddingSpineLongTrad;
+            paddedSpine += constants.paddingSpineLongTrad;
         }
         
-        float paddedWidth = this->coverDim.width + this->constants.paddingWidthBoard + paddedSpine;
-        float sqInchCloth = paddedWidth * paddedHeight;
-        return sqInchCloth * this->constants.sqInchClothPrice;
+        double paddedWidth = this->coverDim.width + constants.paddingWidthBoard + paddedSpine;
+        double sqInchCloth = paddedWidth * paddedHeight;
+        return sqInchCloth * constants.sqInchClothPrice;
     }
     
     return 0;
@@ -149,9 +148,7 @@ Book Book::loadBook(const std::string path)
     std::string str((std::istreambuf_iterator<char>(t)),
                      std::istreambuf_iterator<char>());
     json jsonObj = json::parse(str);
-    t.close();
-    Book b = jsonObj;
-    return b;
+    return jsonObj;
 }
 
 void Book::saveBook(Book book, const std::string path)
@@ -168,7 +165,6 @@ void Book::saveBook(Book book, const std::string path)
     std::ofstream t(path);
     json jsonObj = book;
     t << std::setw(4) << jsonObj << std::endl;
-    t.close();
 }
 
 

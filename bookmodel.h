@@ -67,7 +67,7 @@ class BookModel: public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit BookModel(QMultiMap<int, Book> data, QString type, QObject *parent = nullptr);
+    explicit BookModel(QMultiMap<int, Book> data, QString type, int nextBookID, QObject *parent = nullptr);
     ~BookModel();
 
     QVariant data(const QModelIndex &index, int role) const override;
@@ -83,6 +83,7 @@ public slots:
     void onDoubleClicked(const QModelIndex &index);
 private:
     QString type;
+    int nextBookID;
 
 signals:
     void done(int r);

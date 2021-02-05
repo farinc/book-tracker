@@ -15,7 +15,7 @@ class BookDialog : public QDialog
     Q_OBJECT
 
 public:
-    BookDialog(QWidget* parent, QDir bookDirectory, QString type);
+    BookDialog(QWidget* parent, QString bookDirectory, QString type);
     ~BookDialog();
 
 private:
