@@ -38,6 +38,9 @@
      <property name="defaultDropAction">
       <enum>Qt::IgnoreAction</enum>
      </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectItems</enum>
+     </property>
      <attribute name="headerDefaultSectionSize">
       <number>100</number>
      </attribute>

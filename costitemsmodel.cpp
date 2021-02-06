@@ -26,6 +26,8 @@ QVariant CostItem::data(int row) const
     }
 }
 
+//Cost multipler model
+
 CostItemsModel::CostItemsModel(QObject *parent): QAbstractItemModel(parent)
 {
     list = QList<CostItem*>();

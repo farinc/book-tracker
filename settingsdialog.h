@@ -24,20 +24,18 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SettingsDialog(Settings settings, QWidget *parent = nullptr);
+    explicit SettingsDialog(Settings *settings, QWidget *parent = nullptr);
     ~SettingsDialog();
-    Settings settings() const;
 
 public slots:
+    void setSettings();
     void onBrowse();
     void handleButtons(QAbstractButton *btn);
-
-signals:
-    void settingsChanged(Settings newSettings);
 
 private:
     Ui::SettingsDialog *ui;
     CostItemsModel *model;
+    Settings *orginalSettingsPt;
     Settings tempSettings;
     std::string tempDir;
     void setupModel();

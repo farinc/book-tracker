@@ -26,19 +26,26 @@ private:
     std::string pathSettings();
     std::string pathBook();
     
-    Book book;
-    Settings settings;
-    
-    void updateCosts();
-    void updatePages();
-    
+    Book *book;
+    Settings *settings;
+
+    void copyToBook();
+    void displayCosts();
     void populateUi();
     void clearUi();
 
-    void saveBook();
-
 public slots:
+    //UI slots
+    void onActionEdit();
+    void onActionMove();
+    void onActionNew();
+    void onActionSettings();
+    void saveBook();
+    void update();
+
+    //Logical slots
     void onBookEdit(Book book);
+    void onBookMove(Book book, int batchID);
     void saveSettings();
     void loadSettings();
 };

@@ -9,9 +9,7 @@
 
 #include "bookmodel.h"
 
-BookDialog::BookDialog(QWidget *parent, QString bookDirectory, QString type) :
-    QDialog(parent),
-    ui(new Ui::BookDialog)
+BookDialog::BookDialog(QWidget *parent, QString bookDirectory, QString type) : QDialog(parent), ui(new Ui::BookDialog), type(type)
 {
     ui->setupUi(this);
 
@@ -25,47 +23,69 @@ BookDialog::BookDialog(QWidget *parent, QString bookDirectory, QString type) :
         this->ui->infoLabel->setText("Please select a batch to create a new book in");
         this->setWindowTitle("New Entry");
     }
+    else if(type == "move")
+    {
+        this->ui->infoLabel->setText("Please select a batch to move the selected book into");
+        this->setWindowTitle("Move Entry");
+    }
 
-    this->setupModel(parent, bookDirectory, type);
+    model = BookModel::generateModel(bookDirectory, type);
+
+    ui->treeView->setModel(model);
+
     auto header = new QHeaderView(Qt::Horizontal);
     header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
     ui->treeView->setHeader(header);
+    auto selectionModel = new BookSelectionModel(2);
+
+    selectionModel->setModel(model);
+    ui->treeView->setSelectionModel(selectionModel);
+
+    if(type == "edit" || type == "new")
+    {
+        ui->treeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
+        connect(this->ui->treeView, &QAbstractItemView::doubleClicked, model, &BookModel::onItemSelectionSingle);
+    }
+    else if(type == "move")
+    {
+        ui->treeView->setSelectionMode(QAbstractItemView::SelectionMode::MultiSelection);
+        connect(selectionModel, &BookSelectionModel::selectionCurrent, model, &BookModel::onItemSelectionDuo);
+    }
+
+    connect(model, &BookModel::done, this, &QDialog::done);
+
 }
 
 BookDialog::~BookDialog()
 {
     delete ui;
+    delete model;
 }
 
-void BookDialog::setupModel(QWidget *parent, QDir bookDirectory, QString type)
+BookModel *BookDialog::getModel() const
 {
-    QMultiMap<int, Book> books = QMultiMap<int, Book>();
-    QStringList files = bookDirectory.entryList(QStringList() << "*.json", QDir::Files);
-    QString indexedPath;
+    return this->model;
+}
 
-    int maxBookID = 0;
+BookSelectionModel::BookSelectionModel(int number): QItemSelectionModel(), number(number)
+{
 
-    for(QString filename : files)
+}
+
+void BookSelectionModel::setCurrentIndex(const QModelIndex &index, QItemSelectionModel::SelectionFlags command)
+{
+    if(command == QItemSelectionModel::Rows || command == QItemSelectionModel::Columns)
+        return;
+
+    QModelIndexList list = this->selectedIndexes();
+
+    if(command == QItemSelectionModel::Select || command == QItemSelectionModel::NoUpdate)
     {
-        indexedPath = bookDirectory.path() + QDir::separator() + filename;
-        Book indexedBook = Book::loadBook(indexedPath.toStdString());
-        if (maxBookID < indexedBook.bookID)
-            maxBookID = indexedBook.bookID;
-        books.insert(indexedBook.batchID, indexedBook);
+        if(list.size() == number - 1)
+        {
+            QModelIndex oldIndex = list.first();
+            emit selectionCurrent(index, oldIndex);
+            QItemSelectionModel::select(oldIndex, QItemSelectionModel::Deselect); //if its not the right one (the model doesn't emit accept), deselect it.
+        }
     }
-
-    BookModel *model = new BookModel(books, type, ++maxBookID, this);
-    ui->treeView->setModel(model);
-    if (type == "edit" || type == "new")
-    {
-        ui->treeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
-    }
-    else if(type == "move")
-    {
-        ui->treeView->setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
-    }
-
-    connect(this->ui->treeView, &QAbstractItemView::doubleClicked, model, &BookModel::onDoubleClicked);
-    connect(model, &BookModel::bookLoad, static_cast<MainWindow*>(parent), &MainWindow::onBookEdit);
-    connect(model, &BookModel::done, this, &QDialog::done);
 }

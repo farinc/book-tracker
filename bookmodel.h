@@ -67,7 +67,7 @@ class BookModel: public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit BookModel(QMultiMap<int, Book> data, QString type, int nextBookID, QObject *parent = nullptr);
+    explicit BookModel(QMultiMap<int, Book> data, int nextBookID, int maxBatchID, QString type = "edit", QObject *parent = nullptr);
     ~BookModel();
 
     QVariant data(const QModelIndex &index, int role) const override;
@@ -77,14 +77,15 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
-    void populateModel(QMultiMap<int, Book> data);
-    RootItem *rootItem;
+    void populateModel(int maxBatchID, QMultiMap<int, Book> data);
+    static BookModel *generateModel(QDir bookDirectory, QString type);
 public slots:
-    void onDoubleClicked(const QModelIndex &index);
+    void onItemSelectionDuo(const QModelIndex &index1 = QModelIndex(), const QModelIndex &index2 = QModelIndex());
+    void onItemSelectionSingle(const QModelIndex &index1 = QModelIndex());
 private:
     QString type;
     int nextBookID;
-
+    RootItem *rootItem;
 signals:
     void done(int r);
     void bookLoad(Book &book);

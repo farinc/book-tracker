@@ -15,12 +15,14 @@
 
 using json = nlohmann::json;
 
-SettingsDialog::SettingsDialog(Settings settings, QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog), tempSettings(settings)
+SettingsDialog::SettingsDialog(Settings *settings, QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog), orginalSettingsPt(settings)
 {
     ui->setupUi(this);
     this->setWindowTitle("Settings");
-    model = new CostItemsModel(this);
-    ui->lineEditBookDirectory->setText(QString::fromStdString(settings.bookDirectory));
+
+    this->tempSettings = *settings;
+
+    ui->lineEditBookDirectory->setText(QString::fromStdString(tempSettings.bookDirectory));
 
     auto header = new QHeaderView(Qt::Horizontal);
     header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
@@ -29,10 +31,13 @@ SettingsDialog::SettingsDialog(Settings settings, QWidget *parent) : QDialog(par
     auto delegate = new SpinBoxDelegate();
     ui->treeView->setItemDelegateForColumn(1, delegate);
 
-    connect(ui->pushButtonBrowse, &QPushButton::clicked, this, &SettingsDialog::onBrowse);
-    connect(ui->buttonBox, &QDialogButtonBox::clicked, this, &SettingsDialog::handleButtons);
+    model = new CostItemsModel(this);
 
     setupModel();
+
+    connect(ui->pushButtonBrowse, &QPushButton::clicked, this, &SettingsDialog::onBrowse);
+    connect(ui->buttonBox, &QDialogButtonBox::clicked, this, &SettingsDialog::handleButtons);
+    connect(this, &SettingsDialog::accepted, this, &SettingsDialog::setSettings);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -41,9 +46,9 @@ SettingsDialog::~SettingsDialog()
     delete model;
 }
 
-Settings SettingsDialog::settings() const
+void SettingsDialog::setSettings()
 {
-    return tempSettings;
+    *this->orginalSettingsPt = tempSettings;
 }
 
 void SettingsDialog::onBrowse()

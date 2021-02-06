@@ -95,24 +95,23 @@ public:
     /**
      *  Determines if the book is at a minimum complete enough to get a price.
      **/
-    bool isCalculatable();
-    int calculatePageCount();
-    double getCostByElement(const std::string);
-    std::string getName();
+    bool isCalculatable() const;
+    int calculatePageCount() const;
+    std::string getName() const;
+
+    double getExtraCosts() const;
+    double getBoardCost() const;
+    double getPageCost() const;
+    double getThreadRibbonCost() const;
+    double getHeadbandCost() const;
+    double getSuperCost() const;
+    double getClothCost() const;
+    double getTotal() const;
 
     static Book loadBook(const std::string path);
     static void saveBook(Book book, const std::string path);
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Book, bookID, batchID, signitures, pagesPerSignitures, lastEdit, creation, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
-
-private:
-    double getExtraCosts();
-    double getBoardCost();
-    double getPageCost();
-    double getThreadRibbonCost();
-    double getHeadbandCost();
-    double getSuperCost();
-    double getClothCost();
 };
 
 #endif // BOOK_H

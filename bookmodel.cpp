@@ -161,20 +161,18 @@ void RootItem::removeBatch(BatchItem *batch)
     this->removeChild(batch);
 }
 
-BookModel::BookModel(QMultiMap<int, Book> data, QString type, int nextBookID, QObject *parent): QAbstractItemModel(parent)
+BookModel::BookModel(QMultiMap<int, Book> data, int maxBookID, int maxBatchID, QString type, QObject *parent): QAbstractItemModel(parent)
 {
     rootItem = new RootItem();
     this->type = type;
-    this->nextBookID = nextBookID;
-    populateModel(data);
+    this->nextBookID = maxBookID + 1;
+    populateModel(maxBatchID, data);
 }
 
-void BookModel::populateModel(QMultiMap<int, Book> data)
+void BookModel::populateModel(int maxBatchID, QMultiMap<int, Book> data)
 {
-    //iterate through the possible batch ids starting at 0. We stop once there is no key in the map that correspods to the batch id.
-    bool flag = true;
 
-    for(int batch = 0; flag; batch++)
+    for(int batch = 0; batch <= maxBatchID; batch++)
     {
         if(data.contains(batch)){
             //Ok, create a batch node (item) and append it to root
@@ -188,21 +186,47 @@ void BookModel::populateModel(QMultiMap<int, Book> data)
         }else{
             if (this->type == "new" || this->type == "move")
             {
-                //At the end however, add a "batch" that repersents a new batch yet to be created.
+                //add a "batch" that repersents a new batch which is empty.
                 BatchItem *newBatchItem = new BatchItem(batch); //this particular batchID is outside of range, so it must be the future batchID
                 rootItem->appendBatch(newBatchItem);
             }
-
-            flag = false;
         }
     }
 }
 
-void BookModel::onDoubleClicked(const QModelIndex &selection)
+BookModel *BookModel::generateModel(QDir bookDirectory, QString type)
+{
+    QMultiMap<int, Book> books = QMultiMap<int, Book>();
+    QStringList files = bookDirectory.entryList(QStringList() << "*.json", QDir::Files);
+    QString indexedPath;
+
+    int maxBookID = 0;
+    int maxBatchID = 0;
+
+    for(QString filename : files)
+    {
+        indexedPath = bookDirectory.path() + QDir::separator() + filename;
+        Book indexedBook = Book::loadBook(indexedPath.toStdString());
+        if (maxBookID < indexedBook.bookID)
+        {
+            maxBookID = indexedBook.bookID;
+        }
+        if(maxBatchID < indexedBook.batchID)
+        {
+            maxBatchID = indexedBook.batchID;
+        }
+        books.insert(indexedBook.batchID, indexedBook);
+    }
+
+    BookModel *model = new BookModel(books, maxBookID, maxBatchID, type);
+    return model;
+}
+
+void BookModel::onItemSelectionSingle(const QModelIndex &index1)
 {
     if (type == "edit")
     {
-        Item *item = static_cast<Item*>(selection.internalPointer());
+        Item *item = static_cast<Item*>(index1.internalPointer());
 
         if(item->type() == "book")
         {
@@ -213,7 +237,7 @@ void BookModel::onDoubleClicked(const QModelIndex &selection)
     }
     else if(type == "new")
     {
-        Item *item = static_cast<Item*>(selection.internalPointer());
+        Item *item = static_cast<Item*>(index1.internalPointer());
 
         if(item->type() == "batch")
         {
@@ -223,7 +247,39 @@ void BookModel::onDoubleClicked(const QModelIndex &selection)
             emit done(QDialog::Accepted);
         }
     }
-    emit done(QDialog::Rejected);
+}
+
+void BookModel::onItemSelectionDuo(const QModelIndex &index1, const QModelIndex &index2)
+{
+    if(type == "move")
+    {
+        Item *item1 = static_cast<Item*>(index1.internalPointer());
+        Item *item2 = static_cast<Item*>(index2.internalPointer());
+
+        BatchItem *batchItem;
+        BookItem *bookItem;
+
+        bool flag1 = item1->type() == "book" && item2->type() == "batch";
+        bool flag2 = item1->type() == "batch" && item2->type() == "book";
+
+        if(flag1)
+        {
+            batchItem = static_cast<BatchItem*>(index2.internalPointer());
+            bookItem = static_cast<BookItem*>(index1.internalPointer());
+        }
+        else if(flag2)
+        {
+            batchItem = static_cast<BatchItem*>(index1.internalPointer());
+            bookItem = static_cast<BookItem*>(index2.internalPointer());
+        }
+        else return;
+
+        if(batchItem->id() != bookItem->book.batchID)
+        {
+            emit bookMove(bookItem->book, batchItem->id());
+            emit done(QDialog::Accepted);
+        }
+    }
 }
 
 BookModel::~BookModel()
@@ -254,6 +310,9 @@ QVariant BookModel::headerData(int section, Qt::Orientation orientation, int rol
 
 Qt::ItemFlags BookModel::flags(const QModelIndex &index) const
 {
+    if(index.column() > 0)
+        return Qt::ItemIsEnabled;
+
     QString typeItem = static_cast<Item*>(index.internalPointer())->type();
 
     //select only books and allow the books to be dragable

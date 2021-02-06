@@ -25,7 +25,7 @@ Book::Book(int bookID, int batchID): Book()
     this->bookID = bookID;
 }
 
-bool Book::isCalculatable()
+bool Book::isCalculatable() const
 {
     bool flag = true;
     flag &= this->coverDim.height > 0;
@@ -40,27 +40,22 @@ bool Book::isCalculatable()
     return flag;
 }
 
-int Book::calculatePageCount()
+int Book::calculatePageCount() const
 {
     return this->signitures * this->pagesPerSignitures;
 }
 
-double Book::getCostByElement(std::string costType)
+std::string Book::getName() const
 {
-    return 0;
+    return std::string("book-") + std::to_string(this->bookID);
 }
 
-std::string Book::getName()
-{
-    return std::string("book-") + std::to_string(this->batchID) + std::to_string(this->bookID);
-}
-
-double Book::getExtraCosts()
+double Book::getExtraCosts() const
 {
     return this->costExtra + constants.pvaCost + constants.endpageCost;
 }
 
-double Book::getBoardCost()
+double Book::getBoardCost() const
 {
     double paddedWidth = this->coverDim.width + constants.paddingWidthBoard;
     double paddedHeight = this->coverDim.height + constants.paddingHeightBoard;
@@ -69,7 +64,7 @@ double Book::getBoardCost()
     return sqInchBoard * constants.sqInchBoardPrice;
 }
 
-double Book::getPageCost()
+double Book::getPageCost() const
 {
     int sheets = std::ceil(this->calculatePageCount() / 2);
     bool isHalfSheet = this->pageDim.width <= 4.25 || this->pageDim.height <= 5;
@@ -82,7 +77,7 @@ double Book::getPageCost()
     return pricePages;
 }
 
-double Book::getThreadRibbonCost()
+double Book::getThreadRibbonCost() const
 {
     if(this->bookType != BookType::stabstich){
         double threadLength = (this->signitures * this->coverDim.height) + this->coverDim.height;
@@ -99,7 +94,7 @@ double Book::getThreadRibbonCost()
     }
 }
 
-double Book::getHeadbandCost()
+double Book::getHeadbandCost() const
 {
     if(this->bookType == BookType::traditional || this->bookType == BookType::quater){
         return this->spine * 2 * constants.headbandPrice;
@@ -108,7 +103,7 @@ double Book::getHeadbandCost()
     return 0;
 }
 
-double Book::getSuperCost()
+double Book::getSuperCost() const
 {
     if(this->bookType == BookType::traditional or this->bookType == BookType::quater){
         double paddedSpine = this->spine + constants.paddingSpineForSuper;
@@ -119,7 +114,7 @@ double Book::getSuperCost()
     return 0;
 }
 
-double Book::getClothCost()
+double Book::getClothCost() const
 {
     double paddedHeight = this->coverDim.height + constants.paddingHeightBoard;
     if(this->bookType == BookType::coptic || this->bookType == BookType::coptic2 || this->bookType == BookType::stabstich) {
@@ -142,6 +137,10 @@ double Book::getClothCost()
     return 0;
 }
 
+double Book::getTotal() const
+{
+    return getExtraCosts() +  getBoardCost() + getPageCost() + getThreadRibbonCost() + getHeadbandCost() + getSuperCost() + getClothCost();}
+
 Book Book::loadBook(const std::string path)
 {
     std::ifstream t(path);
@@ -160,7 +159,7 @@ void Book::saveBook(Book book, const std::string path)
     book.lastEdit = now;
     if (!w)
     {
-        book.creation = now; //if file did not exist, it is the first of its creation
+        book.creation = now; //if file did not exist, we are creating a new one
     }
     std::ofstream t(path);
     json jsonObj = book;
