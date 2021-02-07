@@ -10,8 +10,6 @@
 #include <json.hpp>
 #include <iomanip>
 
-#include <QDebug>
-
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "book.h"
@@ -26,6 +24,12 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     ui->setupUi(this);
     loadSettings();
     this->setupSlots();
+
+    auto header = new QHeaderView(Qt::Horizontal);
+    header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
+    ui->treeView->setHeader(header);
+    ui->treeView->setSelectionMode(QAbstractItemView::NoSelection);
+    model = new BookPropsModel();
 }
 
 MainWindow::~MainWindow()
@@ -33,6 +37,12 @@ MainWindow::~MainWindow()
     delete ui;
     delete book;
     delete settings;
+    delete model;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    saveBook();
 }
 
 void MainWindow::setupSlots() 
@@ -55,9 +65,13 @@ void MainWindow::setupSlots()
     connect(ui->spinSpineDim, &QDoubleSpinBox::editingFinished, this, &MainWindow::update);
     connect(ui->spinExtra, &QDoubleSpinBox::editingFinished, this, &MainWindow::update);
     connect(ui->spinSignitures, &QSpinBox::editingFinished, this, &MainWindow::update);
-    connect(ui->spinPagesPerSig, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::update);
-    connect(ui->comboBookType, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::update);
-    connect(ui->comboStatus, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::update);
+    connect(ui->spinPagesPerSig, &QSpinBox::editingFinished, this, &MainWindow::update);
+    connect(ui->comboBookType, QOverload<int>::of(&QComboBox::activated), this, &MainWindow::update);
+    connect(ui->comboStatus, QOverload<int>::of(&QComboBox::activated), this, &MainWindow::update);
+    connect(ui->editCoverMaterial, &QLineEdit::editingFinished, this, &MainWindow::update);
+    connect(ui->editPageMaterial, &QLineEdit::editingFinished, this, &MainWindow::update);
+    connect(ui->editThreadColor, &QLineEdit::editingFinished, this, &MainWindow::update);
+    connect(ui->editEndPageColor, &QLineEdit::editingFinished, this, &MainWindow::update);
 }
 
 void MainWindow::update()
@@ -67,33 +81,41 @@ void MainWindow::update()
         //Copy ui values to the book if there is an update
         this->copyToBook();
 
-        //Update the page count...
-        this->ui->spinPages->setValue(this->book->calculatePageCount());
-
-        //Recalculate the book prices...
+        //Now update, display the new values...
+        displayPageCount();
         displayCosts();
+        displayStoreDisciption();
+
+        //Set the window to modified since the book is unsaved.
+        this->setWindowModified(true);
     }
 }
 
-void MainWindow::onBookEdit(Book book)
+void MainWindow::onBookEdit(Book bk)
 {
-    this->book = new Book(book);
+    if(this->book != nullptr)
+    {
+        *this->book = bk;
+    }
+    else
+    {
+        this->book = new Book(bk);
+    }
+
     this->book->constants = settings->bookconstants;
     this->populateUi();
+    this->setWindowModified(false);
 }
 
 void MainWindow::onBookMove(Book book, int batchID)
 {
     book.batchID = batchID;
     onBookEdit(book);
-    saveBook(); //since the batchID is changed, the changes need to save first
+    writeBook();
 }
 
 void MainWindow::populateUi()
 {
-    this->ui->labelBookID->setText(QString::number(this->book->bookID));
-    this->ui->labelBatchID->setText(QString::number(this->book->batchID));
-
     this->ui->spinPageDimX->setValue(this->book->pageDim.width);
     this->ui->spinPageDimY->setValue(this->book->pageDim.height);
     this->ui->spinCoverDimX->setValue(this->book->coverDim.width);
@@ -109,13 +131,16 @@ void MainWindow::populateUi()
     this->ui->editSection->setText(QString::fromStdString(this->book->section));
     this->ui->editThreadColor->setText(QString::fromStdString(this->book->threadColor));
     this->ui->editCoverMaterial->setText(QString::fromStdString(this->book->coverMaterial));
+
     this->ui->editPageMaterial->setText(QString::fromStdString(this->book->pageMaterial));
     this->ui->editExtra->setPlainText(QString::fromStdString(this->book->extra));
     
-    this->ui->comboBookType->setCurrentIndex(this->book->bookType);
-    this->ui->comboStatus->setCurrentIndex(this->book->status);
+    this->ui->comboBookType->setCurrentIndex(this->book->bookType - 1);
+    this->ui->comboStatus->setCurrentIndex(this->book->status - 1);
 
     displayCosts();
+    displayStoreDisciption();
+    displayProps();
 }
 
 void MainWindow::saveBook()
@@ -124,7 +149,8 @@ void MainWindow::saveBook()
         return;
 
     this->copyToBook();
-    Book::saveBook(*book, pathBook());
+    writeBook(); //dont do saveBook, since that recopies from the ui, which we just did :/
+    this->setWindowModified(false);
 }
 
 void MainWindow::onActionEdit()
@@ -230,7 +256,87 @@ void MainWindow::displayCosts()
         ui->spinHeadband->setValue(book->getHeadbandCost());
         ui->spinPaper->setValue(book->getPageCost());
         ui->spinSuper->setValue(book->getSuperCost());
-        ui->spinExtra->setValue(book->getExtraCosts());
+        ui->spinMisc->setValue(book->getExtraCosts());
         ui->spinTotal->setValue(book->getTotal());
     }
+    else
+    {
+        ui->spinBoard->setValue(0);
+        ui->spinCloth->setValue(0);
+        ui->spinThread->setValue(0);
+        ui->spinHeadband->setValue(0);
+        ui->spinPaper->setValue(0);
+        ui->spinSuper->setValue(0);
+        ui->spinMisc->setValue(0);
+        ui->spinTotal->setValue(0);
+    }
+}
+
+void MainWindow::displayStoreDisciption()
+{
+    if (book->canHaveDiscription())
+    {
+        QString endpageColor, spineType, threadColor, coverMaterial, pageMaterial;
+
+        endpageColor = QString::fromStdString(this->book->endpageColor);
+        threadColor = QString::fromStdString(this->book->threadColor);
+        coverMaterial = QString::fromStdString(this->book->coverMaterial);
+        pageMaterial = QString::fromStdString(this->book->pageMaterial);
+        spineType = QString::fromStdString(book->getSpineType());
+
+        QString str = QString(
+            "Cover: %1\n"
+            "%2: %3\n"
+            "Paper: %4\n"
+            "Inside covers: %5\n\n"
+            "Cover: %6 in. by %7 in.\n"
+            "Spine: %8 in.\n"
+            "Page: %9 in. by %10 in.\n"
+            "%11 pages / %12 sides"
+        ).arg(coverMaterial, spineType, threadColor, pageMaterial, endpageColor
+        ).arg(this->book->coverDim.width
+        ).arg(this->book->coverDim.height
+        ).arg(this->book->spine
+        ).arg(this->book->pageDim.width
+        ).arg(this->book->pageDim.height
+        ).arg(this->book->calculatePageCount()
+        ).arg(this->book->calculatePageCount() * 2);
+
+        ui->editDiscription->setPlainText(str);
+    }
+    else
+    {
+        ui->editDiscription->setPlainText("");
+    }
+}
+
+void MainWindow::displayProps()
+{
+    model->reset();
+    char lastEditStr[80];
+    char creationStr[80];
+
+    strftime(lastEditStr, 80, "%b %d %Y %I:%M%p", localtime(&book->lastEdit));
+    strftime(creationStr, 80, "%b %d %Y %I:%M%p", localtime(&book->creation));
+
+    PropItem *bookID_prop = new PropItem(tr("Book ID"), book->bookID);
+    PropItem *batchID_prop = new PropItem(tr("Batch ID"), book->batchID);
+    PropItem *lastEdit_prop = new PropItem(tr("Last Edited"), QString::fromLocal8Bit(lastEditStr));
+    PropItem *creation_prop = new PropItem(tr("Created"), QString::fromLocal8Bit(creationStr));
+
+    model->addItem(bookID_prop);
+    model->addItem(batchID_prop);
+    model->addItem(lastEdit_prop);
+    model->addItem(creation_prop);
+    ui->treeView->setModel(model);
+}
+
+void MainWindow::displayPageCount()
+{
+    this->ui->spinPages->setValue(this->book->calculatePageCount());
+}
+
+void MainWindow::writeBook()
+{
+    Book::saveBook(*book, pathBook());
 }

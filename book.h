@@ -61,8 +61,7 @@ struct Dimension {
 class Book {
 
 public:
-    Book ();
-    Book ( int bookID, int batchID );
+    Book ( int bookID = -1, int batchID = -1 );
 
     int bookID;
     int batchID;
@@ -96,9 +95,11 @@ public:
      *  Determines if the book is at a minimum complete enough to get a price.
      **/
     bool isCalculatable() const;
+    bool canHaveDiscription() const;
     int calculatePageCount() const;
     std::string getName() const;
 
+    std::string getSpineType();
     double getExtraCosts() const;
     double getBoardCost() const;
     double getPageCost() const;

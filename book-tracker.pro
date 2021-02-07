@@ -14,6 +14,7 @@ SOURCES += \
     book.cpp \
     bookdialog.cpp \
     bookmodel.cpp \
+    bookpropsmodel.cpp \
     costitemsmodel.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -23,6 +24,7 @@ HEADERS += \
     book.h \
     bookdialog.h \
     bookmodel.h \
+    bookpropsmodel.h \
     costitemsmodel.h \
     mainwindow.h \
     settingsdialog.h

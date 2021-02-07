@@ -11,18 +11,21 @@
 
 using json = nlohmann::json;
 
-Book::Book()
+
+Book::Book(int bookID, int batchID)
 {
+    this->batchID = batchID;
+    this->bookID = bookID;
     this->coverDim = {0, 0};
     this->pageDim = {0,0};
     this->status = Status::nostatus;
     this->bookType = BookType::notype;
-}
-
-Book::Book(int bookID, int batchID): Book()
-{
-    this->batchID = batchID;
-    this->bookID = bookID;
+    this->lastEdit = this->creation = time(0);
+    this->signitures = 0;
+    this->pagesPerSignitures = 0;
+    this->weight = 0;
+    this->spine = 0;
+    this->costExtra = 0;
 }
 
 bool Book::isCalculatable() const
@@ -36,7 +39,17 @@ bool Book::isCalculatable() const
     flag &= this->calculatePageCount() > 0;
     flag &= this->bookType > 0;
     flag &= this->status > 0;
+    return flag;
+}
 
+bool Book::canHaveDiscription() const
+{
+    bool flag = true;
+    flag &= !this->coverMaterial.empty();
+    flag &= !this->threadColor.empty();
+    flag &= !this->pageMaterial.empty();
+    flag &= !this->endpageColor.empty();
+    flag &= isCalculatable();
     return flag;
 }
 
@@ -50,9 +63,28 @@ std::string Book::getName() const
     return std::string("book-") + std::to_string(this->bookID);
 }
 
+std::string Book::getSpineType()
+{
+    std::string spineType;
+    if(bookType == BookType::traditional || bookType == BookType::longstich)
+    {
+        spineType = "Spine";
+    }
+    else if(bookType == BookType::coptic || bookType == BookType::coptic2)
+    {
+        spineType = "Thread";
+    }
+    else if(bookType == BookType::stabstich)
+    {
+        spineType = "Ribbon";
+    }
+
+    return spineType;
+}
+
 double Book::getExtraCosts() const
 {
-    return this->costExtra + constants.pvaCost + constants.endpageCost;
+    return constants.pvaCost + constants.endpageCost;
 }
 
 double Book::getBoardCost() const
@@ -139,7 +171,8 @@ double Book::getClothCost() const
 
 double Book::getTotal() const
 {
-    return getExtraCosts() +  getBoardCost() + getPageCost() + getThreadRibbonCost() + getHeadbandCost() + getSuperCost() + getClothCost();}
+    return getExtraCosts() +  getBoardCost() + getPageCost() + getThreadRibbonCost() + getHeadbandCost() + getSuperCost() + getClothCost() + costExtra;
+}
 
 Book Book::loadBook(const std::string path)
 {

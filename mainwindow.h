@@ -6,6 +6,7 @@
 
 #include "book.h"
 #include "settingsdialog.h"
+#include "bookpropsmodel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -18,6 +19,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void closeEvent(QCloseEvent* event) override;
 
 private:
     Ui::MainWindow *ui;
@@ -27,10 +29,15 @@ private:
     std::string pathBook();
     
     Book *book;
+    BookPropsModel *model;
     Settings *settings;
 
     void copyToBook();
     void displayCosts();
+    void displayStoreDisciption();
+    void displayProps();
+    void displayPageCount();
+    void writeBook();
     void populateUi();
     void clearUi();
 

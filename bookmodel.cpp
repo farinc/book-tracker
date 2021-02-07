@@ -171,8 +171,18 @@ BookModel::BookModel(QMultiMap<int, Book> data, int maxBookID, int maxBatchID, Q
 
 void BookModel::populateModel(int maxBatchID, QMultiMap<int, Book> data)
 {
+    int batches;
+    if(this->type == "edit")
+    {
+        batches = maxBatchID;
+    }
+    else
+    {
+        batches = maxBatchID + 1;
+    }
 
-    for(int batch = 0; batch <= maxBatchID; batch++)
+
+    for(int batch = 0; batch <= batches; batch++)
     {
         if(data.contains(batch)){
             //Ok, create a batch node (item) and append it to root
