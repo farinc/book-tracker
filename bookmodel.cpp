@@ -1,10 +1,12 @@
 #include "bookmodel.h"
-
+#include "mainwindow.h"
+#include <json.hpp>
 #include <ctime>
 #include <QUrl>
-
 #include <QDebug>
 #include <QDialog>
+
+using json = nlohmann::json;
 
 Item::Item()
 {
@@ -208,24 +210,34 @@ BookModel *BookModel::generateModel(QDir bookDirectory, QString type)
 {
     QMultiMap<int, Book> books = QMultiMap<int, Book>();
     QStringList files = bookDirectory.entryList(QStringList() << "*.json", QDir::Files);
-    QString indexedPath;
+    json bookObj;
+    Book indexedBook;
 
     int maxBookID = 0;
     int maxBatchID = 0;
 
     for(QString filename : files)
     {
-        indexedPath = bookDirectory.path() + QDir::separator() + filename;
-        Book indexedBook = Book::loadBook(indexedPath.toStdString());
-        if (maxBookID < indexedBook.bookID)
+
+        json bookObj = MainWindow::readFile(bookDirectory.path(), filename);
+        if(!bookObj.is_null())
         {
-            maxBookID = indexedBook.bookID;
+            indexedBook = bookObj;
+
+            if (maxBookID < indexedBook.bookID)
+            {
+                maxBookID = indexedBook.bookID;
+            }
+            if(maxBatchID < indexedBook.batchID)
+            {
+                maxBatchID = indexedBook.batchID;
+            }
+            books.insert(indexedBook.batchID, indexedBook);
         }
-        if(maxBatchID < indexedBook.batchID)
+        else
         {
-            maxBatchID = indexedBook.batchID;
+            qDebug() << "json is null!";
         }
-        books.insert(indexedBook.batchID, indexedBook);
     }
 
     BookModel *model = new BookModel(books, maxBookID, maxBatchID, type);

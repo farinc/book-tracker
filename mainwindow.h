@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QDir>
+#include <json.hpp>
 
 #include "book.h"
 #include "settingsdialog.h"
@@ -25,10 +26,9 @@ private:
     Ui::MainWindow *ui;
     
     void setupSlots();
-    std::string pathSettings();
-    std::string pathBook();
     
     Book *book;
+    Book oldBook;
     BookPropsModel *model;
     Settings *settings;
 
@@ -40,6 +40,10 @@ private:
     void writeBook();
     void populateUi();
     void clearUi();
+
+public:
+    static void writeFile(nlohmann::json jsonObj, QString directory, QString filename);
+    static nlohmann::json readFile(QString directory, QString filename);
 
 public slots:
     //UI slots

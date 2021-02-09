@@ -22,7 +22,7 @@ Book::Book(int bookID, int batchID)
     this->bookType = BookType::notype;
     this->lastEdit = this->creation = time(0);
     this->signitures = 0;
-    this->pagesPerSignitures = 0;
+    this->pagesPerSigniture = 0;
     this->weight = 0;
     this->spine = 0;
     this->costExtra = 0;
@@ -55,12 +55,7 @@ bool Book::canHaveDiscription() const
 
 int Book::calculatePageCount() const
 {
-    return this->signitures * this->pagesPerSignitures;
-}
-
-std::string Book::getName() const
-{
-    return std::string("book-") + std::to_string(this->bookID);
+    return this->signitures * this->pagesPerSigniture;
 }
 
 std::string Book::getSpineType()
@@ -173,32 +168,3 @@ double Book::getTotal() const
 {
     return getExtraCosts() +  getBoardCost() + getPageCost() + getThreadRibbonCost() + getHeadbandCost() + getSuperCost() + getClothCost() + costExtra;
 }
-
-Book Book::loadBook(const std::string path)
-{
-    std::ifstream t(path);
-    std::string str((std::istreambuf_iterator<char>(t)),
-                     std::istreambuf_iterator<char>());
-    json jsonObj = json::parse(str);
-    return jsonObj;
-}
-
-void Book::saveBook(Book book, const std::string path)
-{
-    std::ifstream w(path);
-    time_t now;
-    time(&now);
-
-    book.lastEdit = now;
-    if (!w)
-    {
-        book.creation = now; //if file did not exist, we are creating a new one
-    }
-    std::ofstream t(path);
-    json jsonObj = book;
-    t << std::setw(4) << jsonObj << std::endl;
-}
-
-
-
-

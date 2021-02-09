@@ -67,7 +67,7 @@ public:
     int batchID;
 
     int signitures;
-    int pagesPerSignitures;
+    int pagesPerSigniture;
 
     time_t lastEdit;
     time_t creation;
@@ -97,7 +97,6 @@ public:
     bool isCalculatable() const;
     bool canHaveDiscription() const;
     int calculatePageCount() const;
-    std::string getName() const;
 
     std::string getSpineType();
     double getExtraCosts() const;
@@ -109,10 +108,7 @@ public:
     double getClothCost() const;
     double getTotal() const;
 
-    static Book loadBook(const std::string path);
-    static void saveBook(Book book, const std::string path);
-
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Book, bookID, batchID, signitures, pagesPerSignitures, lastEdit, creation, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Book, bookID, batchID, signitures, pagesPerSigniture, lastEdit, creation, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
 };
 
 #endif // BOOK_H

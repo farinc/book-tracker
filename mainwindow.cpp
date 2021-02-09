@@ -5,6 +5,9 @@
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QAction>
+#include <QTextStream>
+#include <QDebug>
+#include <QStandardPaths>
 
 #include <fstream>
 #include <json.hpp>
@@ -22,6 +25,8 @@ using json = nlohmann::json;
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow), book(nullptr), settings(nullptr)
 {
     ui->setupUi(this);
+    this->settings = new Settings();
+
     loadSettings();
     this->setupSlots();
 
@@ -56,7 +61,7 @@ void MainWindow::setupSlots()
     connect(ui->actionSaveQuit, &QAction::triggered, this, &MainWindow::saveBook); //first...
     connect(ui->actionSaveQuit, &QAction::triggered, this, &MainWindow::close); //then second...
 
-    //Ui refresh cost connections
+    //Ui refresh book changes, go back to "save every change." However, in this case, we are just copying ui values to the book pointer, not writing to file
     connect(ui->spinCoverDimX, &QDoubleSpinBox::editingFinished, this, &MainWindow::update);
     connect(ui->spinCoverDimY, &QDoubleSpinBox::editingFinished, this, &MainWindow::update);
     connect(ui->spinPageDimX, &QDoubleSpinBox::editingFinished, this, &MainWindow::update);
@@ -95,6 +100,7 @@ void MainWindow::onBookEdit(Book bk)
 {
     if(this->book != nullptr)
     {
+        this->oldBook = *this->book;
         *this->book = bk;
     }
     else
@@ -111,7 +117,7 @@ void MainWindow::onBookMove(Book book, int batchID)
 {
     book.batchID = batchID;
     onBookEdit(book);
-    writeBook();
+    writeBook(); //dont do saveBook, since that recopies from the ui, which makes little sense
 }
 
 void MainWindow::populateUi()
@@ -124,7 +130,7 @@ void MainWindow::populateUi()
     this->ui->spinWeight->setValue(this->book->weight);
     this->ui->spinSignitures->setValue(this->book->signitures);
     this->ui->spinExtra->setValue(this->book->costExtra);
-    this->ui->spinPagesPerSig->setValue(this->book->pagesPerSignitures);
+    this->ui->spinPagesPerSig->setValue(this->book->pagesPerSigniture);
 
     this->ui->editEndPageColor->setText(QString::fromStdString(this->book->endpageColor));
     this->ui->editBox->setText(QString::fromStdString(this->book->box));
@@ -143,13 +149,46 @@ void MainWindow::populateUi()
     displayProps();
 }
 
+void MainWindow::writeFile(json jsonObj, QString directory, QString filename)
+{
+    QDir dir(directory); //Qt io cant create parent directories on file write...
+    if(!dir.exists())
+        dir.mkpath(directory);
+
+    QFile file(directory + QDir::separator() + filename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        return;
+    }
+
+    QTextStream out(&file);
+    QString jsonText = QString::fromStdString(jsonObj.dump(4));
+    out << jsonText;
+    out.flush();
+}
+
+json MainWindow::readFile(QString directory, QString filename)
+{
+    QFile file(directory + QDir::separator() + filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        return json();
+    }
+
+    QTextStream in(&file);
+    QString str = in.readAll();
+    qDebug() << str;
+    json jsonObj = json::parse(str.toStdString());
+    return jsonObj;
+}
+
 void MainWindow::saveBook()
 {
     if (book == nullptr)
         return;
 
     this->copyToBook();
-    writeBook(); //dont do saveBook, since that recopies from the ui, which we just did :/
+    writeBook();
     this->setWindowModified(false);
 }
 
@@ -190,36 +229,16 @@ void MainWindow::onActionSettings()
 
 void MainWindow::saveSettings()
 {
-    std::ofstream t(pathSettings());
-    json jsonObj = *settings;
-    t << std::setw(4) << jsonObj << std::endl;
+    writeFile(*settings, QString::fromStdString(settings->configDirectory), "settings.json");
 }
 
 void MainWindow::loadSettings()
 {
-    std::ifstream t(pathSettings());
-
-    if (t)
+    json obj = readFile(QString::fromStdString(settings->configDirectory), "settings.json");
+    if(!obj.is_null())
     {
-        std::string str((std::istreambuf_iterator<char>(t)),
-                         std::istreambuf_iterator<char>());
-        Settings set = json::parse(str);
-        settings = new Settings(set);
+        *this->settings = obj;
     }
-    else
-    {
-        settings = new Settings();
-    }
-}
-
-std::string MainWindow::pathSettings()
-{
-    return QString(QDir::currentPath() + QDir::separator()).toStdString() + "settings.json";
-}
-
-std::string MainWindow::pathBook()
-{
-    return settings->bookDirectory + QString(QDir::separator()).toStdString() +this->book->getName() + ".json";
 }
 
 void MainWindow::copyToBook()
@@ -232,7 +251,7 @@ void MainWindow::copyToBook()
     this->book->weight = ui->spinWeight->value();
     this->book->signitures = ui->spinSignitures->value();
     this->book->costExtra = ui->spinExtra->value();
-    this->book->pagesPerSignitures = ui->spinPagesPerSig->value();
+    this->book->pagesPerSigniture = ui->spinPagesPerSig->value();
 
     this->book->endpageColor = ui->editEndPageColor->text().toStdString();
     this->book->box = ui->editBox->text().toStdString();
@@ -338,5 +357,6 @@ void MainWindow::displayPageCount()
 
 void MainWindow::writeBook()
 {
-    Book::saveBook(*book, pathBook());
+    json Obj = *book;
+    writeFile(Obj, QString::fromStdString(this->settings->bookDirectory), QString("book-%1.json").arg(this->book->bookID));
 }

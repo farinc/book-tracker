@@ -23,6 +23,7 @@ SettingsDialog::SettingsDialog(Settings *settings, QWidget *parent) : QDialog(pa
     this->tempSettings = *settings;
 
     ui->lineEditBookDirectory->setText(QString::fromStdString(tempSettings.bookDirectory));
+    ui->lineEditSettings->setText(QString::fromStdString(tempSettings.configDirectory));
 
     auto header = new QHeaderView(Qt::Horizontal);
     header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
@@ -35,7 +36,6 @@ SettingsDialog::SettingsDialog(Settings *settings, QWidget *parent) : QDialog(pa
 
     setupModel();
 
-    connect(ui->pushButtonBrowse, &QPushButton::clicked, this, &SettingsDialog::onBrowse);
     connect(ui->buttonBox, &QDialogButtonBox::clicked, this, &SettingsDialog::handleButtons);
     connect(this, &SettingsDialog::accepted, this, &SettingsDialog::setSettings);
 }

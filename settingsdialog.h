@@ -5,6 +5,7 @@
 #include <QDir>
 #include <json.hpp>
 #include <QAbstractButton>
+#include <QStandardPaths>
 #include "book.h"
 #include "costitemsmodel.h"
 
@@ -14,7 +15,8 @@ class SettingsDialog;
 
 struct Settings
 {
-    std::string bookDirectory = QDir::currentPath().toStdString();
+    std::string configDirectory = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation).toStdString();
+    std::string bookDirectory = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation).toStdString();
     CostConstants bookconstants = CostConstants();
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Settings, bookDirectory, bookconstants);
 };
