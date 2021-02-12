@@ -6,8 +6,8 @@
 #include <json.hpp>
 
 #include "book.h"
+#include "models.h"
 #include "settingsdialog.h"
-#include "bookpropsmodel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,30 +24,32 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    
-    void setupSlots();
-    
-    Book *book;
+    PropsModel *model;
+    Book book;
     Book oldBook;
-    BookPropsModel *model;
-    Settings *settings;
+    Settings settings;
 
+    void setupSlots();
     void copyToBook();
     void displayCosts();
     void displayStoreDisciption();
     void displayProps();
     void displayPageCount();
     void writeBook();
-    void populateUi();
+    void discardBook();
+    void setupBook();
     void clearUi();
+    void diableUi();
 
 public:
-    static void writeFile(nlohmann::json jsonObj, QString directory, QString filename);
+    static bool writeFile(nlohmann::json jsonObj, QString directory, QString filename);
     static nlohmann::json readFile(QString directory, QString filename);
 
 public slots:
     //UI slots
+    void enableUi();
     void onActionEdit();
+    bool onActionSave();
     void onActionMove();
     void onActionNew();
     void onActionSettings();
@@ -55,8 +57,9 @@ public slots:
     void update();
 
     //Logical slots
-    void onBookEdit(Book book);
-    void onBookMove(Book book, int batchID);
+    void onBookEdit(Book &book);
+    void onBookNew(Book &book);
+    void onBookMove(Book &book, int newBatch);
     void saveSettings();
     void loadSettings();
 };

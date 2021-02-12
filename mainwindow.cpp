@@ -8,6 +8,7 @@
 #include <QTextStream>
 #include <QDebug>
 #include <QStandardPaths>
+#include <QPlainTextEdit>
 
 #include <fstream>
 #include <json.hpp>
@@ -16,16 +17,17 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "book.h"
-#include "bookmodel.h"
+#include "models.h"
 #include "bookdialog.h"
 #include "settingsdialog.h"
+#include "savedialog.h"
 
 using json = nlohmann::json;
 
-MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow), book(nullptr), settings(nullptr)
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow), model(nullptr)
 {
     ui->setupUi(this);
-    this->settings = new Settings();
+    diableUi();
 
     loadSettings();
     this->setupSlots();
@@ -34,20 +36,17 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWin
     header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
     ui->treeView->setHeader(header);
     ui->treeView->setSelectionMode(QAbstractItemView::NoSelection);
-    model = new BookPropsModel();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete book;
-    delete settings;
     delete model;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    saveBook();
+    saveBook(); //Assumes that changes made before closing are valuable
 }
 
 void MainWindow::setupSlots() 
@@ -57,9 +56,7 @@ void MainWindow::setupSlots()
     connect(ui->actionMove, &QAction::triggered, this, &MainWindow::onActionMove);
     connect(ui->actionNew, &QAction::triggered, this, &MainWindow::onActionNew);
     connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::onActionSettings);
-    connect(ui->actionSave, &QAction::triggered, this, &MainWindow::saveBook);
-    connect(ui->actionSaveQuit, &QAction::triggered, this, &MainWindow::saveBook); //first...
-    connect(ui->actionSaveQuit, &QAction::triggered, this, &MainWindow::close); //then second...
+    connect(ui->actionSave, &QAction::triggered, this, &MainWindow::onActionSave);
 
     //Ui refresh book changes, go back to "save every change." However, in this case, we are just copying ui values to the book pointer, not writing to file
     connect(ui->spinCoverDimX, &QDoubleSpinBox::editingFinished, this, &MainWindow::update);
@@ -77,94 +74,112 @@ void MainWindow::setupSlots()
     connect(ui->editPageMaterial, &QLineEdit::editingFinished, this, &MainWindow::update);
     connect(ui->editThreadColor, &QLineEdit::editingFinished, this, &MainWindow::update);
     connect(ui->editEndPageColor, &QLineEdit::editingFinished, this, &MainWindow::update);
+    connect(ui->editBox, &QLineEdit::editingFinished, this, &MainWindow::update);
+    connect(ui->editSection, &QLineEdit::editingFinished, this, &MainWindow::update);
+    connect(ui->editExtra, &QPlainTextEdit::modificationChanged, this, &MainWindow::update);
 }
 
 void MainWindow::update()
 {
-    if (book != nullptr)
-    {
-        //Copy ui values to the book if there is an update
-        this->copyToBook();
+    //Copy ui values to the book if there is an update
+    this->copyToBook();
 
-        //Now update, display the new values...
-        displayPageCount();
-        displayCosts();
-        displayStoreDisciption();
+    //Now update, display the new values...
+    displayPageCount();
+    displayCosts();
+    displayStoreDisciption();
 
-        //Set the window to modified since the book is unsaved.
-        this->setWindowModified(true);
-    }
+    //The current book is likely modified
+    this->setWindowModified(true);
 }
 
-void MainWindow::onBookEdit(Book bk)
+void MainWindow::onBookEdit(Book &bk)
 {
-    if(this->book != nullptr)
-    {
-        this->oldBook = *this->book;
-        *this->book = bk;
-    }
-    else
-    {
-        this->book = new Book(bk);
-    }
-
-    this->book->constants = settings->bookconstants;
-    this->populateUi();
+    this->oldBook = bk; //Give it the same book to compare
+    this->book = bk;
+    this->setupBook();
     this->setWindowModified(false);
 }
 
-void MainWindow::onBookMove(Book book, int batchID)
+void MainWindow::onBookNew(Book &bk)
 {
-    book.batchID = batchID;
-    onBookEdit(book);
-    writeBook(); //dont do saveBook, since that recopies from the ui, which makes little sense
+    this->oldBook = Book(); //explicitly give it a invalid book
+    this->book = bk;
+    this->setupBook();
+    this->setWindowModified(false);
 }
 
-void MainWindow::populateUi()
+void MainWindow::onBookMove(Book &bk, int newBatch)
 {
-    this->ui->spinPageDimX->setValue(this->book->pageDim.width);
-    this->ui->spinPageDimY->setValue(this->book->pageDim.height);
-    this->ui->spinCoverDimX->setValue(this->book->coverDim.width);
-    this->ui->spinCoverDimY->setValue(this->book->coverDim.height);
-    this->ui->spinSpineDim->setValue(this->book->spine);
-    this->ui->spinWeight->setValue(this->book->weight);
-    this->ui->spinSignitures->setValue(this->book->signitures);
-    this->ui->spinExtra->setValue(this->book->costExtra);
-    this->ui->spinPagesPerSig->setValue(this->book->pagesPerSigniture);
+    this->oldBook = bk;
+    this->book = bk;
+    this->book.batchID = newBatch; //Now the book is in a different batch
+    this->setupBook();
+    this->setWindowModified(true); //Marked because the batchID is different, signalling that the user must actually save that change
+}
 
-    this->ui->editEndPageColor->setText(QString::fromStdString(this->book->endpageColor));
-    this->ui->editBox->setText(QString::fromStdString(this->book->box));
-    this->ui->editSection->setText(QString::fromStdString(this->book->section));
-    this->ui->editThreadColor->setText(QString::fromStdString(this->book->threadColor));
-    this->ui->editCoverMaterial->setText(QString::fromStdString(this->book->coverMaterial));
+void MainWindow::setupBook()
+{
+    this->book.constants = settings.bookconstants;
 
-    this->ui->editPageMaterial->setText(QString::fromStdString(this->book->pageMaterial));
-    this->ui->editExtra->setPlainText(QString::fromStdString(this->book->extra));
+    enableUi();
+    this->ui->spinPageDimX->setValue(this->book.pageDim.width);
+    this->ui->spinPageDimY->setValue(this->book.pageDim.height);
+    this->ui->spinCoverDimX->setValue(this->book.coverDim.width);
+    this->ui->spinCoverDimY->setValue(this->book.coverDim.height);
+    this->ui->spinSpineDim->setValue(this->book.spine);
+    this->ui->spinWeight->setValue(this->book.weight);
+    this->ui->spinSignitures->setValue(this->book.signitures);
+    this->ui->spinExtra->setValue(this->book.costExtra);
+    this->ui->spinPagesPerSig->setValue(this->book.pagesPerSigniture);
+
+    this->ui->editEndPageColor->setText(QString::fromStdString(this->book.endpageColor));
+    this->ui->editBox->setText(QString::fromStdString(this->book.box));
+    this->ui->editSection->setText(QString::fromStdString(this->book.section));
+    this->ui->editThreadColor->setText(QString::fromStdString(this->book.threadColor));
+    this->ui->editCoverMaterial->setText(QString::fromStdString(this->book.coverMaterial));
+
+    this->ui->editPageMaterial->setText(QString::fromStdString(this->book.pageMaterial));
+    this->ui->editExtra->setPlainText(QString::fromStdString(this->book.extra));
     
-    this->ui->comboBookType->setCurrentIndex(this->book->bookType - 1);
-    this->ui->comboStatus->setCurrentIndex(this->book->status - 1);
+    this->ui->comboBookType->setCurrentIndex(this->book.bookType - 1); //shift back done
+    this->ui->comboStatus->setCurrentIndex(this->book.status - 1);
 
     displayCosts();
     displayStoreDisciption();
     displayProps();
+    displayPageCount();
 }
 
-void MainWindow::writeFile(json jsonObj, QString directory, QString filename)
+void MainWindow::diableUi()
+{
+    ui->actionSave->setEnabled(false);
+    ui->groupBoxCostBreakdown->setEnabled(false);
+    ui->groupBoxDims->setEnabled(false);
+    ui->groupBoxExtra->setEnabled(false);
+    ui->groupBoxProps->setEnabled(false);
+    ui->groupBoxPropsEdit->setEnabled(false);
+    ui->groupBoxStore->setEnabled(false);
+}
+
+bool MainWindow::writeFile(json jsonObj, QString directory, QString filename)
 {
     QDir dir(directory); //Qt io cant create parent directories on file write...
     if(!dir.exists())
-        dir.mkpath(directory);
+    {
+        if(!dir.mkpath(directory))
+            return false;
+    }
 
     QFile file(directory + QDir::separator() + filename);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        return;
-    }
+        return false;
 
     QTextStream out(&file);
     QString jsonText = QString::fromStdString(jsonObj.dump(4));
     out << jsonText;
     out.flush();
+    return true;
 }
 
 json MainWindow::readFile(QString directory, QString filename)
@@ -177,106 +192,153 @@ json MainWindow::readFile(QString directory, QString filename)
 
     QTextStream in(&file);
     QString str = in.readAll();
-    qDebug() << str;
     json jsonObj = json::parse(str.toStdString());
     return jsonObj;
 }
 
+void MainWindow::enableUi()
+{
+    ui->actionSave->setEnabled(true);
+    ui->groupBoxCostBreakdown->setEnabled(true);
+    ui->groupBoxDims->setEnabled(true);
+    ui->groupBoxExtra->setEnabled(true);
+    ui->groupBoxProps->setEnabled(true);
+    ui->groupBoxPropsEdit->setEnabled(true);
+    ui->groupBoxStore->setEnabled(true);
+}
+
+void MainWindow::writeBook()
+{
+    if(writeFile(book, QString::fromStdString(this->settings.bookDirectory), QString("book-%1.json").arg(this->book.bookID))) oldBook = book;
+}
+
 void MainWindow::saveBook()
 {
-    if (book == nullptr)
+    if(!book.isValid())
         return;
 
-    this->copyToBook();
+    book.updateTimestamp();
     writeBook();
+    this->setWindowModified(false);
+}
+
+void MainWindow::discardBook()
+{
+    book = oldBook; //basically, we reset the current book, that is it!
+    this->setupBook();
     this->setWindowModified(false);
 }
 
 void MainWindow::onActionEdit()
 {
-    saveBook();
-    BookDialog dialog(this, QString::fromStdString(settings->bookDirectory), "edit");
-    BookModel *model = dialog.getModel();
-    connect(model, &BookModel::bookLoad, this, &MainWindow::onBookEdit);
-    dialog.exec();
+    if(onActionSave())
+    {
+        BookDialog dialog(this, QString::fromStdString(settings.bookDirectory), "edit");
+        BookModel *model = dialog.getModel();
+        connect(model, &BookModel::bookLoad, this, &MainWindow::onBookEdit);
+        dialog.exec();
+    }
+}
+
+bool MainWindow::onActionSave()
+{
+    if(book.isValid())
+    {
+        if(!(book == oldBook))
+        {
+            SaveDialog dialog(book, oldBook);
+            connect(&dialog, &SaveDialog::save, this, &MainWindow::saveBook);
+            connect(&dialog, &SaveDialog::discard, this, &MainWindow::discardBook);
+            return dialog.exec();
+        }
+        saveBook();
+    }
+    return true;
 }
 
 void MainWindow::onActionMove()
 {
-    saveBook();
-    BookDialog dialog(this, QString::fromStdString(settings->bookDirectory), "move");
-    BookModel *model = dialog.getModel();
-    connect(model, &BookModel::bookMove, this, &MainWindow::onBookMove);
-    dialog.exec();
+    if(onActionSave())
+    {
+        BookDialog dialog(this, QString::fromStdString(settings.bookDirectory), "move");
+        BookModel *model = dialog.getModel();
+        connect(model, &BookModel::bookMove, this, &MainWindow::onBookMove);
+        dialog.exec();
+    }
 }
 
 void MainWindow::onActionNew()
 {
-    saveBook();
-    BookDialog dialog(this, QString::fromStdString(settings->bookDirectory), "new");
-    BookModel *model = dialog.getModel();
-    connect(model, &BookModel::bookLoad, this, &MainWindow::onBookEdit);
-    dialog.exec();
+    if(onActionSave())
+    {
+        BookDialog dialog(this, QString::fromStdString(settings.bookDirectory), "new");
+        BookModel *model = dialog.getModel();
+        connect(model, &BookModel::bookLoad, this, &MainWindow::onBookNew);
+        dialog.exec();
+    }
 }
 
 void MainWindow::onActionSettings()
 {
-    saveBook();
-    SettingsDialog dialog(settings, this);
+    SettingsDialog dialog(&settings);
     connect(&dialog, &SettingsDialog::accepted, this, &MainWindow::saveSettings);
     dialog.exec();
 }
 
 void MainWindow::saveSettings()
 {
-    writeFile(*settings, QString::fromStdString(settings->configDirectory), "settings.json");
+    if(writeFile(settings, QString::fromStdString(settings.configDirectory), "settings.json"))
+    {
+        if(book.isValid())
+            this->update(); //update all the calculations
+    }
 }
 
 void MainWindow::loadSettings()
 {
-    json obj = readFile(QString::fromStdString(settings->configDirectory), "settings.json");
+    json obj = readFile(QString::fromStdString(settings.configDirectory), "settings.json");
     if(!obj.is_null())
     {
-        *this->settings = obj;
+        this->settings = obj;
     }
 }
 
 void MainWindow::copyToBook()
 {
-    this->book->pageDim.width = ui->spinPageDimX->value();
-    this->book->pageDim.height = ui->spinPageDimY->value();
-    this->book->coverDim.width = ui->spinCoverDimX->value();
-    this->book->coverDim.height = ui->spinCoverDimY->value();
-    this->book->spine = ui->spinSpineDim->value();
-    this->book->weight = ui->spinWeight->value();
-    this->book->signitures = ui->spinSignitures->value();
-    this->book->costExtra = ui->spinExtra->value();
-    this->book->pagesPerSigniture = ui->spinPagesPerSig->value();
+    this->book.pageDim.width = ui->spinPageDimX->value();
+    this->book.pageDim.height = ui->spinPageDimY->value();
+    this->book.coverDim.width = ui->spinCoverDimX->value();
+    this->book.coverDim.height = ui->spinCoverDimY->value();
+    this->book.spine = ui->spinSpineDim->value();
+    this->book.weight = ui->spinWeight->value();
+    this->book.signitures = ui->spinSignitures->value();
+    this->book.costExtra = ui->spinExtra->value();
+    this->book.pagesPerSigniture = ui->spinPagesPerSig->value();
 
-    this->book->endpageColor = ui->editEndPageColor->text().toStdString();
-    this->book->box = ui->editBox->text().toStdString();
-    this->book->section = ui->editSection->text().toStdString();
-    this->book->threadColor = ui->editThreadColor->text().toStdString();
-    this->book->coverMaterial = ui->editCoverMaterial->text().toStdString();
-    this->book->pageMaterial = ui->editPageMaterial->text().toStdString();
-    this->book->extra = ui->editExtra->toPlainText().toStdString();
+    this->book.endpageColor = ui->editEndPageColor->text().toStdString();
+    this->book.box = ui->editBox->text().toStdString();
+    this->book.section = ui->editSection->text().toStdString();
+    this->book.threadColor = ui->editThreadColor->text().toStdString();
+    this->book.coverMaterial = ui->editCoverMaterial->text().toStdString();
+    this->book.pageMaterial = ui->editPageMaterial->text().toStdString();
+    this->book.extra = ui->editExtra->toPlainText().toStdString();
 
-    this->book->status = static_cast<Status>(ui->comboStatus->currentIndex() + 1);
-    this->book->bookType = static_cast<BookType>(ui->comboBookType->currentIndex() + 1);
+    this->book.status = static_cast<Status>(ui->comboStatus->currentIndex() + 1); //shift from -1, 0, 1, 2, 3, 4 to 0, 1, 2, 3, 4, 5
+    this->book.bookType = static_cast<BookType>(ui->comboBookType->currentIndex() + 1);
 }
 
 void MainWindow::displayCosts()
 {
-    if(book->isCalculatable())
+    if(book.isCalculatable())
     {
-        ui->spinBoard->setValue(book->getBoardCost());
-        ui->spinCloth->setValue(book->getClothCost());
-        ui->spinThread->setValue(book->getThreadRibbonCost());
-        ui->spinHeadband->setValue(book->getHeadbandCost());
-        ui->spinPaper->setValue(book->getPageCost());
-        ui->spinSuper->setValue(book->getSuperCost());
-        ui->spinMisc->setValue(book->getExtraCosts());
-        ui->spinTotal->setValue(book->getTotal());
+        ui->spinBoard->setValue(book.getBoardCost());
+        ui->spinCloth->setValue(book.getClothCost());
+        ui->spinThread->setValue(book.getThreadRibbonCost());
+        ui->spinHeadband->setValue(book.getHeadbandCost());
+        ui->spinPaper->setValue(book.getPageCost());
+        ui->spinSuper->setValue(book.getSuperCost());
+        ui->spinMisc->setValue(book.getExtraCosts());
+        ui->spinTotal->setValue(book.getTotal());
     }
     else
     {
@@ -293,15 +355,15 @@ void MainWindow::displayCosts()
 
 void MainWindow::displayStoreDisciption()
 {
-    if (book->canHaveDiscription())
+    if (book.canHaveDiscription())
     {
         QString endpageColor, spineType, threadColor, coverMaterial, pageMaterial;
 
-        endpageColor = QString::fromStdString(this->book->endpageColor);
-        threadColor = QString::fromStdString(this->book->threadColor);
-        coverMaterial = QString::fromStdString(this->book->coverMaterial);
-        pageMaterial = QString::fromStdString(this->book->pageMaterial);
-        spineType = QString::fromStdString(book->getSpineType());
+        endpageColor = QString::fromStdString(this->book.endpageColor);
+        threadColor = QString::fromStdString(this->book.threadColor);
+        coverMaterial = QString::fromStdString(this->book.coverMaterial);
+        pageMaterial = QString::fromStdString(this->book.pageMaterial);
+        spineType = QString::fromStdString(book.getSpineType());
 
         QString str = QString(
             "Cover: %1\n"
@@ -313,13 +375,13 @@ void MainWindow::displayStoreDisciption()
             "Page: %9 in. by %10 in.\n"
             "%11 pages / %12 sides"
         ).arg(coverMaterial, spineType, threadColor, pageMaterial, endpageColor
-        ).arg(this->book->coverDim.width
-        ).arg(this->book->coverDim.height
-        ).arg(this->book->spine
-        ).arg(this->book->pageDim.width
-        ).arg(this->book->pageDim.height
-        ).arg(this->book->calculatePageCount()
-        ).arg(this->book->calculatePageCount() * 2);
+        ).arg(this->book.coverDim.width
+        ).arg(this->book.coverDim.height
+        ).arg(this->book.spine
+        ).arg(this->book.pageDim.width
+        ).arg(this->book.pageDim.height
+        ).arg(this->book.calculatePageCount()
+        ).arg(this->book.calculatePageCount() * 2);
 
         ui->editDiscription->setPlainText(str);
     }
@@ -331,32 +393,49 @@ void MainWindow::displayStoreDisciption()
 
 void MainWindow::displayProps()
 {
-    model->reset();
     char lastEditStr[80];
     char creationStr[80];
 
-    strftime(lastEditStr, 80, "%b %d %Y %I:%M%p", localtime(&book->lastEdit));
-    strftime(creationStr, 80, "%b %d %Y %I:%M%p", localtime(&book->creation));
+    RootItem *root = new RootItem(2);
 
-    PropItem *bookID_prop = new PropItem(tr("Book ID"), book->bookID);
-    PropItem *batchID_prop = new PropItem(tr("Batch ID"), book->batchID);
-    PropItem *lastEdit_prop = new PropItem(tr("Last Edited"), QString::fromLocal8Bit(lastEditStr));
-    PropItem *creation_prop = new PropItem(tr("Created"), QString::fromLocal8Bit(creationStr));
+    strftime(lastEditStr, 80, "%b %d %Y %I:%M%p", localtime(&book.lastEdit));
+    strftime(creationStr, 80, "%b %d %Y %I:%M%p", localtime(&book.creation));
 
-    model->addItem(bookID_prop);
-    model->addItem(batchID_prop);
-    model->addItem(lastEdit_prop);
-    model->addItem(creation_prop);
+
+    PropItem *bookID_prop = new PropItem();
+    bookID_prop->appendData(tr("Book ID"));
+    bookID_prop->appendData(QString::number(book.bookID));
+    root->appendItem(bookID_prop);
+
+    PropItem *batchID_prop = new PropItem();
+    batchID_prop->appendData(tr("Batch ID"));
+    batchID_prop->appendData(QString::number(book.batchID));
+    root->appendItem(batchID_prop);
+
+    PropItem *lastEdit_prop = new PropItem();
+    lastEdit_prop->appendData(tr("Last Edited"));
+    lastEdit_prop->appendData(QString::fromLocal8Bit(lastEditStr));
+    root->appendItem(lastEdit_prop);
+
+    PropItem *creation_prop = new PropItem();
+    creation_prop->appendData(tr("Created"));
+    creation_prop->appendData(QString::fromLocal8Bit(creationStr));
+    root->appendItem(creation_prop);
+
+    if (model == nullptr)
+    {
+        model = new PropsModel(root, (QList<QString>() << "Property" << "Value"));
+    }
+    else
+    {
+        model->setRootItem(root);
+    }
+
     ui->treeView->setModel(model);
+
 }
 
 void MainWindow::displayPageCount()
 {
-    this->ui->spinPages->setValue(this->book->calculatePageCount());
-}
-
-void MainWindow::writeBook()
-{
-    json Obj = *book;
-    writeFile(Obj, QString::fromStdString(this->settings->bookDirectory), QString("book-%1.json").arg(this->book->bookID));
+    this->ui->spinPages->setValue(this->book.calculatePageCount());
 }

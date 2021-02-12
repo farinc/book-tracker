@@ -1,15 +1,18 @@
+#include "models.h"
 #include "bookdialog.h"
 #include "mainwindow.h"
 #include "./ui_bookdialog.h"
+
+#include <json.hpp>
+
 #include <QDir>
 #include <QUrl>
 #include <QHeaderView>
-
 #include <QDebug>
 
-#include "bookmodel.h"
+using json = nlohmann::json;
 
-BookDialog::BookDialog(QWidget *parent, QString bookDirectory, QString type) : QDialog(parent), ui(new Ui::BookDialog), type(type)
+BookDialog::BookDialog(QWidget *parent, const QString bookDirectory, const QString type) : QDialog(parent), ui(new Ui::BookDialog), type(type)
 {
     ui->setupUi(this);
 
@@ -29,9 +32,7 @@ BookDialog::BookDialog(QWidget *parent, QString bookDirectory, QString type) : Q
         this->setWindowTitle("Move Entry");
     }
 
-    model = BookModel::generateModel(bookDirectory, type);
-
-    ui->treeView->setModel(model);
+    setupModel(bookDirectory);
 
     auto header = new QHeaderView(Qt::Horizontal);
     header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
@@ -65,6 +66,76 @@ BookDialog::~BookDialog()
 BookModel *BookDialog::getModel() const
 {
     return this->model;
+}
+
+void BookDialog::setupModel(QDir bookDirectory)
+{
+    QStringList files = bookDirectory.entryList(QStringList() << "*.json", QDir::Files);
+
+    json bookObj;
+    Book indexedBook;
+    BookItem *bookItem;
+
+    RootItem *rootItem = new RootItem(5); //our root item in our book model
+    BatchItem *batchItem;
+
+    int batchID;
+    int bookID;
+    int maxBookID = 0;
+    int maxBatchID = 0;
+
+    /*  First, parse through book JSONs to find valid books and load them into "indexedBook"
+     *  Then add the book to the proper batch by either 1) creating a new batch or 2) adding to an existing batch, in the "rootItem"
+     *  Repeat this with all the books until finished
+     *  Then instantate a BookModel and pass it the ref to the rootItem.
+     */
+
+    for(QString filename : files)
+    {
+
+        json bookObj = MainWindow::readFile(bookDirectory.path(), filename);
+        if(!bookObj.is_null())
+        {
+            indexedBook = bookObj;
+
+            if(indexedBook.isValid())
+            {
+                batchID = indexedBook.batchID;
+                bookID = indexedBook.bookID;
+
+                if(batchID > maxBatchID) maxBatchID = batchID;
+                if(bookID > maxBookID) maxBookID = bookID;
+
+                bookItem = new BookItem(indexedBook);
+                batchItem = static_cast<BatchItem*>(rootItem->child(batchID));
+
+                if(batchItem == nullptr)
+                {
+                    //make the batch with "batchID"
+                    batchItem = new BatchItem(batchID);
+                    rootItem->appendItem(batchItem);
+                }
+
+                batchItem->appendBook(bookItem);
+            }
+            else
+            {
+                qDebug() << QString("The json \"%1\" is invalid!").arg(filename);
+            }
+        }
+        else
+        {
+            qDebug() << QString("json is null, because \"%1\" could not be opened!").arg(filename);
+        }
+    }
+
+    if(type == "new" || type == "move")
+    {
+        rootItem->appendItem(new BatchItem(maxBatchID + 1));
+    }
+
+    model = new BookModel(rootItem,type, maxBookID + 1);
+    ui->treeView->setModel(model);
 }
 
 BookSelectionModel::BookSelectionModel(int number): QItemSelectionModel(), number(number)

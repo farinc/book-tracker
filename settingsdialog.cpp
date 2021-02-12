@@ -64,13 +64,7 @@ void SettingsDialog::handleButtons(QAbstractButton *btn)
     auto sb = ui->buttonBox->standardButton(btn);
     if (sb == QDialogButtonBox::Reset)
     {
-        if(!tempDir.empty())
-        {
-            tempSettings.bookDirectory = tempDir;
-        }
-
         tempSettings.bookconstants = CostConstants();
-        ui->lineEditBookDirectory->setText(QString::fromStdString(tempSettings.bookDirectory));
         ui->treeView->reset();
         ui->treeView->model()->revert();
         setupModel();
@@ -78,7 +72,6 @@ void SettingsDialog::handleButtons(QAbstractButton *btn)
     else if(sb == QDialogButtonBox::RestoreDefaults)
     {
         this->tempSettings = Settings();
-        ui->lineEditBookDirectory->setText(QString::fromStdString(tempSettings.bookDirectory));
         setupModel();
     }
 }

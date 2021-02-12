@@ -13,25 +13,26 @@ INCLUDEPATH += thirdparty/nlohmann_json/single_include/nlohmann/
 SOURCES += \
     book.cpp \
     bookdialog.cpp \
-    bookmodel.cpp \
-    bookpropsmodel.cpp \
     costitemsmodel.cpp \
     main.cpp \
     mainwindow.cpp \
+    models.cpp \
+    savedialog.cpp \
     settingsdialog.cpp
 
 HEADERS += \
     book.h \
     bookdialog.h \
-    bookmodel.h \
-    bookpropsmodel.h \
     costitemsmodel.h \
     mainwindow.h \
+    models.h \
+    savedialog.h \
     settingsdialog.h
 
 FORMS += \
     bookdialog.ui \
     mainwindow.ui \
+    savedialog.ui \
     settingsdialog.ui
 
 RESOURCES = resource.qrc

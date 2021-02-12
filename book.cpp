@@ -28,6 +28,11 @@ Book::Book(int bookID, int batchID)
     this->costExtra = 0;
 }
 
+void Book::updateTimestamp()
+{
+    this->lastEdit = time(0);
+}
+
 bool Book::isCalculatable() const
 {
     bool flag = true;
@@ -56,6 +61,11 @@ bool Book::canHaveDiscription() const
 int Book::calculatePageCount() const
 {
     return this->signitures * this->pagesPerSigniture;
+}
+
+bool Book::isValid() const
+{
+    return this->batchID >= 0 && this->bookID >= 0;
 }
 
 std::string Book::getSpineType()

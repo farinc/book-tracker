@@ -1,4 +1,4 @@
-#include "bookmodel.h"
+#include "models.h"
 #include "mainwindow.h"
 #include <json.hpp>
 #include <ctime>
@@ -8,19 +8,24 @@
 
 using json = nlohmann::json;
 
-Item::Item()
+Item::Item(QString type): parentItem(nullptr)
 {
     childList = QList<Item*>();
+    dataList = QList<QString>();
+    tp = type;
 }
 
 Item::~Item()
 {
     qDeleteAll(childList);
-    delete parentItem;
+    childList.clear();
 }
 
 int Item::row() const
 {
+    if(parentItem == nullptr)
+        return 0;
+
     return this->parentItem->childList.indexOf(const_cast<Item*>(this));
 }
 
@@ -29,21 +34,11 @@ Item* Item::parent() const
     return this->parentItem;
 }
 
-void Item::setParent(Item *parent)
-{
-    this->parentItem = parent;
-}
-
 Item* Item::child(int row) const
 {
     if (row >= this->childCount() || row < 0)
         return nullptr;
     return this->childList.at(row);
-}
-
-void Item::setChild(int row, Item *child)
-{
-    this->childList.insert(row, child);
 }
 
 bool Item::hasChild(int row) const
@@ -58,16 +53,29 @@ int Item::childCount() const
 
 void Item::appendChild(Item *item)
 {
+    if(item == nullptr)
+        return;
+
     this->childList.append(item);
-    if (item != nullptr)
-        item->setParent(this);
+    item->parentItem = this;
 }
 
 void Item::removeChild(Item *item)
 {
+    if(!hasChild(this->childList.indexOf(item)))
+        return;
+
     this->childList.removeOne(item);
-    if (item != nullptr)
-        item->setParent(nullptr);
+    item->parentItem = nullptr;
+}
+
+void Item::removeChild(int row)
+{
+    if(!hasChild(row))
+        return;
+
+    this->childList.removeAt(row);
+    child(row)->parentItem = nullptr;
 }
 
 void Item::setData(int column, QString data)
@@ -75,14 +83,19 @@ void Item::setData(int column, QString data)
     this->dataList.insert(column, data);
 }
 
-QString Item::data(int column)
+void Item::appendData(QString data)
+{
+    dataList << data;
+}
+
+QString Item::data(int column) const
 {
     if(column >= dataSize() || column < 0)
         return nullptr;
     return this->dataList.at(column);
 }
 
-int Item::dataSize()
+int Item::dataSize() const
 {
     return this->dataList.size();
 }
@@ -92,7 +105,37 @@ QString Item::type() const
     return itemType;
 }
 
-BatchItem::BatchItem(int batchID): Item()
+PropItem::PropItem(): Item("prop")
+{
+
+}
+
+void PropItem::appendData(QString in)
+{
+    Item::appendData(in);
+}
+
+RootItem::RootItem(const int &maxColumns): Item("root"), maxColumns(maxColumns)
+{
+
+}
+
+void RootItem::appendItem(Item *item)
+{
+    Item::appendChild(item);
+}
+
+void RootItem::removeItem(int index)
+{
+    Item::removeChild(index);
+}
+
+void RootItem::removeItem(Item *item)
+{
+    Item::removeChild(item);
+}
+
+BatchItem::BatchItem(int batchID): Item("batch")
 {
     this->setData(0, "Batch " + QString::number(batchID));
     this->setData(1, "");
@@ -110,11 +153,6 @@ void BatchItem::appendBook(BookItem *book)
     this->appendChild(book);
 }
 
-void BatchItem::setBook(int row, BookItem *book)
-{
-    this->setChild(row, book);
-}
-
 void BatchItem::removeBook(BookItem *book)
 {
     this->removeChild(book);
@@ -125,7 +163,7 @@ int BatchItem::id() const
     return this->batchID;
 }
 
-BookItem::BookItem(Book &book): Item(), book(book)
+BookItem::BookItem(Book book): Item("book"), book(book)
 {    
     char lastEditStr[80];
     char creationStr[80];
@@ -142,106 +180,100 @@ BookItem::BookItem(Book &book): Item(), book(book)
     itemType = "book";
 }
 
-RootItem::RootItem(): Item()
+Model::Model(RootItem *rootItem, QObject *parent): QAbstractItemModel(parent), rootItem(rootItem)
 {
-    this->setData(0, "Books");
-    this->setData(1, "Last Edited");
-    this->setData(2, "First Created");
-    this->setData(3, "Box");
-    this->setData(4, "Section");
-
-    itemType = "root";
 }
 
-void RootItem::appendBatch(BatchItem *batch)
+QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
 {
-    this->appendChild(batch);
-}
-
-void RootItem::removeBatch(BatchItem *batch)
-{
-    this->removeChild(batch);
-}
-
-BookModel::BookModel(QMultiMap<int, Book> data, int maxBookID, int maxBatchID, QString type, QObject *parent): QAbstractItemModel(parent)
-{
-    rootItem = new RootItem();
-    this->type = type;
-    this->nextBookID = maxBookID + 1;
-    populateModel(maxBatchID, data);
-}
-
-void BookModel::populateModel(int maxBatchID, QMultiMap<int, Book> data)
-{
-    int batches;
-    if(this->type == "edit")
+    Item *parentItem;
+    if(!parent.isValid())
     {
-        batches = maxBatchID;
+        parentItem = rootItem;
     }
     else
     {
-        batches = maxBatchID + 1;
+        parentItem = static_cast<Item*>(parent.internalPointer());
     }
 
+    Item *childItem = parentItem->child(row);
 
-    for(int batch = 0; batch <= batches; batch++)
+    if(childItem != nullptr)
     {
-        if(data.contains(batch)){
-            //Ok, create a batch node (item) and append it to root
-            BatchItem *batchItem = new BatchItem(batch);
-            QList<Book> booksInBatch = data.values(batch);
-            for(Book bk: booksInBatch)
-            {
-                batchItem->appendBook(new BookItem(bk));
-            }
-            rootItem->appendBatch(batchItem);
-        }else{
-            if (this->type == "new" || this->type == "move")
-            {
-                //add a "batch" that repersents a new batch which is empty.
-                BatchItem *newBatchItem = new BatchItem(batch); //this particular batchID is outside of range, so it must be the future batchID
-                rootItem->appendBatch(newBatchItem);
-            }
-        }
+        return createIndex(row, column, childItem);
+    }
+
+    return QModelIndex();
+}
+
+QModelIndex Model::parent(const QModelIndex &index) const
+{
+    Item *item = static_cast<Item*>(index.internalPointer());
+    Item *parentItem = item->parent();
+
+    if(parentItem != nullptr && parentItem->type() != "root")
+    {
+        return createIndex(parentItem->row(), 0, parentItem);
+    }
+    return QModelIndex();
+}
+
+int Model::rowCount(const QModelIndex &parent) const
+{
+    const Item *parentItem;
+
+    if(!parent.isValid())
+    {
+        parentItem = rootItem;
+    }
+    else
+    {
+        parentItem = static_cast<Item*>(parent.internalPointer());
+    }
+
+    qDebug() << parentItem;
+
+    if(parentItem != nullptr)
+        return parentItem->childCount();
+
+    return 0;
+}
+
+int Model::columnCount(const QModelIndex &parent) const
+{   
+    if(!parent.isValid())
+    {
+        return rootItem->maxColumns;
+    }
+    else
+    {
+        Item *parentItem = static_cast<Item*>(parent.internalPointer());
+        return parentItem->dataSize();
     }
 }
 
-BookModel *BookModel::generateModel(QDir bookDirectory, QString type)
+QVariant Model::data(const QModelIndex &index, int role) const
 {
-    QMultiMap<int, Book> books = QMultiMap<int, Book>();
-    QStringList files = bookDirectory.entryList(QStringList() << "*.json", QDir::Files);
-    json bookObj;
-    Book indexedBook;
+    if (!index.isValid())
+        return QVariant();
 
-    int maxBookID = 0;
-    int maxBatchID = 0;
+    if (role != Qt::DisplayRole)
+        return QVariant();
 
-    for(QString filename : files)
-    {
+    Item *item = static_cast<Item*>(index.internalPointer());
+    return item->data(index.column());
+}
 
-        json bookObj = MainWindow::readFile(bookDirectory.path(), filename);
-        if(!bookObj.is_null())
-        {
-            indexedBook = bookObj;
+void Model::setRootItem(RootItem *rt)
+{
+    beginResetModel();
+    delete rootItem;
+    rootItem = rt;
+    endResetModel();
+}
+BookModel::BookModel(RootItem *rootItem, QString type, int nextBookID, QObject *parent): Model(rootItem, parent), type(type), nextBookID(nextBookID)
+{
 
-            if (maxBookID < indexedBook.bookID)
-            {
-                maxBookID = indexedBook.bookID;
-            }
-            if(maxBatchID < indexedBook.batchID)
-            {
-                maxBatchID = indexedBook.batchID;
-            }
-            books.insert(indexedBook.batchID, indexedBook);
-        }
-        else
-        {
-            qDebug() << "json is null!";
-        }
-    }
-
-    BookModel *model = new BookModel(books, maxBookID, maxBatchID, type);
-    return model;
 }
 
 void BookModel::onItemSelectionSingle(const QModelIndex &index1)
@@ -298,34 +330,26 @@ void BookModel::onItemSelectionDuo(const QModelIndex &index1, const QModelIndex 
 
         if(batchItem->id() != bookItem->book.batchID)
         {
-            emit bookMove(bookItem->book, batchItem->id());
+            Book book = bookItem->book;
+            emit bookMove(book, batchItem->id());
             emit done(QDialog::Accepted);
         }
     }
 }
 
-BookModel::~BookModel()
-{
-    //delete rootItem;
-}
-
-QVariant BookModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    if (role != Qt::DisplayRole)
-        return QVariant();
-
-    Item *item = static_cast<Item*>(index.internalPointer());
-
-    return item->data(index.column());
-}
-
 QVariant BookModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return rootItem->data(section);
+    {
+        switch(section)
+        {
+        case 0: return tr("Discription");
+        case 1: return tr("Last Edited");
+        case 2: return tr("Created on");
+        case 3: return tr("Box");
+        case 4: return tr("Section");
+        }
+    }
 
     return QVariant();
 }
@@ -376,78 +400,23 @@ Qt::ItemFlags BookModel::flags(const QModelIndex &index) const
     return Qt::NoItemFlags;
 }
 
-QModelIndex BookModel::index(int row, int column, const QModelIndex &parent) const
+PropsModel::PropsModel(RootItem *rootItem, QList<QString> header, QObject *parent): Model(rootItem, parent), header(header)
 {
-    if(!hasIndex(row, column, parent))
-    {
-        return QModelIndex();
-    }
 
-    Item *parentItem;
-
-    if(!parent.isValid()){
-        parentItem = rootItem;
-    }else{
-        parentItem = static_cast<Item*>(parent.internalPointer());
-    }
-
-    Item *childItem = parentItem->child(row);
-
-    if(childItem != nullptr)
-    {
-        return createIndex(row, column, childItem);
-    }
-
-    return QModelIndex();
 }
 
-QModelIndex BookModel::parent(const QModelIndex &index) const
+QVariant PropsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if(!index.isValid())
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
     {
-        return QModelIndex();
+        if(section < rootItem->maxColumns && section >= 0)
+            return header.at(section);
     }
 
-    Item *childItem = static_cast<Item*>(index.internalPointer());
-    Item *parentItem = childItem->parent();
-
-    if(parentItem->type() != "root")
-    {
-        return createIndex(parentItem->row(), 0, parentItem);
-    }
-
-    return QModelIndex();
+    return QVariant();
 }
 
-int BookModel::rowCount(const QModelIndex &parent) const
+Qt::ItemFlags PropsModel::flags(const QModelIndex &index) const
 {
-    Item *parentItem;
-    if(parent.column() > 0)
-        return 0;
-
-    if(!parent.isValid())
-    {
-        parentItem = rootItem;
-    }
-    else
-    {
-        parentItem = static_cast<Item*>(parent.internalPointer());
-    }
-
-    return parentItem->childCount();
-}
-
-int BookModel::columnCount(const QModelIndex &parent) const
-{
-    Item* parentItem;
-    if(!parent.isValid())
-    {
-        parentItem = rootItem;
-    }
-    else
-    {
-        parentItem = static_cast<Item*>(parent.internalPointer());
-    }
-
-    return parentItem->dataSize();
+    return Qt::ItemIsEnabled;
 }
