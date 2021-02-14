@@ -18,16 +18,19 @@ BookDialog::BookDialog(QWidget *parent, const QString bookDirectory, const QStri
 
     if(type == "edit")
     {
+        this->setWindowTitle("Edit Book");
         this->ui->infoLabel->setText("Please select a book to be edited");
         this->setWindowTitle("Edit Entry");
     }
     else if(type == "new")
     {
+        this->setWindowTitle("New Book");
         this->ui->infoLabel->setText("Please select a batch to create a new book in");
         this->setWindowTitle("New Entry");
     }
     else if(type == "move")
     {
+        this->setWindowTitle("Move Book");
         this->ui->infoLabel->setText("Please select a batch to move the selected book into");
         this->setWindowTitle("Move Entry");
     }

@@ -1,7 +1,7 @@
 #include <QDebug>
 
 #include "savedialog.h"
-#include "ui_changedialog.h"
+#include "ui_savedialog.h"
 
 SaveDialog::SaveDialog(Book newBook, Book oldBook, QWidget *parent) : QDialog(parent), ui(new Ui::ChangeDialog), model(nullptr)
 {

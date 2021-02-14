@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>680</width>
+    <width>682</width>
     <height>973</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resource.qrc">
-    <normaloff>:/icons/main.ico</normaloff>:/icons/main.ico</iconset>
+    <normaloff>:/main.ico</normaloff>:/main.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">#centralwidget {
@@ -1137,7 +1137,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>680</width>
+     <width>682</width>
      <height>30</height>
     </rect>
    </property>
