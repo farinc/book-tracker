@@ -10,37 +10,6 @@ namespace Ui {
 class ChangeDialog;
 }
 
-static QString getString(BookType type)
-{
-    switch (type)
-    {
-    case 0: return "Not Specified";
-    case 1: return "Traditional";
-    case 2: return "Coptic";
-    case 3: return "Two Needle Coptic";
-    case 4: return "Stab Stich";
-    case 5: return "Quarter";
-    case 6: return "Long Stich";
-    }
-}
-static QString getString(Status type)
-{
-    switch (type)
-    {
-    case 0: return "Not Specified";
-    case 1: return "No Photo";
-    case 2: return "Drafted";
-    case 3: return "Drafted w/ Photo";
-    case 4: return "Published";
-    case 5: return "Sold";
-    }
-}
-
-static QString getString(Dimension dim)
-{
-    return QString("%1 in by %2 in").arg(dim.width).arg(dim.height);
-}
-
 class SaveDialog : public QDialog
 {
     Q_OBJECT

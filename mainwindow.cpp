@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QStandardPaths>
 #include <QPlainTextEdit>
+#include <QClipboard>
 
 #include <fstream>
 #include <json.hpp>
@@ -58,6 +59,9 @@ void MainWindow::setupSlots()
     connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::onActionSettings);
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::onActionSave);
 
+    //Copy Button
+    connect(ui->pushButtonCopy, &QPushButton::pressed, this, &MainWindow::copyDiscription);
+
     //Ui refresh book changes, go back to "save every change." However, in this case, we are just copying ui values to the book pointer, not writing to file
     connect(ui->spinCoverDimX, &QDoubleSpinBox::editingFinished, this, &MainWindow::update);
     connect(ui->spinCoverDimY, &QDoubleSpinBox::editingFinished, this, &MainWindow::update);
@@ -85,15 +89,22 @@ void MainWindow::update()
     this->copyToBook();
 
     //Now update, display the new values...
-    displayPageCount();
     displayCosts();
     displayStoreDisciption();
+    displayPageCount();
 
     //The current book is likely modified
     this->setWindowModified(true);
 }
 
-void MainWindow::onBookEdit(Book &bk)
+void MainWindow::copyDiscription()
+{
+    QString text = ui->editDiscription->toPlainText();
+    QClipboard *clipboard = static_cast<QApplication*>(parent())->clipboard();
+    clipboard->setText(text);
+}
+
+void MainWindow::onBookEdit(Book bk)
 {
     this->oldBook = bk; //Give it the same book to compare
     this->book = bk;
@@ -101,7 +112,7 @@ void MainWindow::onBookEdit(Book &bk)
     this->setWindowModified(false);
 }
 
-void MainWindow::onBookNew(Book &bk)
+void MainWindow::onBookNew(Book bk)
 {
     this->oldBook = Book(); //explicitly give it a invalid book
     this->book = bk;
@@ -109,7 +120,7 @@ void MainWindow::onBookNew(Book &bk)
     this->setWindowModified(false);
 }
 
-void MainWindow::onBookMove(Book &bk, int newBatch)
+void MainWindow::onBookMove(Book bk, int newBatch)
 {
     this->oldBook = bk;
     this->book = bk;
@@ -132,23 +143,21 @@ void MainWindow::setupBook()
     this->ui->spinSignitures->setValue(this->book.signitures);
     this->ui->spinExtra->setValue(this->book.costExtra);
     this->ui->spinPagesPerSig->setValue(this->book.pagesPerSigniture);
-
     this->ui->editEndPageColor->setText(QString::fromStdString(this->book.endpageColor));
     this->ui->editBox->setText(QString::fromStdString(this->book.box));
     this->ui->editSection->setText(QString::fromStdString(this->book.section));
     this->ui->editThreadColor->setText(QString::fromStdString(this->book.threadColor));
     this->ui->editCoverMaterial->setText(QString::fromStdString(this->book.coverMaterial));
-
     this->ui->editPageMaterial->setText(QString::fromStdString(this->book.pageMaterial));
-    this->ui->editExtra->setPlainText(QString::fromStdString(this->book.extra));
-    
-    this->ui->comboBookType->setCurrentIndex(this->book.bookType - 1); //shift back done
+    this->ui->comboBookType->setCurrentIndex(this->book.bookType - 1); //shift back down
     this->ui->comboStatus->setCurrentIndex(this->book.status - 1);
 
     displayCosts();
     displayStoreDisciption();
     displayProps();
     displayPageCount();
+
+    this->ui->editExtra->setPlainText(QString::fromStdString(book.extra)); //TODO: if this occurs before other sets, it somehow messs with the book instance. Should investigate
 }
 
 void MainWindow::diableUi()
@@ -224,7 +233,15 @@ void MainWindow::saveBook()
 
 void MainWindow::discardBook()
 {
-    book = oldBook; //basically, we reset the current book, that is it!
+    if(oldBook.isValid())
+    {
+        book = oldBook; //basically, we reset the current book, if the old book is valid, otherwise...
+    }
+    else
+    {
+        //...only copy the bookID and batchID over.
+        this->book = Book(this->book.bookID, this->book.batchID);
+    }
     this->setupBook();
     this->setWindowModified(false);
 }
@@ -363,18 +380,29 @@ void MainWindow::displayStoreDisciption()
         threadColor = QString::fromStdString(this->book.threadColor);
         coverMaterial = QString::fromStdString(this->book.coverMaterial);
         pageMaterial = QString::fromStdString(this->book.pageMaterial);
+
+        QString spineStr;
         spineType = QString::fromStdString(book.getSpineType());
+
+        if (spineType == "")
+        {
+            spineStr = "";
+        }
+        else
+        {
+            spineStr = QString("%1: %2").arg(spineType, threadColor);
+        }
 
         QString str = QString(
             "Cover: %1\n"
-            "%2: %3\n"
-            "Paper: %4\n"
-            "Inside covers: %5\n\n"
-            "Cover: %6 in. by %7 in.\n"
-            "Spine: %8 in.\n"
-            "Page: %9 in. by %10 in.\n"
+            "%2\n"
+            "Paper: %3\n"
+            "Inside covers: %4\n\n"
+            "Cover: %5 in. by %6 in.\n"
+            "Spine: %7 in.\n"
+            "Page: %8 in. by %9 in.\n"
             "%11 pages / %12 sides"
-        ).arg(coverMaterial, spineType, threadColor, pageMaterial, endpageColor
+        ).arg(coverMaterial, spineStr, pageMaterial, endpageColor
         ).arg(this->book.coverDim.width
         ).arg(this->book.coverDim.height
         ).arg(this->book.spine

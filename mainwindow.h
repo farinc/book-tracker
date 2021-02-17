@@ -55,11 +55,12 @@ public slots:
     void onActionSettings();
     void saveBook();
     void update();
+    void copyDiscription();
 
     //Logical slots
-    void onBookEdit(Book &book);
-    void onBookNew(Book &book);
-    void onBookMove(Book &book, int newBatch);
+    void onBookEdit(Book book);
+    void onBookNew(Book book);
+    void onBookMove(Book book, int newBatch);
     void saveSettings();
     void loadSettings();
 };

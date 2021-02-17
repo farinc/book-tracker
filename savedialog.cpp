@@ -2,6 +2,7 @@
 
 #include "savedialog.h"
 #include "ui_savedialog.h"
+#include "book.h"
 
 SaveDialog::SaveDialog(Book newBook, Book oldBook, QWidget *parent) : QDialog(parent), ui(new Ui::ChangeDialog), model(nullptr)
 {
@@ -49,8 +50,8 @@ void SaveDialog::setupModel(Book newBook, Book oldBook)
         {
             PropItem *item = new PropItem();
             item->appendData("Book Type");
-            item->appendData(getString(newBook.bookType));
-            item->appendData(getString(oldBook.bookType));
+            item->appendData(QString::fromStdString(getString(newBook.bookType)));
+            item->appendData(QString::fromStdString(getString(oldBook.bookType)));
             root->appendItem(item);
         }
 
@@ -58,8 +59,8 @@ void SaveDialog::setupModel(Book newBook, Book oldBook)
         {
             PropItem *item = new PropItem();
             item->appendData("Status");
-            item->appendData(getString(newBook.status));
-            item->appendData(getString(oldBook.status));
+            item->appendData(QString::fromStdString(getString(newBook.status)));
+            item->appendData(QString::fromStdString(getString(oldBook.status)));
             root->appendItem(item);
         }
 
@@ -67,8 +68,8 @@ void SaveDialog::setupModel(Book newBook, Book oldBook)
         {
             PropItem *item = new PropItem();
             item->appendData("Cover Dimensions");
-            item->appendData(getString(newBook.coverDim));
-            item->appendData(getString(oldBook.coverDim));
+            item->appendData(QString::fromStdString(getString(newBook.coverDim)));
+            item->appendData(QString::fromStdString(getString(oldBook.coverDim)));
             root->appendItem(item);
         }
 
@@ -76,8 +77,8 @@ void SaveDialog::setupModel(Book newBook, Book oldBook)
         {
             PropItem *item = new PropItem();
             item->appendData("Page Dimensions");
-            item->appendData(getString(newBook.pageDim));
-            item->appendData(getString(oldBook.pageDim));
+            item->appendData(QString::fromStdString(getString(newBook.pageDim)));
+            item->appendData(QString::fromStdString(getString(oldBook.pageDim)));
             root->appendItem(item);
         }
 

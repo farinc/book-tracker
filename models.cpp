@@ -166,16 +166,13 @@ int BatchItem::id() const
 BookItem::BookItem(Book book): Item("book"), book(book)
 {    
     char lastEditStr[80];
-    char creationStr[80];
-
     strftime(lastEditStr, 80, "%b %d %Y %I:%M%p", localtime(&book.lastEdit));
-    strftime(creationStr, 80, "%b %d %Y %I:%M%p", localtime(&book.creation));
 
     this->setData(0, "Book " + QString::number(book.bookID));
     this->setData(1, QString::fromLocal8Bit(lastEditStr));
-    this->setData(2, QString::fromLocal8Bit(creationStr));
-    this->setData(3, QString::fromStdString(book.box));
-    this->setData(4, QString::fromStdString(book.section));
+    this->setData(2, QString::fromStdString(book.box));
+    this->setData(3, QString::fromStdString(book.section));
+    this->setData(4, QString::fromStdString(getString(book.status)));
 
     itemType = "book";
 }
@@ -230,8 +227,6 @@ int Model::rowCount(const QModelIndex &parent) const
     {
         parentItem = static_cast<Item*>(parent.internalPointer());
     }
-
-    qDebug() << parentItem;
 
     if(parentItem != nullptr)
         return parentItem->childCount();
@@ -345,9 +340,9 @@ QVariant BookModel::headerData(int section, Qt::Orientation orientation, int rol
         {
         case 0: return tr("Discription");
         case 1: return tr("Last Edited");
-        case 2: return tr("Created on");
-        case 3: return tr("Box");
-        case 4: return tr("Section");
+        case 2: return tr("Box");
+        case 3: return tr("Section");
+        case 4: return tr("Status");
         }
     }
 

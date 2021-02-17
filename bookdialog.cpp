@@ -106,6 +106,8 @@ void BookDialog::setupModel(QDir bookDirectory)
                 batchID = indexedBook.batchID;
                 bookID = indexedBook.bookID;
 
+                if(bookID == 0) qDebug() << indexedBook.status;
+
                 if(batchID > maxBatchID) maxBatchID = batchID;
                 if(bookID > maxBookID) maxBookID = bookID;
 

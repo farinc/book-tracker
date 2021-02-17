@@ -105,8 +105,8 @@ private:
     int nextBookID;
 signals:
     void done(int r);
-    void bookLoad(Book &book);
-    void bookMove(Book &book, int newbatch);
+    void bookLoad(Book book);
+    void bookMove(Book book, int newbatch);
 };
 
 class PropsModel : public Model

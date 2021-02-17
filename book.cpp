@@ -26,6 +26,13 @@ Book::Book(int bookID, int batchID)
     this->weight = 0;
     this->spine = 0;
     this->costExtra = 0;
+    this->box = std::string();
+    this->section = std::string();
+    this->threadColor = std::string();
+    this->endpageColor = std::string();
+    this->pageMaterial = std::string();
+    this->coverMaterial = std::string();
+    this->extra = std::string();
 }
 
 void Book::updateTimestamp()
@@ -71,7 +78,7 @@ bool Book::isValid() const
 std::string Book::getSpineType()
 {
     std::string spineType;
-    if(bookType == BookType::traditional || bookType == BookType::longstich)
+    if(bookType == BookType::quater || bookType == BookType::longstich)
     {
         spineType = "Spine";
     }
@@ -82,6 +89,10 @@ std::string Book::getSpineType()
     else if(bookType == BookType::stabstich)
     {
         spineType = "Ribbon";
+    }
+    else
+    {
+        spineType = "";
     }
 
     return spineType;
