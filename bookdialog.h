@@ -4,12 +4,22 @@
 #include "book.h"
 #include "models.h"
 
+#include <nlohmann/json.hpp>
 #include <QDialog>
 #include <QDir>
+#include <QSortFilterProxyModel>
 
 namespace Ui {
 class BookDialog;
 }
+
+class BookSortProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+public:
+    BookSortProxyModel();
+
+};
 
 class BookSelectionModel : public QItemSelectionModel
 {
@@ -35,6 +45,7 @@ public:
 private:
     Ui::BookDialog *ui;
     BookModel *model;
+    QSortFilterProxyModel *sortModel;
     QString type;
 
     void setupModel(QDir bookDirectory);

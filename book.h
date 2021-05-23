@@ -1,7 +1,7 @@
 #ifndef BOOK_H
 #define BOOK_H
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <QAbstractItemModel>
 #include <ctime>
 

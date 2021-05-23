@@ -213,6 +213,6 @@ void SaveDialog::handleButtons(QAbstractButton *btn)
     else if (type == buttons::Discard)
     {
         emit discard();
-        reject();
+        accept();
     }
 }

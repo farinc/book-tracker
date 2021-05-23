@@ -5,6 +5,7 @@
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QDir>
+#include <nlohmann/json.hpp>
 
 class Item {
 public:
@@ -15,7 +16,7 @@ public:
     Item* child(int row) const;
     bool hasChild(int row) const;
     int childCount() const;
-    QString data(int column) const ;
+    QVariant data(int column) const ;
     int dataSize() const ;
     QString type() const;
 
@@ -23,15 +24,15 @@ protected:
     void appendChild(Item *item);
     void removeChild(Item *item);
     void removeChild(int row);
-    void setData(int column, QString data);
-    void appendData(QString data);
+    void setData(int column, QVariant data);
+    void appendData(QVariant data);
     QString itemType;
     Item* parentItem;
 
 private:
     QString tp;
     QList<Item*> childList;
-    QList<QString> dataList;
+    QList<QVariant> dataList;
 };
 
 class RootItem : public Item
@@ -49,7 +50,7 @@ class PropItem : public Item
 {
 public:
     PropItem();
-    void appendData(QString in);
+    void appendData(QVariant in);
 };
 
 class BookItem : public Item

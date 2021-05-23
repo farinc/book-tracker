@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QDir>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <QAbstractButton>
 #include <QStandardPaths>
 #include "book.h"

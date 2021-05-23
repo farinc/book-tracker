@@ -2,7 +2,7 @@
 
 #include <string>
 #include <cmath>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <QAbstractItemModel>
 #include <QUrl>
 #include <QDebug>

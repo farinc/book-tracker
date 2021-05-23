@@ -7,7 +7,6 @@
 
 #include <fstream>
 #include <iomanip>
-#include <json.hpp>
 
 #include <QDebug>
 

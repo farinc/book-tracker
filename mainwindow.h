@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QDir>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include "book.h"
 #include "models.h"

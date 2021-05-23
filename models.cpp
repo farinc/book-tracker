@@ -1,17 +1,16 @@
 #include "models.h"
 #include "mainwindow.h"
-#include <json.hpp>
-#include <ctime>
 #include <QUrl>
 #include <QDebug>
 #include <QDialog>
+#include <QDateTime>
 
 using json = nlohmann::json;
 
 Item::Item(QString type): parentItem(nullptr)
 {
     childList = QList<Item*>();
-    dataList = QList<QString>();
+    dataList = QList<QVariant>();
     tp = type;
 }
 
@@ -78,20 +77,20 @@ void Item::removeChild(int row)
     child(row)->parentItem = nullptr;
 }
 
-void Item::setData(int column, QString data)
+void Item::setData(int column, QVariant data)
 {
     this->dataList.insert(column, data);
 }
 
-void Item::appendData(QString data)
+void Item::appendData(QVariant data)
 {
     dataList << data;
 }
 
-QString Item::data(int column) const
+QVariant Item::data(int column) const
 {
     if(column >= dataSize() || column < 0)
-        return nullptr;
+        return QVariant();
     return this->dataList.at(column);
 }
 
@@ -110,7 +109,7 @@ PropItem::PropItem(): Item("prop")
 
 }
 
-void PropItem::appendData(QString in)
+void PropItem::appendData(QVariant in)
 {
     Item::appendData(in);
 }
@@ -165,11 +164,11 @@ int BatchItem::id() const
 
 BookItem::BookItem(Book book): Item("book"), book(book)
 {    
-    char lastEditStr[80];
-    strftime(lastEditStr, 80, "%b %d %Y %I:%M%p", localtime(&book.lastEdit));
+    QDateTime timestamp;
+    timestamp.setTime_t(book.lastEdit);
 
     this->setData(0, "Book " + QString::number(book.bookID));
-    this->setData(1, QString::fromLocal8Bit(lastEditStr));
+    this->setData(1, timestamp.toLocalTime());
     this->setData(2, QString::fromStdString(book.box));
     this->setData(3, QString::fromStdString(book.section));
     this->setData(4, QString::fromStdString(getString(book.status)));

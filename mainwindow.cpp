@@ -9,10 +9,10 @@
 #include <QDebug>
 #include <QStandardPaths>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QClipboard>
 
 #include <fstream>
-#include <json.hpp>
 #include <iomanip>
 
 #include "mainwindow.h"
@@ -22,11 +22,13 @@
 #include "bookdialog.h"
 #include "settingsdialog.h"
 #include "savedialog.h"
+#include "version_config.h"
 
 using json = nlohmann::json;
 
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow), model(nullptr)
 {
+    this->setWindowTitle(QString("Book Tracker %1 [*]").arg(PROJECT_VERSION_STRING));
     ui->setupUi(this);
     diableUi();
 
@@ -261,8 +263,12 @@ bool MainWindow::onActionSave()
 {
     if(book.isValid())
     {
+        qDebug() << "is valid";
+
         if(!(book == oldBook))
         {
+            qDebug() << "different";
+
             SaveDialog dialog(book, oldBook);
             connect(&dialog, &SaveDialog::save, this, &MainWindow::saveBook);
             connect(&dialog, &SaveDialog::discard, this, &MainWindow::discardBook);
@@ -270,6 +276,9 @@ bool MainWindow::onActionSave()
         }
         saveBook();
     }
+
+    qDebug() << "hello";
+
     return true;
 }
 

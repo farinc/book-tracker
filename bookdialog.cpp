@@ -3,12 +3,11 @@
 #include "mainwindow.h"
 #include "./ui_bookdialog.h"
 
-#include <json.hpp>
-
 #include <QDir>
 #include <QUrl>
 #include <QHeaderView>
 #include <QDebug>
+#include <QSortFilterProxyModel>
 
 using json = nlohmann::json;
 
@@ -35,16 +34,16 @@ BookDialog::BookDialog(QWidget *parent, const QString bookDirectory, const QStri
         this->setWindowTitle("Move Entry");
     }
 
-    setupModel(bookDirectory);
-
     auto header = new QHeaderView(Qt::Horizontal);
     header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
     ui->treeView->setHeader(header);
+
+    setupModel(bookDirectory);
     auto selectionModel = new BookSelectionModel(2);
-
     selectionModel->setModel(model);
-    ui->treeView->setSelectionModel(selectionModel);
 
+    ui->treeView->setModel(model);
+    ui->treeView->setSelectionModel(selectionModel);
     if(type == "edit" || type == "new")
     {
         ui->treeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
@@ -140,7 +139,6 @@ void BookDialog::setupModel(QDir bookDirectory)
     }
 
     model = new BookModel(rootItem,type, maxBookID + 1);
-    ui->treeView->setModel(model);
 }
 
 BookSelectionModel::BookSelectionModel(int number): QItemSelectionModel(), number(number)
@@ -164,4 +162,9 @@ void BookSelectionModel::setCurrentIndex(const QModelIndex &index, QItemSelectio
             QItemSelectionModel::select(oldIndex, QItemSelectionModel::Deselect); //if its not the right one (the model doesn't emit accept), deselect it.
         }
     }
+}
+
+BookSortProxyModel::BookSortProxyModel()
+{
+
 }
