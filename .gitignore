@@ -1,5 +1,6 @@
 /build
 /CMakeFiles
+/resources/app
 
 # C++ objects and libs
 *.slo
@@ -36,6 +37,7 @@ Makefile*
 *.prl
 
 # Project files
+/resources/Book\ Tracker\ Setup.exe
 
 # Qt unit tests
 target_wrapper.*
@@ -61,6 +63,8 @@ compile_commands.json
 .metadata
 # vscode
 .vscode
+*.code-workspace
+
 # Kdevelop
 *.kdev
 *.kdev4

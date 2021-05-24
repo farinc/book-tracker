@@ -33,7 +33,9 @@ endif()
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 find_package(nlohmann_json 3.2.0 REQUIRED)
 
-add_executable(${CMAKE_PROJECT_NAME}
+add_executable(${CMAKE_PROJECT_NAME} WIN32)
+
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
   main.cpp
   mainwindow.cpp
   mainwindow.h

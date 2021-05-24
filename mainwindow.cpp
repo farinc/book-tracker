@@ -263,12 +263,8 @@ bool MainWindow::onActionSave()
 {
     if(book.isValid())
     {
-        qDebug() << "is valid";
-
         if(!(book == oldBook))
         {
-            qDebug() << "different";
-
             SaveDialog dialog(book, oldBook);
             connect(&dialog, &SaveDialog::save, this, &MainWindow::saveBook);
             connect(&dialog, &SaveDialog::discard, this, &MainWindow::discardBook);
@@ -276,8 +272,6 @@ bool MainWindow::onActionSave()
         }
         saveBook();
     }
-
-    qDebug() << "hello";
 
     return true;
 }

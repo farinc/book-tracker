@@ -16,10 +16,9 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 # Qt5
-set(STATIC_QT "Build statically with Qt5?" OFF)
+set(STATIC_QT "Build statically with Qt5?" ON)
 
 if(STATIC_QT)
-    # set(QT_PREFIX StaticQt5)
     set(LINKER_FLAGS -static -static-libstdc++ -static-libgcc)
     set(QT_PREFIX StaticQt5)
 else()

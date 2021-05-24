@@ -5,7 +5,7 @@
 !define APPFILE "book-tracker.exe"
 !define VERSION ""
 !define SLUG "${NAME} v${VERSION}"
-!define MUI_ICON "app\main.ico"
+!define MUI_ICON "app\book-tracker.ico"
 
 Name "${NAME}"
 OutFile "${NAME} Setup.exe"
@@ -32,7 +32,7 @@ SetOutPath "$INSTDIR"
 SetOverwrite on
 File /r "app\*.*" 
 CreateDirectory "$SMPROGRAMS\BookTracker"
-CreateShortCut "$SMPROGRAMS\BookTracker\${NAME}.lnk" "$INSTDIR\${APPFILE}" "" "$INSTDIR\main.ico"
+CreateShortCut "$DESKTOP\${NAME}.lnk" "$INSTDIR\${APPFILE}" "" "$INSTDIR\main.ico"
 WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" \
                  "DisplayName" "${NAME}"
 WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" "UninstallString" "$INSTDIR\Uninstall.exe"
