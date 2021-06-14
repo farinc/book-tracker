@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>453</width>
+    <width>373</width>
     <height>412</height>
    </rect>
   </property>
@@ -58,6 +58,9 @@
      </property>
      <property name="sizeAdjustPolicy">
       <enum>QAbstractScrollArea::AdjustToContents</enum>
+     </property>
+     <property name="showDropIndicator" stdset="0">
+      <bool>false</bool>
      </property>
      <property name="defaultDropAction">
       <enum>Qt::IgnoreAction</enum>

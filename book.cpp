@@ -11,10 +11,12 @@
 
 using json = nlohmann::json;
 
+namespace bookdata {
 
-Book::Book(int bookID, int batchID)
+CostConstants constants = CostConstants();
+
+Book::Book(int bookID)
 {
-    this->batchID = batchID;
     this->bookID = bookID;
     this->coverDim = {0, 0};
     this->pageDim = {0,0};
@@ -35,49 +37,50 @@ Book::Book(int bookID, int batchID)
     this->extra = std::string();
 }
 
-void Book::updateTimestamp()
+void Book::updateTimestamp(Book &book)
 {
-    this->lastEdit = time(0);
+    book.lastEdit = time(0);
 }
 
-bool Book::isCalculatable() const
+bool Book::isCalculatable(const Book &book)
 {
     bool flag = true;
-    flag &= this->coverDim.height > 0;
-    flag &= this->coverDim.width > 0;
-    flag &= this->pageDim.height > 0;
-    flag &= this->pageDim.width > 0;
-    flag &= this->spine > 0;
-    flag &= this->calculatePageCount() > 0;
-    flag &= this->bookType > 0;
-    flag &= this->status > 0;
+    flag &= book.coverDim.height > 0;
+    flag &= book.coverDim.width > 0;
+    flag &= book.pageDim.height > 0;
+    flag &= book.pageDim.width > 0;
+    flag &= book.spine > 0;
+    flag &= calculatePageCount(book) > 0;
+    flag &= book.bookType > 0;
+    flag &= book.status > 0;
     return flag;
 }
 
-bool Book::canHaveDiscription() const
+bool Book::canHaveDiscription(const Book &book)
 {
     bool flag = true;
-    flag &= !this->coverMaterial.empty();
-    flag &= !this->threadColor.empty();
-    flag &= !this->pageMaterial.empty();
-    flag &= !this->endpageColor.empty();
-    flag &= isCalculatable();
+    flag &= !book.coverMaterial.empty();
+    flag &= !book.threadColor.empty();
+    flag &= !book.pageMaterial.empty();
+    flag &= !book.endpageColor.empty();
+    flag &= isCalculatable(book);
     return flag;
 }
 
-int Book::calculatePageCount() const
+int Book::calculatePageCount(const Book &book)
 {
-    return this->signitures * this->pagesPerSigniture;
+    return book.signitures * book.pagesPerSigniture;
 }
 
-bool Book::isValid() const
+bool Book::isValid(const Book &book)
 {
-    return this->batchID >= 0 && this->bookID >= 0;
+    return book.bookID >= 0;
 }
 
-std::string Book::getSpineType()
+std::string Book::getSpineType(const Book &book)
 {
     std::string spineType;
+    auto bookType = book.bookType;
     if(bookType == BookType::quater || bookType == BookType::longstich)
     {
         spineType = "Spine";
@@ -98,24 +101,24 @@ std::string Book::getSpineType()
     return spineType;
 }
 
-double Book::getExtraCosts() const
+double Book::getExtraCosts(const Book &book)
 {
     return constants.pvaCost + constants.endpageCost;
 }
 
-double Book::getBoardCost() const
+double Book::getBoardCost(const Book &book)
 {
-    double paddedWidth = this->coverDim.width + constants.paddingWidthBoard;
-    double paddedHeight = this->coverDim.height + constants.paddingHeightBoard;
+    double paddedWidth = book.coverDim.width + constants.paddingWidthBoard;
+    double paddedHeight = book.coverDim.height + constants.paddingHeightBoard;
     
     double sqInchBoard = paddedHeight * paddedWidth;
     return sqInchBoard * constants.sqInchBoardPrice;
 }
 
-double Book::getPageCost() const
+double Book::getPageCost(const Book &book)
 {
-    int sheets = std::ceil(this->calculatePageCount() / 2);
-    bool isHalfSheet = this->pageDim.width <= 4.25 || this->pageDim.height <= 5;
+    int sheets = std::ceil(calculatePageCount(book) / 2);
+    bool isHalfSheet = book.pageDim.width <= 4.25 || book.pageDim.height <= 5;
     double pricePages = sheets * constants.sheetPrice;
     
     if(isHalfSheet) {
@@ -125,59 +128,59 @@ double Book::getPageCost() const
     return pricePages;
 }
 
-double Book::getThreadRibbonCost() const
+double Book::getThreadRibbonCost(const Book &book)
 {
-    if(this->bookType != BookType::stabstich){
-        double threadLength = (this->signitures * this->coverDim.height) + this->coverDim.height;
+    if(book.bookType != BookType::stabstich){
+        double threadLength = (book.signitures * book.coverDim.height) + book.coverDim.height;
         double priceThread = threadLength * constants.threadLengthPrice;
         
-        if(this->bookType == BookType::coptic2){
+        if(book.bookType == BookType::coptic2){
             priceThread *= 2;
         }
         
         return priceThread;
         
     }else{
-        return this->coverDim.height * constants.ribbonPrice;
+        return book.coverDim.height * constants.ribbonPrice;
     }
 }
 
-double Book::getHeadbandCost() const
+double Book::getHeadbandCost(const Book &book)
 {
-    if(this->bookType == BookType::traditional || this->bookType == BookType::quater){
-        return this->spine * 2 * constants.headbandPrice;
+    if(book.bookType == BookType::traditional || book.bookType == BookType::quater){
+        return book.spine * 2 * constants.headbandPrice;
     }
     
     return 0;
 }
 
-double Book::getSuperCost() const
+double Book::getSuperCost(const Book &book)
 {
-    if(this->bookType == BookType::traditional or this->bookType == BookType::quater){
-        double paddedSpine = this->spine + constants.paddingSpineForSuper;
-        double sqInchSuper = paddedSpine * this->coverDim.height;
+    if(book.bookType == BookType::traditional or book.bookType == BookType::quater){
+        double paddedSpine = book.spine + constants.paddingSpineForSuper;
+        double sqInchSuper = paddedSpine * book.coverDim.height;
         return sqInchSuper * constants.superPrice;
     }
     
     return 0;
 }
 
-double Book::getClothCost() const
+double Book::getClothCost(const Book &book)
 {
-    double paddedHeight = this->coverDim.height + constants.paddingHeightBoard;
-    if(this->bookType == BookType::coptic || this->bookType == BookType::coptic2 || this->bookType == BookType::stabstich) {
-        double paddedWidth = this->coverDim.width + constants.paddingWidthBoard;
+    double paddedHeight = book.coverDim.height + constants.paddingHeightBoard;
+    if(book.bookType == BookType::coptic || book.bookType == BookType::coptic2 || book.bookType == BookType::stabstich) {
+        double paddedWidth = book.coverDim.width + constants.paddingWidthBoard;
         double sqInchCloth = paddedHeight * paddedWidth * 2;
         return sqInchCloth * constants.sqInchClothPrice;
     }else{
-        double paddedSpine = this->spine;
-        if(this->bookType == BookType::quater){
+        double paddedSpine = book.spine;
+        if(book.bookType == BookType::quater){
             paddedSpine += constants.paddingSpineQuarter;
-        }else if(this->bookType == BookType::longstich || this->bookType == BookType::traditional){
+        }else if(book.bookType == BookType::longstich || book.bookType == BookType::traditional){
             paddedSpine += constants.paddingSpineLongTrad;
         }
         
-        double paddedWidth = this->coverDim.width + constants.paddingWidthBoard + paddedSpine;
+        double paddedWidth = book.coverDim.width + constants.paddingWidthBoard + paddedSpine;
         double sqInchCloth = paddedWidth * paddedHeight;
         return sqInchCloth * constants.sqInchClothPrice;
     }
@@ -185,7 +188,9 @@ double Book::getClothCost() const
     return 0;
 }
 
-double Book::getTotal() const
+double Book::getTotal(const Book &book)
 {
-    return getExtraCosts() +  getBoardCost() + getPageCost() + getThreadRibbonCost() + getHeadbandCost() + getSuperCost() + getClothCost() + costExtra;
+    return getExtraCosts(book) +  getBoardCost(book) + getPageCost(book) + getThreadRibbonCost(book) + getHeadbandCost(book) + getSuperCost(book) + getClothCost(book) + book.costExtra;
 }
+
+};

@@ -45,16 +45,16 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
   bookdialog.cpp
   bookdialog.h
   bookdialog.ui
-  costitemsmodel.cpp
-  costitemsmodel.h
   models.cpp
   models.h
-  savedialog.cpp
-  savedialog.h
-  savedialog.ui
+  reviewdialog.cpp
+  reviewdialog.h
+  reviewdialog.ui
   settingsdialog.cpp
   settingsdialog.h
   settingsdialog.ui
+  uilogic.h
+  uilogic.cpp
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME} Qt::Core Qt::Widgets)

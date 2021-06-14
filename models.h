@@ -3,121 +3,93 @@
 
 #include "book.h"
 #include <QAbstractItemModel>
-#include <QAbstractItemView>
-#include <QDir>
-#include <nlohmann/json.hpp>
+#include <QSortFilterProxyModel>
+#include <QStyledItemDelegate>
 
 class Item {
 public:
-    Item(QString type);
-    ~Item ();
-    Item* parent() const;
-    int row() const;
-    Item* child(int row) const;
-    bool hasChild(int row) const;
-    int childCount() const;
-    QVariant data(int column) const ;
-    int dataSize() const ;
-    QString type() const;
+    virtual ~Item() {};
+    /**
+     * @brief data Reterive data from the item.
+     * @param column The column in question, this is maped 1-to-1 to veiw columns (if they exist)
+     * @param role The role of the data
+     * @return The data associated with the specified column and its role in the view
+     */
+    virtual QVariant data(int column, int role = Qt::DisplayRole) const {return QVariant();};
+    /**
+     * @brief flags Determines what traits this item has. This includes if the item is editable at different columns, readonly, wheather drag-n-drop is enabled, or a combination.
+     * @param column The column selector.
+     * @return The Qt ItemFlags traits of this item
+     */
+    virtual Qt::ItemFlags flags(int column) const {return Qt::ItemIsEnabled;};
+    /**
+     * @brief setData Sets the data in this item. Since this implies that the role is Qt::EditRole, be sure to reflect this in the flags method
+     * @param column The column selector to where this data is being set.
+     * @param data The imcoming data
+     * @return If the data could be set, return true and otherwise false
+     */
+    virtual bool setData(int column, const QVariant &data) {return false;};
+};
 
-protected:
-    void appendChild(Item *item);
-    void removeChild(Item *item);
-    void removeChild(int row);
-    void setData(int column, QVariant data);
-    void appendData(QVariant data);
-    QString itemType;
-    Item* parentItem;
-
+/**
+ * @brief The BookItem class A item meant to display and edit (in certain cases only) book instances
+ */
+class BookItem: public Item {
+public:
+    BookItem (bookdata::Book &book);
+    QVariant data(int column, int role = Qt::DisplayRole) const override;
 private:
-    QString tp;
-    QList<Item*> childList;
-    QList<QVariant> dataList;
+    bookdata::Book &book;
 };
 
-class RootItem : public Item
-{
+/**
+ * @brief The BookConstantItem class A item meant to display the book constants used in calculations. Values are editable for the constant
+ */
+class BookConstantItem: public Item {
 public:
-    RootItem(const int &maxColumns);
-    void appendItem(Item *item);
-    void removeItem(int index);
-    void removeItem(Item *item);
-    const int maxColumns;
-};
-
-
-class PropItem : public Item
-{
-public:
-    PropItem();
-    void appendData(QVariant in);
-};
-
-class BookItem : public Item
-{
-
-public:
-    BookItem (Book book);
-    Book book;
-};
-
-class BatchItem: public Item
-{
-
-public:
-    BatchItem(int batchID);
-    void appendBook(BookItem *book);
-    void removeBook(BookItem *book);
-    int id() const;
+    BookConstantItem (const QString descritpion, double &constant);
+    QVariant data(int column, int role = Qt::DisplayRole) const override;
+    Qt::ItemFlags flags(int column) const override;
+    bool setData(int column, const QVariant &data) override;
 private:
-    int batchID;
+    const QString descritpion;
+    double &constant;
 };
 
-class Model : public QAbstractItemModel
+/**
+ * @brief The PropItem class A basic and generitic item used for displaying data
+ */
+class PropItem: public Item {
+public:
+    PropItem (const QString descritpion, const std::initializer_list<QVariant> values);
+    QVariant data(int column, int role = Qt::DisplayRole) const override;
+private:
+    const QString descritpion;
+    const std::vector<QVariant> values;
+};
+
+class BasicModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit Model(RootItem *rootItem, QObject *parent = nullptr);
-    // Basic functionality:
+    explicit BasicModel(int columns, QWidget *parent = nullptr);
+    ~BasicModel();
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    void setRootItem(RootItem *rootItem);
-protected:
-    RootItem *rootItem;
-};
-
-class BookModel: public Model
-{
-    Q_OBJECT
-
-public:
-    BookModel(RootItem *rootItem, QString type, int nextbookID, QObject *parent = nullptr);
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-public slots:
-    void onItemSelectionDuo(const QModelIndex &index1 = QModelIndex(), const QModelIndex &index2 = QModelIndex());
-    void onItemSelectionSingle(const QModelIndex &index1 = QModelIndex());
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
+    void setHeaderData(const std::initializer_list<QString> &list);
+    void reset();
+    void addItem(Item *item);
 private:
-    QString type;
-    int nextBookID;
-signals:
-    void done(int r);
-    void bookLoad(Book book);
-    void bookMove(Book book, int newbatch);
-};
-
-class PropsModel : public Model
-{
-public:
-    PropsModel(RootItem *rootItem, QList<QString> header, QObject *parent = nullptr);
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-private:
-    QList<QString> header;
+    const int columns;
+    std::vector<QString> header_strings;
+    std::vector<Item*> items;
 };
 
 #endif // MODELS_H

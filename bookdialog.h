@@ -13,45 +13,20 @@ namespace Ui {
 class BookDialog;
 }
 
-class BookSortProxyModel : public QSortFilterProxyModel
-{
-    Q_OBJECT
-public:
-    BookSortProxyModel();
-
-};
-
-class BookSelectionModel : public QItemSelectionModel
-{
-    Q_OBJECT
-public:
-    BookSelectionModel(int number);
-private:
-    int number;
-public slots:
-    void setCurrentIndex(const QModelIndex &index, QItemSelectionModel::SelectionFlags command) override;
-signals:
-    void selectionCurrent(const QModelIndex &index1, const QModelIndex &index2);
-};
-
 class BookDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    BookDialog(QWidget* parent, const QString bookDirectory, const QString type);
+    explicit BookDialog(std::vector<bookdata::Book> &books, QWidget *parent = nullptr);
     ~BookDialog();
-    BookModel *getModel() const;
+    BasicModel *getModel() const;
 private:
     Ui::BookDialog *ui;
-    BookModel *model;
     QSortFilterProxyModel *sortModel;
-    QString type;
-
-    void setupModel(QDir bookDirectory);
-
+    void setupModel(std::vector<bookdata::Book> &books);
 signals:
-    void bookEdit(Book book);
+    void loadBook(bookdata::Book &incomingBook);
 };
 
 #endif // BOOKDIALOG_H

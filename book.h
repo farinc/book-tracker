@@ -5,6 +5,8 @@
 #include <QAbstractItemModel>
 #include <ctime>
 
+namespace bookdata {
+
 enum BookType: int {
     notype, traditional, coptic, coptic2, stabstich, quater, longstich
 };
@@ -52,6 +54,8 @@ struct CostConstants {
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(CostConstants, paddingWidthBoard, paddingHeightBoard, paddingSpineLongTrad, paddingSpineQuarter, paddingSpineForSuper, sqInchBoardPrice, sheetPrice, sqInchClothPrice, threadLengthPrice, headbandPrice, superPrice, ribbonPrice, pvaCost, endpageCost);
 };
 
+extern CostConstants constants;
+
 struct Dimension {
     double width;
     double height;
@@ -69,6 +73,7 @@ static std::string getString(BookType type)
     case 4: return "Stab Stich";
     case 5: return "Quarter";
     case 6: return "Long Stich";
+    default: return std::string();
     }
 }
 static std::string getString(Status type)
@@ -81,6 +86,7 @@ static std::string getString(Status type)
     case 3: return "Drafted w/ Photo";
     case 4: return "Published";
     case 5: return "Sold";
+    default: return std::string();
     }
 }
 
@@ -92,10 +98,9 @@ static std::string getString(Dimension dim)
 class Book {
 
 public:
-    Book ( int bookID = -1, int batchID = -1 );
+    Book ( int bookID = -1);
 
     int bookID;
-    int batchID;
 
     int signitures;
     int pagesPerSigniture;
@@ -120,26 +125,25 @@ public:
 
     Status status;
     BookType bookType;
-    CostConstants constants;
+    
+    static void updateTimestamp(Book &book);
 
-    void updateTimestamp();
+    static bool isCalculatable(const Book &book);
+    static bool canHaveDiscription(const Book &book);
+    static int calculatePageCount(const Book &book);
+    static bool isValid(const Book &book);
 
-    bool isCalculatable() const;
-    bool canHaveDiscription() const;
-    int calculatePageCount() const;
-    bool isValid() const;
+    static std::string getSpineType(const Book &book);
+    static double getExtraCosts(const Book &book);
+    static double getBoardCost(const Book &book);
+    static double getPageCost(const Book &book);
+    static double getThreadRibbonCost(const Book &book);
+    static double getHeadbandCost(const Book &book);
+    static double getSuperCost(const Book &book);
+    static double getClothCost(const Book &book);
+    static double getTotal(const Book &book);
 
-    std::string getSpineType();
-    double getExtraCosts() const;
-    double getBoardCost() const;
-    double getPageCost() const;
-    double getThreadRibbonCost() const;
-    double getHeadbandCost() const;
-    double getSuperCost() const;
-    double getClothCost() const;
-    double getTotal() const;
-
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Book, bookID, batchID, signitures, pagesPerSigniture, lastEdit, creation, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Book, bookID, signitures, pagesPerSigniture, lastEdit, creation, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
 };
 
 inline bool operator==(Dimension dim1, Dimension dim2)
@@ -153,7 +157,6 @@ inline bool operator==(Dimension dim1, Dimension dim2)
 inline bool operator==(Book book1, Book book2)
 {
    bool flag = true;
-   flag &= book1.batchID == book2.batchID;
    flag &= book1.bookID == book2.bookID;
    flag &= book1.signitures == book2.signitures;
    flag &= book1.pagesPerSigniture == book2.pagesPerSigniture;
@@ -177,5 +180,7 @@ inline bool operator==(Book book1, Book book2)
    flag &= book1.creation == book2.creation; //The timestamp of creation is only used, an different edit time is excluded from equality
    return flag;
 }
+
+};
 
 #endif // BOOK_H

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ChangeDialog</class>
- <widget class="QDialog" name="ChangeDialog">
+ <class>ReviewDialog</class>
+ <widget class="QDialog" name="ReviewDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Save</string>
+   <string>Review Changes</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -22,7 +22,11 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QTreeView" name="treeView"/>
+    <widget class="QTreeView" name="treeView">
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">

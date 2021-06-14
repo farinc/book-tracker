@@ -1,42 +1,32 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
+#include "models.h"
 
 #include <QPushButton>
 #include <QFileDialog>
 #include <QDialogButtonBox>
-
-#include <fstream>
-#include <iomanip>
-
+#include <QDoubleSpinBox>
 #include <QDebug>
 
-#include "costitemsmodel.h"
 
-using json = nlohmann::json;
-
-SettingsDialog::SettingsDialog(Settings *settings, QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog), orginalSettingsPt(settings)
+SettingsDialog::SettingsDialog(uilogic::Settings &settings, QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog), settings(settings), copySettings(settings), model(new QSortFilterProxyModel())
 {
     ui->setupUi(this);
-    this->setWindowTitle("Settings");
 
-    this->tempSettings = *settings;
-
-    ui->lineEditBookDirectory->setText(QString::fromStdString(tempSettings.bookDirectory));
-    ui->lineEditSettings->setText(QString::fromStdString(tempSettings.configDirectory));
+    ui->lineEditBookDirectory->setText(QString::fromStdString(copySettings.bookDirectory));
+    ui->lineEditSettings->setText(QString::fromStdString(copySettings.configDirectory));
 
     auto header = new QHeaderView(Qt::Horizontal);
-    header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
+    header->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
     ui->treeView->setHeader(header);
 
     auto delegate = new SpinBoxDelegate();
-    ui->treeView->setItemDelegateForColumn(1, delegate);
-
-    model = new CostItemsModel(this);
+    ui->treeView->setItemDelegateForColumn(1,delegate);
 
     setupModel();
 
     connect(ui->buttonBox, &QDialogButtonBox::clicked, this, &SettingsDialog::handleButtons);
-    connect(this, &SettingsDialog::accepted, this, &SettingsDialog::setSettings);
+    connect(this, &SettingsDialog::accepted, this, &SettingsDialog::onSetSettings);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -45,17 +35,11 @@ SettingsDialog::~SettingsDialog()
     delete model;
 }
 
-void SettingsDialog::setSettings()
-{
-    *this->orginalSettingsPt = tempSettings;
-}
-
 void SettingsDialog::onBrowse()
 {
     QString directory = QFileDialog::getExistingDirectory(this, tr("Select Directory"), QDir::currentPath());
     ui->lineEditBookDirectory->setText(directory);
-    tempDir = tempSettings.bookDirectory;
-    tempSettings.bookDirectory = directory.toStdString();
+    copySettings.bookDirectory = directory.toStdString();
 }
 
 void SettingsDialog::handleButtons(QAbstractButton *btn)
@@ -63,67 +47,107 @@ void SettingsDialog::handleButtons(QAbstractButton *btn)
     auto sb = ui->buttonBox->standardButton(btn);
     if (sb == QDialogButtonBox::Reset)
     {
-        tempSettings.bookconstants = CostConstants();
-        ui->treeView->reset();
-        ui->treeView->model()->revert();
         setupModel();
     }
     else if(sb == QDialogButtonBox::RestoreDefaults)
     {
-        this->tempSettings = Settings();
+        copySettings = uilogic::loadDefaultSettings();
         setupModel();
     }
 }
 
+void SettingsDialog::onSetSettings()
+{
+    settings = copySettings;
+}
+
 void SettingsDialog::setupModel()
 {
-    CostConstants &constants = tempSettings.bookconstants;
+    bookdata::CostConstants &constants = copySettings.bookconstants;
+    BasicModel *dmodel = new BasicModel(2);
 
-    model->reset();
+    dmodel->reset();
+    dmodel->setHeaderData({tr("Property"), tr("Value")});
 
-    CostItem *item1 = new CostItem(tr("Padding width for board"), &constants.paddingWidthBoard);
-    model->addItem(item1);
+    BookConstantItem *item1 = new BookConstantItem(tr("Padding width for board"), constants.paddingWidthBoard);
+    dmodel->addItem(item1);
 
-    CostItem *item2 = new CostItem(tr("Padding height for board"), &constants.paddingHeightBoard);
-    model->addItem(item2);
+    BookConstantItem *item2 = new BookConstantItem(tr("Padding height for board"), constants.paddingHeightBoard);
+    dmodel->addItem(item2);
 
-    CostItem *item3 = new CostItem(tr("Padding spine for long traditional bound"), &constants.paddingSpineLongTrad);
-    model->addItem(item3);
+    BookConstantItem *item3 = new BookConstantItem(tr("Padding spine for long traditional bound"), constants.paddingSpineLongTrad);
+    dmodel->addItem(item3);
 
-    CostItem *item4 = new CostItem(tr("Padding spine for quarter bound"), &constants.paddingSpineQuarter);
-    model->addItem(item4);
+    BookConstantItem *item4 = new BookConstantItem(tr("Padding spine for quarter bound"), constants.paddingSpineQuarter);
+    dmodel->addItem(item4);
 
-    CostItem *item5 = new CostItem(tr("Padding spine for super"), &constants.paddingSpineForSuper);
-    model->addItem(item5);
+    BookConstantItem *item5 = new BookConstantItem(tr("Padding spine for super"), constants.paddingSpineForSuper);
+    dmodel->addItem(item5);
 
-    CostItem *item6 = new CostItem(tr("Board price per square inch"), &constants.sqInchBoardPrice);
-    model->addItem(item6);
+    BookConstantItem *item6 = new BookConstantItem(tr("Board price per square inch"), constants.sqInchBoardPrice);
+    dmodel->addItem(item6);
 
-    CostItem *item7 = new CostItem(tr("Price per sheet"), &constants.sheetPrice);
-    model->addItem(item7);
+    BookConstantItem *item7 = new BookConstantItem(tr("Price per sheet"), constants.sheetPrice);
+    dmodel->addItem(item7);
 
-    CostItem *item8 = new CostItem(tr("Cloth price per inch"), &constants.sqInchClothPrice);
-    model->addItem(item8);
+    BookConstantItem *item8 = new BookConstantItem(tr("Cloth price per inch"), constants.sqInchClothPrice);
+    dmodel->addItem(item8);
 
-    CostItem *item9 = new CostItem(tr("Thread length price per inch"), &constants.threadLengthPrice);
-    model->addItem(item9);
+    BookConstantItem *item9 = new BookConstantItem(tr("Thread length price per inch"), constants.threadLengthPrice);
+    dmodel->addItem(item9);
 
-    CostItem *item10 = new CostItem(tr("Price of headband per inch"), &constants.headbandPrice);
-    model->addItem(item10);
+    BookConstantItem *item10 = new BookConstantItem(tr("Price of headband per inch"), constants.headbandPrice);
+    dmodel->addItem(item10);
 
-    CostItem *item11 = new CostItem(tr("Price of super per inch"), &constants.superPrice);
-    model->addItem(item11);
+    BookConstantItem *item11 = new BookConstantItem(tr("Price of super per inch"), constants.superPrice);
+    dmodel->addItem(item11);
 
-    CostItem *item12 = new CostItem(tr("Price of ribbon per inch"), &constants.ribbonPrice);
-    model->addItem(item12);
+    BookConstantItem *item12 = new BookConstantItem(tr("Price of ribbon per inch"), constants.ribbonPrice);
+    dmodel->addItem(item12);
 
-    CostItem *item13 = new CostItem(tr("Price of PVA glue"), &constants.pvaCost);
-    model->addItem(item13);
+    BookConstantItem *item13 = new BookConstantItem(tr("Price of PVA glue"), constants.pvaCost);
+    dmodel->addItem(item13);
 
-    CostItem *item14 = new CostItem(tr("Price of endpages"), &constants.endpageCost);
-    model->addItem(item14);
+    BookConstantItem *item14 = new BookConstantItem(tr("Price of endpages"), constants.endpageCost);
+    dmodel->addItem(item14);
 
+    model->setSourceModel(dmodel);
     this->ui->treeView->setModel(model);
+}
+
+SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
+    : QStyledItemDelegate(parent)
+{}
+
+QWidget *SpinBoxDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
+    editor->setFrame(false);
+    editor->setMinimum(0);
+    editor->setMaximum(100);
+    editor->setSingleStep(0.1);
+
+    return editor;
+}
+
+void SpinBoxDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+   double value = index.model()->data(index, Qt::EditRole).toDouble();
+   QDoubleSpinBox *spinBox = qobject_cast<QDoubleSpinBox*>(editor);
+   spinBox->setValue(value);
+}
+
+void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+{
+    QDoubleSpinBox *spinBox = qobject_cast<QDoubleSpinBox*>(editor);
+    spinBox->interpretText();
+    double value = spinBox->value();
+    model->setData(index, value, Qt::EditRole);
+}
+
+void SpinBoxDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    editor->setGeometry(option.rect);
 }
 
 
