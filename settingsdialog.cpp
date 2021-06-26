@@ -9,7 +9,7 @@
 #include <QDebug>
 
 
-SettingsDialog::SettingsDialog(uilogic::Settings &settings, QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog), settings(settings), copySettings(settings), model(new QSortFilterProxyModel())
+SettingsDialog::SettingsDialog(UiLogic *logic, QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog), logic(logic), copySettings(logic->settings), model(new QSortFilterProxyModel())
 {
     ui->setupUi(this);
 
@@ -51,14 +51,14 @@ void SettingsDialog::handleButtons(QAbstractButton *btn)
     }
     else if(sb == QDialogButtonBox::RestoreDefaults)
     {
-        copySettings = uilogic::loadDefaultSettings();
+        copySettings = logic->loadDefaultSettings();
         setupModel();
     }
 }
 
 void SettingsDialog::onSetSettings()
 {
-    settings = copySettings;
+    logic->settings = copySettings;
 }
 
 void SettingsDialog::setupModel()

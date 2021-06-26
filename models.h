@@ -29,6 +29,8 @@ public:
      * @return If the data could be set, return true and otherwise false
      */
     virtual bool setData(int column, const QVariant &data) {return false;};
+
+    void hello();
 };
 
 /**
@@ -38,6 +40,7 @@ class BookItem: public Item {
 public:
     BookItem (bookdata::Book &book);
     QVariant data(int column, int role = Qt::DisplayRole) const override;
+    Qt::ItemFlags flags(int column) const override;
 private:
     bookdata::Book &book;
 };
@@ -84,12 +87,13 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     void setHeaderData(const std::initializer_list<QString> &list);
-    void reset();
     void addItem(Item *item);
 private:
     const int columns;
     std::vector<QString> header_strings;
     std::vector<Item*> items;
+public slots:
+    void reset();
 };
 
 #endif // MODELS_H

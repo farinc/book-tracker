@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>682</width>
-    <height>1025</height>
+    <width>767</width>
+    <height>1024</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -37,7 +37,7 @@
     <item row="4" column="2">
      <widget class="QGroupBox" name="groupBoxProps">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -49,7 +49,7 @@
        <item row="1" column="0">
         <widget class="QTreeView" name="treeView">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -83,6 +83,12 @@
        </item>
        <item row="11" column="1">
         <widget class="QComboBox" name="comboStatus">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <property name="placeholderText">
+          <string>-- Choose Status --</string>
+         </property>
          <item>
           <property name="text">
            <string>No photo</string>
@@ -172,6 +178,15 @@
        </item>
        <item row="10" column="1">
         <widget class="QComboBox" name="comboBookType">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <property name="placeholderText">
+          <string>--- Choose Type ---</string>
+         </property>
+         <property name="modelColumn">
+          <number>0</number>
+         </property>
          <item>
           <property name="text">
            <string>Traditional</string>
@@ -1095,7 +1110,7 @@
        <item row="1" column="0">
         <widget class="QPlainTextEdit" name="editExtra">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -1171,7 +1186,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>682</width>
+     <width>767</width>
      <height>26</height>
     </rect>
    </property>
@@ -1219,13 +1234,13 @@
  <connections>
   <connection>
    <sender>editPageMaterial</sender>
-   <signal>editingFinished()</signal>
+   <signal>textEdited(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>504</x>
-     <y>235</y>
+     <x>748</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>589</x>
@@ -1235,7 +1250,7 @@
   </connection>
   <connection>
    <sender>editCoverMaterial</sender>
-   <signal>editingFinished()</signal>
+   <signal>textEdited(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>setModified()</slot>
    <hints>
@@ -1267,7 +1282,7 @@
   </connection>
   <connection>
    <sender>editEndPageColor</sender>
-   <signal>editingFinished()</signal>
+   <signal>textEdited(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>setModified()</slot>
    <hints>
@@ -1283,7 +1298,7 @@
   </connection>
   <connection>
    <sender>editBox</sender>
-   <signal>editingFinished()</signal>
+   <signal>textEdited(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>setModified()</slot>
    <hints>
@@ -1299,7 +1314,7 @@
   </connection>
   <connection>
    <sender>editSection</sender>
-   <signal>editingFinished()</signal>
+   <signal>textEdited(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>setModified()</slot>
    <hints>
@@ -1320,8 +1335,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>524</x>
-     <y>490</y>
+     <x>748</x>
+     <y>503</y>
     </hint>
     <hint type="destinationlabel">
      <x>677</x>
@@ -1480,8 +1495,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
-     <y>96</y>
+     <x>748</x>
+     <y>123</y>
     </hint>
     <hint type="destinationlabel">
      <x>573</x>
@@ -1496,8 +1511,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>583</x>
-     <y>143</y>
+     <x>748</x>
+     <y>161</y>
     </hint>
     <hint type="destinationlabel">
      <x>572</x>

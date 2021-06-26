@@ -7,6 +7,7 @@
 
 #include "book.h"
 #include "models.h"
+#include "uilogic.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,14 +24,18 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    BasicModel *model;
+    UiLogic *logic;
+    bool isEditting;
     void setupUiSlots();
 
     void displayCosts();
     void displayStoreDisciption();
     void displayProps();
     void displayPageCount();
-    void enableUi();
+    void displayTitle();
     void setupUi();
+    void setupBook();
     void copyToBook();
 
 public slots:
@@ -44,8 +49,9 @@ public slots:
     //Logical slots
     void onSaveBook();
     void onRevertBook();
-    void onLoadBook(bookdata::Book &incomingBook);
+    void onLoadBook(const int &incomingID);
     void onSaveSettings();
+    void onDeleteBooks(std::vector<int> books);
 private slots:
     void setModified();
 };

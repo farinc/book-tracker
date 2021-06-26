@@ -30,7 +30,7 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SettingsDialog(uilogic::Settings &settings, QWidget *parent = nullptr);
+    explicit SettingsDialog(UiLogic *logic, QWidget *parent = nullptr);
     ~SettingsDialog();
 
 private slots:
@@ -40,8 +40,8 @@ private slots:
 
 private:
     Ui::SettingsDialog *ui;
-    uilogic::Settings &settings;
-    uilogic::Settings copySettings;
+    UiLogic *logic;
+    Settings copySettings;
     QSortFilterProxyModel *model;
     std::string tempDir;
     void setupModel();

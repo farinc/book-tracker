@@ -98,7 +98,7 @@ static std::string getString(Dimension dim)
 class Book {
 
 public:
-    Book ( int bookID = -1);
+    Book ( int bookID = -1 );
 
     int bookID;
 

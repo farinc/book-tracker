@@ -9,13 +9,22 @@
 using json = nlohmann::json;
 using namespace bookdata;
 
-namespace uilogic {
+UiLogic::UiLogic()
+{
+    loadSettings();
+    getBooksOnDisks();
+    newBook();
+}
 
-Book oldBook = Book();
-Book &book = oldBook;
-Settings settings = Settings();
+UiLogic::~UiLogic()
+{
+    for(std::pair<int, Book*> pair : books)
+    {
+        delete pair.second;
+    }
+}
 
-bool writeFile(json data, QString directory, QString filename)
+bool UiLogic::writeFile(json data, QString directory, QString filename)
 {
     QDir dir(directory); //Qt io cant create parent directories on file write...
     if(!dir.exists())
@@ -35,7 +44,7 @@ bool writeFile(json data, QString directory, QString filename)
     return true;
 }
 
-json readFile(QFile &file)
+json UiLogic::readFile(QFile &file)
 {
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -48,35 +57,39 @@ json readFile(QFile &file)
     return jsonObj;
 }
 
-std::vector<Book> getBooksOnDisks()
+bool UiLogic::deleteFile(QFile &file)
+{
+    return file.moveToTrash();
+}
+
+void UiLogic::getBooksOnDisks()
 {
     QString dirStr = QString::fromStdString(settings.bookDirectory);
     QDir dir = QDir(dirStr);
     QStringList files = dir.entryList(QStringList() << "*.json", QDir::Files);
-    std::vector<Book> books;
+
 
     for(const QString &filename : files)
     {
         QFile bookFile(dirStr + QDir::separator() + filename);
-        json bookJson = uilogic::readFile(bookFile);
+        json bookJson = readFile(bookFile);
         if(!bookJson.is_null())
         {
             Book indexedBook = bookJson;
             if(Book::isValid(indexedBook))
             {
-                books.push_back(indexedBook);
+                books[indexedBook.bookID] = new Book(indexedBook);
             }
         }
     }
-
-    return books;
 }
 
-void loadSettings()
+
+void UiLogic::loadSettings()
 {
     Settings defaultSet = loadDefaultSettings();
     QFile file(QString::fromStdString(defaultSet.configDirectory) + QDir::separator() + "settings.json");
-    json obj = uilogic::readFile(file);
+    json obj = readFile(file);
     if(!obj.is_null())
     {
         settings = obj;
@@ -88,7 +101,7 @@ void loadSettings()
     }
 }
 
-Settings loadDefaultSettings()
+Settings UiLogic::loadDefaultSettings()
 {
     Settings set;
     QDir dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
@@ -108,44 +121,63 @@ Settings loadDefaultSettings()
     return set;
 }
 
-void saveSettings()
+void UiLogic::saveSettings()
 {
-    uilogic::writeFile(settings, QString::fromStdString(settings.configDirectory), "settings.json");
+    writeFile(settings, QString::fromStdString(settings.configDirectory), "settings.json");
 }
 
-void saveBook()
+std::vector<Book *> UiLogic::getLoadedBooks()
+{
+    std::vector<Book*> listbooks;
+
+    for(std::pair<int, Book*> b : books)
+    {
+        listbooks.push_back(b.second);
+    }
+
+    return listbooks;
+}
+
+void UiLogic::saveBook()
 {
     Book::updateTimestamp(book);
-    uilogic::writeFile(book, QString::fromStdString(settings.bookDirectory), QString("book-%1.json").arg(book.bookID));
+    writeFile(book, QString::fromStdString(settings.bookDirectory), QString("book-%1.json").arg(book.bookID));
+    books[book.bookID] = new Book(book); //add to map
 }
 
-void revertBook()
+void UiLogic::revertBook()
 {
     book = oldBook;
 }
 
-void newBook()
+void UiLogic::newBook()
 {
-    oldBook = Book(nextNextID());
+    oldBook = Book(nextBookID());
     book = oldBook;
 }
 
-int nextNextID()
+int UiLogic::nextBookID()
 {
-    //Here, there is no attempt to predict the value, we are just going to seek the value again.
-    std::vector<Book> books = uilogic::getBooksOnDisks();
-    int max = 0;
-    for (const Book &book : books)
+    return books.rbegin()->first + 1;
+}
+
+void UiLogic::loadBook(const int &incomingID)
+{
+    if(books.count(incomingID))
     {
-        if(book.bookID > max) max = book.bookID;
+        oldBook = *books[incomingID];
+        book = oldBook;
     }
-    return ++max;
 }
 
-void loadBook(Book &incomingBook)
+bool UiLogic::deleteBook(int id)
 {
-    oldBook = incomingBook;
-    book = oldBook;
+    QFile file(QString::fromStdString(settings.bookDirectory) + QDir::separator() + QString("book-%1.json").arg(id));
+    if(deleteFile(file))
+    {
+        delete books[id];
+        books.erase(id);
+    }
 }
 
-};
+

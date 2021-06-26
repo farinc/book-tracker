@@ -8,7 +8,20 @@
 
 #include "book.h"
 
-namespace uilogic {
+struct Settings
+{
+    std::string configDirectory;
+    std::string bookDirectory;
+    bookdata::CostConstants bookconstants;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Settings, bookDirectory, bookconstants);
+};
+
+class UiLogic {
+
+public:
+
+UiLogic();
+~UiLogic();
 
 /**
  * @brief oldbook
@@ -23,7 +36,7 @@ namespace uilogic {
  * This object only changes value when a new book is pulled from the "book" dialog (here we assume that unsaved values from the gui are dealt with,
  * either by discarding them or keeping them already). It is NOT changed when a book is writen to disk!
  */
-extern bookdata::Book oldBook;
+bookdata::Book oldBook;
 
 /**
  * @brief book
@@ -31,39 +44,38 @@ extern bookdata::Book oldBook;
  * This is the active book. When the "review" action is executed, all values from the gui will be writen to this object.
  * This object will ONLY be writen to disk (json) when the "saveBook" slot is activated.
  *
- * Initialized with the value of oldbook, which is an invalid book
  */
-extern bookdata::Book &book;
+bookdata::Book book;
 
-/**
- * @brief The Settings struct
- *
- *
- */
-struct Settings
-{
-    std::string configDirectory;
-    std::string bookDirectory;
-    bookdata::CostConstants bookconstants;
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Settings, bookDirectory, bookconstants);
-};
-
-extern Settings settings;
-
-bool writeFile(nlohmann::json data, QString directory, QString filename);
-nlohmann::json readFile(QFile &file);
+Settings settings;
 
 void loadSettings();
 Settings loadDefaultSettings();
-void saveSettings();
-
 void newBook();
-void loadBook(bookdata::Book &incomingBook);
+void loadBook(const int &incomingID);
+bool deleteBook(int id);
 void saveBook();
 void revertBook();
+void saveSettings();
+std::vector<bookdata::Book*> getLoadedBooks();
 
-std::vector<bookdata::Book> getBooksOnDisks();
-int nextNextID();
+private:
+
+/**
+ * @brief books
+ *
+ * This is the repository of books on disk. The following is the properties of this repository:
+ * 1) A book only changes in value per id (same mem addr. for a given id)
+ * 2) an id can be entirely deleted (map.remove) and its relavent data. This occurs only when a book is deleted from disk
+ * 3) an id can be added (map.) and relativent data. This occurs when a books is saved to disk.
+ */
+std::map<int, bookdata::Book*> books;
+
+bool writeFile(nlohmann::json data, QString directory, QString filename);
+nlohmann::json readFile(QFile &file);
+bool deleteFile(QFile &file);
+int nextBookID();
+void getBooksOnDisks();
 
 };
 

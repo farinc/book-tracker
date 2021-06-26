@@ -13,6 +13,8 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QClipboard>
+#include <QStandardItemModel>
+#include <QDateTime>
 
 //ui stuff
 
@@ -30,20 +32,19 @@
 #include "uilogic.h"
 
 using json = nlohmann::json;
-using namespace uilogic;
 using namespace bookdata;
 
-MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow), model(new BasicModel(2)), logic(new UiLogic()), isEditting(false)
 {
     ui->setupUi(this);
-    this->setWindowTitle(QString("Untiltled [*]"));
+    setupUi();
     setupUiSlots();
-    loadSettings();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete model;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -62,95 +63,116 @@ void MainWindow::setupUiSlots()
 void MainWindow::copyDiscription()
 {
     QString text = ui->editDiscription->toPlainText();
-    QClipboard *clipboard = static_cast<QApplication*>(this->parent())->clipboard();
+    QClipboard *clipboard = qobject_cast<QApplication*>(this->parent())->clipboard();
     clipboard->setText(text);
 }
 
-void MainWindow::setupUi()
+void MainWindow::setupBook()
 {
-    this->ui->spinPageDimX->setValue(book.pageDim.width);
-    this->ui->spinPageDimY->setValue(book.pageDim.height);
-    this->ui->spinCoverDimX->setValue(book.coverDim.width);
-    this->ui->spinCoverDimY->setValue(book.coverDim.height);
-    this->ui->spinSpineDim->setValue(book.spine);
-    this->ui->spinWeight->setValue(book.weight);
-    this->ui->spinSignitures->setValue(book.signitures);
-    this->ui->spinExtra->setValue(book.costExtra);
-    this->ui->spinPagesPerSig->setValue(book.pagesPerSigniture);
-    this->ui->editEndPageColor->setText(QString::fromStdString(book.endpageColor));
-    this->ui->editBox->setText(QString::fromStdString(book.box));
-    this->ui->editSection->setText(QString::fromStdString(book.section));
-    this->ui->editThreadColor->setText(QString::fromStdString(book.threadColor));
-    this->ui->editCoverMaterial->setText(QString::fromStdString(book.coverMaterial));
-    this->ui->editPageMaterial->setText(QString::fromStdString(book.pageMaterial));
-    this->ui->comboBookType->setCurrentIndex(book.bookType - 1); //shift back down
-    this->ui->comboStatus->setCurrentIndex(book.status - 1);
+    isEditting = true;
+
+    this->ui->spinPageDimX->setValue(logic->book.pageDim.width);
+    this->ui->spinPageDimY->setValue(logic->book.pageDim.height);
+    this->ui->spinCoverDimX->setValue(logic->book.coverDim.width);
+    this->ui->spinCoverDimY->setValue(logic->book.coverDim.height);
+    this->ui->spinSpineDim->setValue(logic->book.spine);
+    this->ui->spinWeight->setValue(logic->book.weight);
+    this->ui->spinSignitures->setValue(logic->book.signitures);
+    this->ui->spinExtra->setValue(logic->book.costExtra);
+    this->ui->spinPagesPerSig->setValue(logic->book.pagesPerSigniture);
+    this->ui->editEndPageColor->setText(QString::fromStdString(logic->book.endpageColor));
+    this->ui->editBox->setText(QString::fromStdString(logic->book.box));
+    this->ui->editSection->setText(QString::fromStdString(logic->book.section));
+    this->ui->editThreadColor->setText(QString::fromStdString(logic->book.threadColor));
+    this->ui->editCoverMaterial->setText(QString::fromStdString(logic->book.coverMaterial));
+    this->ui->editPageMaterial->setText(QString::fromStdString(logic->book.pageMaterial));
+    this->ui->comboBookType->setCurrentIndex(logic->book.bookType);
+    this->ui->comboStatus->setCurrentIndex(logic->book.status);
+    this->ui->editExtra->setPlainText(QString::fromStdString(logic->book.extra));
 
     displayCosts();
     displayStoreDisciption();
     displayProps();
     displayPageCount();
+    displayTitle();
 
-    this->ui->editExtra->setPlainText(QString::fromStdString(book.extra)); //TODO: if this occurs before other sets, it somehow messs with the book instance. Should investigate
-}
-
-void MainWindow::enableUi()
-{
-    ui->groupBoxCostBreakdown->setEnabled(true);
-    ui->groupBoxDims->setEnabled(true);
-    ui->groupBoxExtra->setEnabled(true);
-    ui->groupBoxProps->setEnabled(true);
-    ui->groupBoxPropsEdit->setEnabled(true);
-    ui->groupBoxStore->setEnabled(true);
+    isEditting = false;
 }
 
 void MainWindow::onSaveBook()
 {
-    saveBook();
+    logic->saveBook();
     this->setWindowModified(false);
 }
 
 void MainWindow::onRevertBook()
 {
-    revertBook();
-    setupUi();
-    this->setWindowModified(false); //set back to an unmodified state...
+    logic->revertBook();
+    setupBook();
 }
 
-void MainWindow::onLoadBook(Book &incomingBook)
+void MainWindow::onLoadBook(const int &incomingID)
 {
-    loadBook(incomingBook);
-    this->setWindowTitle(QString("Book %1 [*]").arg(incomingBook.bookID));
+    logic->loadBook(incomingID);
+    setupBook();
 }
 
 void MainWindow::onSaveSettings()
 {
-    saveSettings();
+    logic->saveSettings();
+}
+
+void MainWindow::onDeleteBooks(std::vector<int> books)
+{
+    for(int id : books)
+    {
+        logic->deleteBook(id);
+        if(id == logic->book.bookID)
+        {
+            //updating the ui since this book no longer exists
+            logic->newBook();
+            displayProps();
+            displayTitle();
+            setupBook();
+        }
+    }
 }
 
 void MainWindow::setModified()
 {
-    this->setWindowModified(true);
+    if(!isEditting)
+    {
+        copyToBook();
+        if(!(logic->book == logic->oldBook)){
+            this->setWindowModified(true);
+        }else{
+            this->setWindowModified(false);
+        }
+    }
+
+    displayCosts();
+    displayPageCount();
+    displayStoreDisciption();
 }
 
 void MainWindow::onActionEdit()
 {
     if(onActionReview())
     {
-        auto books = getBooksOnDisks();
+        auto books = logic->getLoadedBooks();
         BookDialog dialog(books);
         connect(&dialog, &BookDialog::loadBook, this, &MainWindow::onLoadBook);
+        connect(&dialog, &BookDialog::deleteBooks, this, &MainWindow::onDeleteBooks);
         dialog.exec();
     }
 }
 
 bool MainWindow::onActionReview()
 {
-    copyToBook(); //important, otherwise book is exactly the same as oldbook
-
-    if(!(book == oldBook))
+    //at this point, the window must be modified if the book is different...
+    if(this->isWindowModified())
     {
-        ReviewDialog dialog(book, oldBook);
+        ReviewDialog dialog(logic->book, logic->oldBook);
         connect(&dialog, &ReviewDialog::save, this, &MainWindow::onSaveBook);
         connect(&dialog, &ReviewDialog::discard, this, &MainWindow::onRevertBook);
         return dialog.exec(); //basically, this only reterns false if the "cancel" option is clicked
@@ -163,53 +185,53 @@ void MainWindow::onActionNew()
 {
     if(onActionReview())
     {
-        newBook();
+        logic->newBook();
     }
 }
 
 void MainWindow::onActionSettings()
 {
-    SettingsDialog dialog(settings);
+    SettingsDialog dialog(logic);
     connect(&dialog, &SettingsDialog::accepted, this, &MainWindow::onSaveSettings);
     dialog.exec();
 }
 
 void MainWindow::copyToBook()
 {
-    book.pageDim.width = ui->spinPageDimX->value();
-    book.pageDim.height = ui->spinPageDimY->value();
-    book.coverDim.width = ui->spinCoverDimX->value();
-    book.coverDim.height = ui->spinCoverDimY->value();
-    book.spine = ui->spinSpineDim->value();
-    book.weight = ui->spinWeight->value();
-    book.signitures = ui->spinSignitures->value();
-    book.costExtra = ui->spinExtra->value();
-    book.pagesPerSigniture = ui->spinPagesPerSig->value();
+    logic->book.pageDim.width = ui->spinPageDimX->value();
+    logic->book.pageDim.height = ui->spinPageDimY->value();
+    logic->book.coverDim.width = ui->spinCoverDimX->value();
+    logic->book.coverDim.height = ui->spinCoverDimY->value();
+    logic->book.spine = ui->spinSpineDim->value();
+    logic->book.weight = ui->spinWeight->value();
+    logic->book.signitures = ui->spinSignitures->value();
+    logic->book.costExtra = ui->spinExtra->value();
+    logic->book.pagesPerSigniture = ui->spinPagesPerSig->value();
 
-    book.endpageColor = ui->editEndPageColor->text().toStdString();
-    book.box = ui->editBox->text().toStdString();
-    book.section = ui->editSection->text().toStdString();
-    book.threadColor = ui->editThreadColor->text().toStdString();
-    book.coverMaterial = ui->editCoverMaterial->text().toStdString();
-    book.pageMaterial = ui->editPageMaterial->text().toStdString();
-    book.extra = ui->editExtra->toPlainText().toStdString();
+    logic->book.endpageColor = ui->editEndPageColor->text().trimmed().toStdString();
+    logic->book.box = ui->editBox->text().trimmed().toStdString();
+    logic->book.section = ui->editSection->text().trimmed().toStdString();
+    logic->book.threadColor = ui->editThreadColor->text().trimmed().toStdString();
+    logic->book.coverMaterial = ui->editCoverMaterial->text().trimmed().toStdString();
+    logic->book.pageMaterial = ui->editPageMaterial->text().trimmed().toStdString();
+    logic->book.extra = ui->editExtra->toPlainText().trimmed().toStdString();
 
-    book.status = static_cast<Status>(ui->comboStatus->currentIndex() + 1); //shift from -1, 0, 1, 2, 3, 4 to 0, 1, 2, 3, 4, 5
-    book.bookType = static_cast<BookType>(ui->comboBookType->currentIndex() + 1);
+    logic->book.status = static_cast<Status>(ui->comboStatus->currentIndex());
+    logic->book.bookType = static_cast<BookType>(ui->comboBookType->currentIndex());
 }
 
 void MainWindow::displayCosts()
 {
-    if(Book::isCalculatable(book))
+    if(Book::isCalculatable(logic->book))
     {
-        ui->spinBoard->setValue(Book::getBoardCost(book));
-        ui->spinCloth->setValue(Book::getClothCost(book));
-        ui->spinThread->setValue(Book::getThreadRibbonCost(book));
-        ui->spinHeadband->setValue(Book::getHeadbandCost(book));
-        ui->spinPaper->setValue(Book::getPageCost(book));
-        ui->spinSuper->setValue(Book::getSuperCost(book));
-        ui->spinMisc->setValue(Book::getExtraCosts(book));
-        ui->spinTotal->setValue(Book::getTotal(book));
+        ui->spinBoard->setValue(Book::getBoardCost(logic->book));
+        ui->spinCloth->setValue(Book::getClothCost(logic->book));
+        ui->spinThread->setValue(Book::getThreadRibbonCost(logic->book));
+        ui->spinHeadband->setValue(Book::getHeadbandCost(logic->book));
+        ui->spinPaper->setValue(Book::getPageCost(logic->book));
+        ui->spinSuper->setValue(Book::getSuperCost(logic->book));
+        ui->spinMisc->setValue(Book::getExtraCosts(logic->book));
+        ui->spinTotal->setValue(Book::getTotal(logic->book));
     }
     else
     {
@@ -226,17 +248,17 @@ void MainWindow::displayCosts()
 
 void MainWindow::displayStoreDisciption()
 {
-    if (Book::canHaveDiscription(book))
+    if (Book::canHaveDiscription(logic->book))
     {
         QString endpageColor, spineType, threadColor, coverMaterial, pageMaterial;
 
-        endpageColor = QString::fromStdString(book.endpageColor);
-        threadColor = QString::fromStdString(book.threadColor);
-        coverMaterial = QString::fromStdString(book.coverMaterial);
-        pageMaterial = QString::fromStdString(book.pageMaterial);
+        endpageColor = QString::fromStdString(logic->book.endpageColor);
+        threadColor = QString::fromStdString(logic->book.threadColor);
+        coverMaterial = QString::fromStdString(logic->book.coverMaterial);
+        pageMaterial = QString::fromStdString(logic->book.pageMaterial);
 
         QString spineStr;
-        spineType = QString::fromStdString(Book::getSpineType(book));
+        spineType = QString::fromStdString(Book::getSpineType(logic->book));
 
         if (spineType == "")
         {
@@ -257,13 +279,13 @@ void MainWindow::displayStoreDisciption()
             "Page: %8 in. by %9 in.\n"
             "%11 pages / %12 sides"
         ).arg(coverMaterial, spineStr, pageMaterial, endpageColor
-        ).arg(book.coverDim.width
-        ).arg(book.coverDim.height
-        ).arg(book.spine
-        ).arg(book.pageDim.width
-        ).arg(book.pageDim.height
-        ).arg(Book::calculatePageCount(book)
-        ).arg(Book::calculatePageCount(book) * 2);
+        ).arg(logic->book.coverDim.width
+        ).arg(logic->book.coverDim.height
+        ).arg(logic->book.spine
+        ).arg(logic->book.pageDim.width
+        ).arg(logic->book.pageDim.height
+        ).arg(Book::calculatePageCount(logic->book)
+        ).arg(Book::calculatePageCount(logic->book) * 2);
 
         ui->editDiscription->setPlainText(str);
     }
@@ -275,10 +297,55 @@ void MainWindow::displayStoreDisciption()
 
 void MainWindow::displayProps()
 {
+    model->reset();
+    model->setHeaderData({tr("Property"), tr("Value")});
 
+    PropItem *item1 = new PropItem(tr("Book ID"), {logic->book.bookID});
+    model->addItem(item1);
+
+    PropItem *item2 = new PropItem(tr("Created On"), {QDateTime::fromSecsSinceEpoch(logic->book.creation)});
+    model->addItem(item2);
+
+    PropItem *item3 = new PropItem(tr("Last Edited"), {QDateTime::fromSecsSinceEpoch(logic->book.lastEdit)});
+    model->addItem(item3);
+
+    ui->treeView->setModel(model);
+    ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 void MainWindow::displayPageCount()
 {
-    this->ui->spinPages->setValue(Book::calculatePageCount(book));
+    this->ui->spinPages->setValue(Book::calculatePageCount(logic->book));
+}
+
+void MainWindow::displayTitle()
+{
+    this->setWindowTitle(QString("Book %1 [*]").arg(logic->book.bookID));
+    this->setWindowModified(false);
+}
+
+void MainWindow::setupUi()
+{
+    //Setup the combo boxes with a default, non-selectable entry
+
+    QStandardItemModel* model = qobject_cast<QStandardItemModel*>(ui->comboBookType->model());
+
+    QStandardItem* defaultItem = new QStandardItem();
+    defaultItem->setSelectable(false);
+    defaultItem->setText("Choose Type");
+    model->insertRow(0, defaultItem);
+
+    model = qobject_cast<QStandardItemModel*>(ui->comboStatus->model());
+
+    defaultItem = new QStandardItem();
+    defaultItem->setSelectable(false);
+    defaultItem->setText("Choose Status");
+    model->insertRow(0, defaultItem);
+
+    ui->comboBookType->setCurrentIndex(0);
+    ui->comboStatus->setCurrentIndex(0);
+    //Now add some props
+
+    displayProps();
+    displayTitle();
 }

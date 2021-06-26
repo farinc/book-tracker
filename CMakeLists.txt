@@ -55,6 +55,9 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
   settingsdialog.ui
   uilogic.h
   uilogic.cpp
+  confirmdialog.h
+  confirmdialog.cpp
+  confirmdialog.ui
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME} Qt::Core Qt::Widgets)

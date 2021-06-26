@@ -11,10 +11,6 @@ ReviewDialog::ReviewDialog(const Book &newBook, const Book &oldBook, QWidget *pa
     ui->setupUi(this);
     setupModel(newBook, oldBook);
 
-    //First, disconnect the default bindings (this may not be nessaray...)
-    disconnect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    disconnect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
     //Handle the buttons individually
     connect(ui->buttonBox, &QDialogButtonBox::clicked, this, &ReviewDialog::handleButtons);
 }
@@ -27,15 +23,12 @@ ReviewDialog::~ReviewDialog()
 
 void ReviewDialog::setupModel(const Book &newBook, const Book &oldBook)
 {
-    if(!Book::isValid(newBook))
-        return;
-
     model->reset();
     model->setHeaderData({tr("Property"), tr("New Value"), tr("Old Value")});
 
     if(!Book::isValid(oldBook))
     {
-        //only truely new books...
+        //only for new books...
         PropItem *item = new PropItem("New Entry", {"-", "-"});
         model->addItem(item);
     }
@@ -142,6 +135,7 @@ void ReviewDialog::setupModel(const Book &newBook, const Book &oldBook)
     }
 
     ui->treeView->setModel(model);
+    ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 void ReviewDialog::handleButtons(QAbstractButton *btn)

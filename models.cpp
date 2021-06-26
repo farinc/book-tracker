@@ -31,6 +31,16 @@ QVariant BookItem::data(int column, int role) const
     return QVariant();
 }
 
+Qt::ItemFlags BookItem::flags(int column) const
+{
+    auto flags = Item::flags(column);
+
+    if(column == 0)
+        return flags | Qt::ItemIsSelectable;
+
+    return flags;
+}
+
 BookConstantItem::BookConstantItem(const QString descritpion, double &constant): descritpion(descritpion), constant(constant)
 {}
 
@@ -179,12 +189,19 @@ Qt::ItemFlags BasicModel::flags(const QModelIndex &index) const
 
 void BasicModel::reset()
 {
+    emit this->beginResetModel();
     qDeleteAll(items);
     items.clear();
     header_strings.clear();
+    emit this->endResetModel();
 }
 
 void BasicModel::addItem(Item *item)
 {
     this->items.push_back(item);
+}
+
+void Item::hello()
+{
+    qDebug() << "helllooooo";
 }
