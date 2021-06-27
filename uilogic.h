@@ -16,6 +16,39 @@ struct Settings
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Settings, bookDirectory, bookconstants);
 };
 
+static QString getString(bookdata::BookType type)
+{
+    switch (type)
+    {
+    case 0: return "Not Specified";
+    case 1: return "Traditional";
+    case 2: return "Coptic";
+    case 3: return "Two Needle Coptic";
+    case 4: return "Stab Stich";
+    case 5: return "Quarter";
+    case 6: return "Long Stich";
+    default: return QString();
+    }
+}
+static QString getString(bookdata::Status type)
+{
+    switch (type)
+    {
+    case 0: return "Not Specified";
+    case 1: return "No Photo";
+    case 2: return "Drafted";
+    case 3: return "Drafted w/ Photo";
+    case 4: return "Published";
+    case 5: return "Sold";
+    default: return QString();
+    }
+}
+
+static QString getString(bookdata::Dimension dim)
+{
+    return QString("%1 in by %2 in").arg(dim.width, 0, 'f', 3).arg(dim.height, 0, 'f', 3);
+}
+
 class UiLogic {
 
 public:
@@ -53,7 +86,7 @@ void loadSettings();
 Settings loadDefaultSettings();
 void newBook();
 void loadBook(const int &incomingID);
-bool deleteBook(int id);
+void deleteBook(int id);
 void saveBook();
 void revertBook();
 void saveSettings();

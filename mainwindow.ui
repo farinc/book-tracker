@@ -1266,7 +1266,7 @@
   </connection>
   <connection>
    <sender>editThreadColor</sender>
-   <signal>editingFinished()</signal>
+   <signal>textEdited(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>setModified()</slot>
    <hints>

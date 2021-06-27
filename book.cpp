@@ -1,13 +1,8 @@
 #include "book.h"
 
-#include <string>
 #include <cmath>
 #include <nlohmann/json.hpp>
-#include <QAbstractItemModel>
-#include <QUrl>
 #include <QDebug>
-#include <fstream>
-#include <iomanip>
 
 using json = nlohmann::json;
 

@@ -143,6 +143,7 @@ void UiLogic::saveBook()
     Book::updateTimestamp(book);
     writeFile(book, QString::fromStdString(settings.bookDirectory), QString("book-%1.json").arg(book.bookID));
     books[book.bookID] = new Book(book); //add to map
+    oldBook = book;
 }
 
 void UiLogic::revertBook()
@@ -170,7 +171,7 @@ void UiLogic::loadBook(const int &incomingID)
     }
 }
 
-bool UiLogic::deleteBook(int id)
+void UiLogic::deleteBook(int id)
 {
     QFile file(QString::fromStdString(settings.bookDirectory) + QDir::separator() + QString("book-%1.json").arg(id));
     if(deleteFile(file))

@@ -2,8 +2,10 @@
 #define BOOK_H
 
 #include <nlohmann/json.hpp>
-#include <QAbstractItemModel>
 #include <ctime>
+
+#define FMT_HEADER_ONLY
+#include <fmt/format.h>
 
 namespace bookdata {
 
@@ -61,39 +63,6 @@ struct Dimension {
     double height;
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Dimension, width, height);
 };
-
-static std::string getString(BookType type)
-{
-    switch (type)
-    {
-    case 0: return "Not Specified";
-    case 1: return "Traditional";
-    case 2: return "Coptic";
-    case 3: return "Two Needle Coptic";
-    case 4: return "Stab Stich";
-    case 5: return "Quarter";
-    case 6: return "Long Stich";
-    default: return std::string();
-    }
-}
-static std::string getString(Status type)
-{
-    switch (type)
-    {
-    case 0: return "Not Specified";
-    case 1: return "No Photo";
-    case 2: return "Drafted";
-    case 3: return "Drafted w/ Photo";
-    case 4: return "Published";
-    case 5: return "Sold";
-    default: return std::string();
-    }
-}
-
-static std::string getString(Dimension dim)
-{
-    return std::to_string(dim.width) + " in" + std::to_string(dim.height) + " in";
-}
 
 class Book {
 

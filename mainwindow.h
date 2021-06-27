@@ -27,15 +27,21 @@ private:
     BasicModel *model;
     UiLogic *logic;
     bool isEditting;
-    void setupUiSlots();
 
+    // Setup initial ui and signals and slots
+    void initUi();
+
+    // update the ui
     void displayCosts();
     void displayStoreDisciption();
     void displayProps();
     void displayPageCount();
     void displayTitle();
-    void setupUi();
-    void setupBook();
+
+    // functions to create a new book or load one into the ui
+
+    // transfer values to and from ui,
+    void copyToUI();
     void copyToBook();
 
 public slots:

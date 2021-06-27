@@ -37,8 +37,8 @@ using namespace bookdata;
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow), model(new BasicModel(2)), logic(new UiLogic()), isEditting(false)
 {
     ui->setupUi(this);
-    setupUi();
-    setupUiSlots();
+    initUi();
+    copyToUI();
 }
 
 MainWindow::~MainWindow()
@@ -52,14 +52,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
     //saveBook(); //Assumes that changes made before closing are valuable
 }
 
-void MainWindow::setupUiSlots()
-{
-    connect(ui->actionEdit, &QAction::triggered, this, &MainWindow::onActionEdit);
-    connect(ui->actionNew, &QAction::triggered, this, &MainWindow::onActionNew);
-    connect(ui->actionReview, &QAction::triggered, this, &MainWindow::onActionReview);
-    connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::onActionSettings);
-}
-
 void MainWindow::copyDiscription()
 {
     QString text = ui->editDiscription->toPlainText();
@@ -67,7 +59,7 @@ void MainWindow::copyDiscription()
     clipboard->setText(text);
 }
 
-void MainWindow::setupBook()
+void MainWindow::copyToUI()
 {
     isEditting = true;
 
@@ -108,13 +100,13 @@ void MainWindow::onSaveBook()
 void MainWindow::onRevertBook()
 {
     logic->revertBook();
-    setupBook();
+    copyToUI();
 }
 
 void MainWindow::onLoadBook(const int &incomingID)
 {
     logic->loadBook(incomingID);
-    setupBook();
+    copyToUI();
 }
 
 void MainWindow::onSaveSettings()
@@ -131,9 +123,7 @@ void MainWindow::onDeleteBooks(std::vector<int> books)
         {
             //updating the ui since this book no longer exists
             logic->newBook();
-            displayProps();
-            displayTitle();
-            setupBook();
+            copyToUI();
         }
     }
 }
@@ -172,7 +162,7 @@ bool MainWindow::onActionReview()
     //at this point, the window must be modified if the book is different...
     if(this->isWindowModified())
     {
-        ReviewDialog dialog(logic->book, logic->oldBook);
+        ReviewDialog dialog(logic);
         connect(&dialog, &ReviewDialog::save, this, &MainWindow::onSaveBook);
         connect(&dialog, &ReviewDialog::discard, this, &MainWindow::onRevertBook);
         return dialog.exec(); //basically, this only reterns false if the "cancel" option is clicked
@@ -186,6 +176,7 @@ void MainWindow::onActionNew()
     if(onActionReview())
     {
         logic->newBook();
+        copyToUI();
     }
 }
 
@@ -324,7 +315,7 @@ void MainWindow::displayTitle()
     this->setWindowModified(false);
 }
 
-void MainWindow::setupUi()
+void MainWindow::initUi()
 {
     //Setup the combo boxes with a default, non-selectable entry
 
@@ -344,8 +335,9 @@ void MainWindow::setupUi()
 
     ui->comboBookType->setCurrentIndex(0);
     ui->comboStatus->setCurrentIndex(0);
-    //Now add some props
 
-    displayProps();
-    displayTitle();
+    connect(ui->actionEdit, &QAction::triggered, this, &MainWindow::onActionEdit);
+    connect(ui->actionNew, &QAction::triggered, this, &MainWindow::onActionNew);
+    connect(ui->actionReview, &QAction::triggered, this, &MainWindow::onActionReview);
+    connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::onActionSettings);
 }

@@ -20,7 +20,6 @@ BookDialog::BookDialog(std::vector<bookdata::Book*> &books, QWidget *parent): QD
     connect(ui->treeView, &QTreeView::doubleClicked, this, &BookDialog::onDoubleClicked);
     connect(ui->pushButtonDelete, &QPushButton::clicked, this, &BookDialog::onDelete);
     connect(this, &BookDialog::loadBook, this, &BookDialog::accept);
-
  }
 
 BookDialog::~BookDialog()
