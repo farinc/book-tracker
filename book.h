@@ -4,9 +4,6 @@
 #include <nlohmann/json.hpp>
 #include <ctime>
 
-#define FMT_HEADER_ONLY
-#include <fmt/format.h>
-
 namespace bookdata {
 
 enum BookType: int {

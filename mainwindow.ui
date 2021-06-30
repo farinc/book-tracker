@@ -1187,7 +1187,7 @@
      <x>0</x>
      <y>0</y>
      <width>767</width>
-     <height>26</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">
@@ -1229,6 +1229,34 @@
  <tabstops>
   <tabstop>spinPageDimX</tabstop>
   <tabstop>spinPageDimY</tabstop>
+  <tabstop>spinCoverDimX</tabstop>
+  <tabstop>spinCoverDimY</tabstop>
+  <tabstop>editPageMaterial</tabstop>
+  <tabstop>editCoverMaterial</tabstop>
+  <tabstop>editThreadColor</tabstop>
+  <tabstop>editEndPageColor</tabstop>
+  <tabstop>editBox</tabstop>
+  <tabstop>editSection</tabstop>
+  <tabstop>spinWeight</tabstop>
+  <tabstop>spinSpineDim</tabstop>
+  <tabstop>comboBookType</tabstop>
+  <tabstop>comboStatus</tabstop>
+  <tabstop>spinSignitures</tabstop>
+  <tabstop>spinPagesPerSig</tabstop>
+  <tabstop>spinPages</tabstop>
+  <tabstop>editExtra</tabstop>
+  <tabstop>spinTotal</tabstop>
+  <tabstop>pushButtonCopy</tabstop>
+  <tabstop>spinBoard</tabstop>
+  <tabstop>spinPaper</tabstop>
+  <tabstop>spinHeadband</tabstop>
+  <tabstop>spinCloth</tabstop>
+  <tabstop>spinExtra</tabstop>
+  <tabstop>spinThread</tabstop>
+  <tabstop>spinSuper</tabstop>
+  <tabstop>treeView</tabstop>
+  <tabstop>editDiscription</tabstop>
+  <tabstop>spinMisc</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -1239,8 +1267,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>748</x>
-     <y>245</y>
+     <x>745</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>589</x>
@@ -1255,8 +1283,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>557</x>
-     <y>267</y>
+     <x>745</x>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
      <x>674</x>
@@ -1303,8 +1331,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>586</x>
-     <y>409</y>
+     <x>745</x>
+     <y>406</y>
     </hint>
     <hint type="destinationlabel">
      <x>674</x>
@@ -1319,8 +1347,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
-     <y>443</y>
+     <x>745</x>
+     <y>448</y>
     </hint>
     <hint type="destinationlabel">
      <x>677</x>
@@ -1335,8 +1363,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>748</x>
-     <y>503</y>
+     <x>745</x>
+     <y>490</y>
     </hint>
     <hint type="destinationlabel">
      <x>677</x>
@@ -1351,8 +1379,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>529</x>
-     <y>530</y>
+     <x>745</x>
+     <y>532</y>
     </hint>
     <hint type="destinationlabel">
      <x>681</x>
@@ -1367,8 +1395,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>616</x>
-     <y>583</y>
+     <x>745</x>
+     <y>574</y>
     </hint>
     <hint type="destinationlabel">
      <x>682</x>
@@ -1431,8 +1459,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>197</x>
-     <y>353</y>
+     <x>330</x>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
      <x>287</x>
@@ -1463,8 +1491,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>463</x>
-     <y>115</y>
+     <x>629</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>401</x>
@@ -1479,8 +1507,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>469</x>
-     <y>139</y>
+     <x>629</x>
+     <y>150</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -1495,8 +1523,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>748</x>
-     <y>123</y>
+     <x>745</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>573</x>
@@ -1511,8 +1539,8 @@
    <slot>setModified()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>748</x>
-     <y>161</y>
+     <x>745</x>
+     <y>150</y>
     </hint>
     <hint type="destinationlabel">
      <x>572</x>

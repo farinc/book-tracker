@@ -68,8 +68,7 @@ void UiLogic::getBooksOnDisks()
     QDir dir = QDir(dirStr);
     QStringList files = dir.entryList(QStringList() << "*.json", QDir::Files);
 
-
-    for(const QString &filename : files)
+    for(const QString &filename : qAsConst(files))
     {
         QFile bookFile(dirStr + QDir::separator() + filename);
         json bookJson = readFile(bookFile);
@@ -159,6 +158,9 @@ void UiLogic::newBook()
 
 int UiLogic::nextBookID()
 {
+    if (books.empty())
+        return 1;
+
     return books.rbegin()->first + 1;
 }
 
