@@ -86,9 +86,6 @@
          <property name="currentIndex">
           <number>0</number>
          </property>
-         <property name="placeholderText">
-          <string>-- Choose Status --</string>
-         </property>
          <item>
           <property name="text">
            <string>No photo</string>
@@ -180,9 +177,6 @@
         <widget class="QComboBox" name="comboBookType">
          <property name="currentIndex">
           <number>0</number>
-         </property>
-         <property name="placeholderText">
-          <string>--- Choose Type ---</string>
          </property>
          <property name="modelColumn">
           <number>0</number>
@@ -1187,7 +1181,7 @@
      <x>0</x>
      <y>0</y>
      <width>767</width>
-     <height>23</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">

@@ -151,7 +151,7 @@ double Book::getHeadbandCost(const Book &book)
 
 double Book::getSuperCost(const Book &book)
 {
-    if(book.bookType == BookType::traditional or book.bookType == BookType::quater){
+    if(book.bookType == BookType::traditional || book.bookType == BookType::quater){
         double paddedSpine = book.spine + constants.paddingSpineForSuper;
         double sqInchSuper = paddedSpine * book.coverDim.height;
         return sqInchSuper * constants.superPrice;

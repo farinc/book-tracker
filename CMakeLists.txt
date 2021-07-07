@@ -10,6 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROJECT_VERSION_STRING "${CMAKE_PROJECT_VERSION}")
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
 configure_file( version_config.h.in ${CMAKE_BINARY_DIR}/generated/version_config.h )
 include_directories( ${CMAKE_BINARY_DIR}/generated/ ) # Make sure it can be included...
 
@@ -30,8 +32,9 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
   set(CMAKE_INCLUDE_CURRENT_DIR ON)
 endif()
 
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
-find_package(nlohmann_json 3.2.0 REQUIRED)
+add_subdirectory(nlohmann_json)
+
+find_package(Qt5 5.15 COMPONENTS Widgets REQUIRED)
 
 add_executable(${CMAKE_PROJECT_NAME} WIN32)
 
@@ -60,4 +63,4 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
   confirmdialog.ui
 )
 
-target_link_libraries(${CMAKE_PROJECT_NAME} Qt::Core Qt::Widgets)
+target_link_libraries(${CMAKE_PROJECT_NAME} Qt5::Widgets nlohmann_json::nlohmann_json)
