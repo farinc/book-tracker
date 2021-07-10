@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(book-tracker VERSION 3.3.1 LANGUAGES CXX)
+project(booktracker VERSION 3.3.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -10,9 +10,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROJECT_VERSION_STRING "${CMAKE_PROJECT_VERSION}")
 
-set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(JSON_BuildTests OFF CACHE INTERNAL "") # nlohmann_json only
 
-configure_file( version_config.h.in ${CMAKE_BINARY_DIR}/generated/version_config.h )
+configure_file(version_config.h.in ${CMAKE_BINARY_DIR}/generated/version_config.h)
 include_directories( ${CMAKE_BINARY_DIR}/generated/ ) # Make sure it can be included...
 
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
@@ -36,9 +36,9 @@ add_subdirectory(nlohmann_json)
 
 find_package(Qt5 5.15 COMPONENTS Widgets REQUIRED)
 
-add_executable(${CMAKE_PROJECT_NAME} WIN32)
+add_executable(booktracker WIN32)
 
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+target_sources(booktracker PRIVATE
   main.cpp
   mainwindow.cpp
   mainwindow.h
@@ -63,4 +63,11 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
   confirmdialog.ui
 )
 
-target_link_libraries(${CMAKE_PROJECT_NAME} Qt5::Widgets nlohmann_json::nlohmann_json)
+#set( CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/BundleConfig.cmake" )
+# add_custom_target( bundle COMMAND "${CMAKE_CPACK_COMMAND}" "-C" "$<CONFIGURATION>" "--config" "${CMAKE_BINARY_DIR}/BundleConfig.cmake" COMMENT "CPack CMake target")
+
+target_link_libraries(booktracker Qt5::Widgets nlohmann_json::nlohmann_json)
+install(TARGETS booktracker COMPONENT base)
+
+include(cmake/DeployQt.cmake)
+initBundle()
