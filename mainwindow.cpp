@@ -24,6 +24,7 @@
 #include "settingsdialog.h"
 #include "reviewdialog.h"
 #include "version_config.h"
+#include "confirmdialog.h"
 
 //logic stuff
 
@@ -49,7 +50,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    //saveBook(); //Assumes that changes made before closing are valuable
+    if(this->isWindowModified())
+    {
+        ConfirmDialog dialog(tr("Are you sure you want to quit?\nAll unsaved changes will be lost!"), tr("Close Book Tracker?"));
+        if(!dialog.exec())
+        {
+            event->ignore();
+        }
+    }
 }
 
 void MainWindow::copyDiscription()

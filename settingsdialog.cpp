@@ -17,7 +17,7 @@ SettingsDialog::SettingsDialog(UiLogic *logic, QWidget *parent) : QDialog(parent
     ui->lineEditSettings->setText(QString::fromStdString(copySettings.configDirectory));
 
     auto header = new QHeaderView(Qt::Horizontal);
-    header->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
+    header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
     ui->treeView->setHeader(header);
 
     auto delegate = new SpinBoxDelegate();
@@ -47,6 +47,7 @@ void SettingsDialog::handleButtons(QAbstractButton *btn)
     auto sb = ui->buttonBox->standardButton(btn);
     if (sb == QDialogButtonBox::Reset)
     {
+        copySettings = logic->settings;
         setupModel();
     }
     else if(sb == QDialogButtonBox::RestoreDefaults)
@@ -64,59 +65,58 @@ void SettingsDialog::onSetSettings()
 void SettingsDialog::setupModel()
 {
     bookdata::CostConstants &constants = copySettings.bookconstants;
-    BasicModel *dmodel = new BasicModel(2);
+    BasicModel *dmodel = new BasicModel(3);
 
     dmodel->reset();
-    dmodel->setHeaderData({tr("Property"), tr("Value")});
+    dmodel->setHeaderData({tr("Property"), tr("Value"), tr("Unit")});
 
-    BookConstantItem *item1 = new BookConstantItem(tr("Padding width for board"), constants.paddingWidthBoard);
+    BookConstantItem *item1 = new BookConstantItem(tr("Padding width for board"), constants.paddingWidthBoard, "in");
     dmodel->addItem(item1);
 
-    BookConstantItem *item2 = new BookConstantItem(tr("Padding height for board"), constants.paddingHeightBoard);
+    BookConstantItem *item2 = new BookConstantItem(tr("Padding height for board"), constants.paddingHeightBoard, "in");
     dmodel->addItem(item2);
 
-    BookConstantItem *item3 = new BookConstantItem(tr("Padding spine for long traditional bound"), constants.paddingSpineLongTrad);
+    BookConstantItem *item3 = new BookConstantItem(tr("Padding spine for long traditional bound"), constants.paddingSpineLongTrad, "in");
     dmodel->addItem(item3);
 
-    BookConstantItem *item4 = new BookConstantItem(tr("Padding spine for quarter bound"), constants.paddingSpineQuarter);
+    BookConstantItem *item4 = new BookConstantItem(tr("Padding spine for quarter bound"), constants.paddingSpineQuarter, "in");
     dmodel->addItem(item4);
 
-    BookConstantItem *item5 = new BookConstantItem(tr("Padding spine for super"), constants.paddingSpineForSuper);
+    BookConstantItem *item5 = new BookConstantItem(tr("Padding spine for super"), constants.paddingSpineForSuper, "in");
     dmodel->addItem(item5);
 
-    BookConstantItem *item6 = new BookConstantItem(tr("Board price per square inch"), constants.sqInchBoardPrice);
+    BookConstantItem *item6 = new BookConstantItem(tr("Board price per square inch"), constants.sqInchBoardPrice, "$");
     dmodel->addItem(item6);
 
-    BookConstantItem *item7 = new BookConstantItem(tr("Price per sheet"), constants.sheetPrice);
+    BookConstantItem *item7 = new BookConstantItem(tr("Price per sheet"), constants.sheetPrice, "$");
     dmodel->addItem(item7);
 
-    BookConstantItem *item8 = new BookConstantItem(tr("Cloth price per inch"), constants.sqInchClothPrice);
+    BookConstantItem *item8 = new BookConstantItem(tr("Cloth price per inch"), constants.sqInchClothPrice, "$");
     dmodel->addItem(item8);
 
-    BookConstantItem *item9 = new BookConstantItem(tr("Thread length price per inch"), constants.threadLengthPrice);
+    BookConstantItem *item9 = new BookConstantItem(tr("Thread length price per inch"), constants.threadLengthPrice, "$");
     dmodel->addItem(item9);
 
-    BookConstantItem *item10 = new BookConstantItem(tr("Price of headband per inch"), constants.headbandPrice);
+    BookConstantItem *item10 = new BookConstantItem(tr("Price of headband per inch"), constants.headbandPrice, "$");
     dmodel->addItem(item10);
 
-    BookConstantItem *item11 = new BookConstantItem(tr("Price of super per inch"), constants.superPrice);
+    BookConstantItem *item11 = new BookConstantItem(tr("Price of super per inch"), constants.superPrice, "$");
     dmodel->addItem(item11);
 
-    BookConstantItem *item12 = new BookConstantItem(tr("Price of ribbon per inch"), constants.ribbonPrice);
+    BookConstantItem *item12 = new BookConstantItem(tr("Price of ribbon per inch"), constants.ribbonPrice, "$");
     dmodel->addItem(item12);
 
-    BookConstantItem *item13 = new BookConstantItem(tr("Price of PVA glue"), constants.pvaCost);
+    BookConstantItem *item13 = new BookConstantItem(tr("Price of PVA glue"), constants.pvaCost, "$");
     dmodel->addItem(item13);
 
-    BookConstantItem *item14 = new BookConstantItem(tr("Price of endpages"), constants.endpageCost);
+    BookConstantItem *item14 = new BookConstantItem(tr("Price of endpages"), constants.endpageCost, "$");
     dmodel->addItem(item14);
 
     model->setSourceModel(dmodel);
     this->ui->treeView->setModel(model);
 }
 
-SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
+SpinBoxDelegate::SpinBoxDelegate(QObject *parent): QStyledItemDelegate(parent)
 {}
 
 QWidget *SpinBoxDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const

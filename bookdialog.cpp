@@ -59,22 +59,25 @@ void BookDialog::onDoubleClicked(const QModelIndex &index)
 void BookDialog::onDelete()
 {
     auto selected = ui->treeView->selectionModel()->selection().indexes();
-    QString str("Are you sure you want to delete those book(s)?\n");
-    QString bookstr{};
-    std::vector<int> bks{};
-    for(QModelIndex index : selected)
+    if(selected.size() > 0)
     {
-        int id = sortModel->data(index, Qt::DisplayRole).toInt();
-        QString bk = QString("Book %1 \n").arg(id);
-        bks.push_back(id);
-        bookstr.append(bk);
-    }
-    str.append(bookstr);
+        QString str("Are you sure you want to delete those book(s)?\n");
+        QString bookstr{};
+        std::vector<int> bks{};
+        for(QModelIndex index : selected)
+        {
+            int id = sortModel->data(index, Qt::DisplayRole).toInt();
+            QString bk = QString("Book %1\n").arg(id);
+            bks.push_back(id);
+            bookstr.append(bk);
+        }
+        str.append(bookstr);
 
-    ConfirmDialog dialog(str);
-    if(dialog.exec())
-    {
-        emit deleteBooks(bks);
-        accept();
+        ConfirmDialog dialog(str, "Delete Book?");
+        if(dialog.exec())
+        {
+            emit deleteBooks(bks);
+            accept();
+        }
     }
 }

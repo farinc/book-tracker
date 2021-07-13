@@ -34,21 +34,22 @@ NLOHMANN_JSON_SERIALIZE_ENUM( Status, {
 });
 
 struct CostConstants {
-    // Padding Constants
-    double paddingWidthBoard = 2.0;
-    double paddingHeightBoard = 2.0;
-    double paddingSpineLongTrad = 3.0;
-    double paddingSpineQuarter = 5.0;
-    double paddingSpineForSuper = 2.0;
-    double sqInchBoardPrice = 0.02;
-    double sheetPrice = 0.05;
-    double sqInchClothPrice = 0.02;
-    double threadLengthPrice = 0.002;
-    double headbandPrice = 0.1;
-    double superPrice = 0.02;
-    double ribbonPrice = 0.10;
-    double pvaCost = 0.5;
-    double endpageCost = 0.5;
+    // padding Constants, in inches
+    double paddingWidthBoard = 2.0; // in
+    double paddingHeightBoard = 2.0; // in
+    double paddingSpineLongTrad = 3.0; // in
+    double paddingSpineQuarter = 5.0; // in
+    double paddingSpineForSuper = 2.0; // in
+    // price constants
+    double sqInchBoardPrice = 0.02; // $
+    double sheetPrice = 0.05; //$
+    double sqInchClothPrice = 0.02; // $
+    double threadLengthPrice = 0.002; // $
+    double headbandPrice = 0.1; // $
+    double superPrice = 0.02; // $
+    double ribbonPrice = 0.10; // $
+    double pvaCost = 0.5; // $
+    double endpageCost = 0.5; // $
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(CostConstants, paddingWidthBoard, paddingHeightBoard, paddingSpineLongTrad, paddingSpineQuarter, paddingSpineForSuper, sqInchBoardPrice, sheetPrice, sqInchClothPrice, threadLengthPrice, headbandPrice, superPrice, ribbonPrice, pvaCost, endpageCost);
 };

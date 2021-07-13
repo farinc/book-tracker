@@ -12,7 +12,7 @@ class ConfirmDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ConfirmDialog(QString str, QWidget *parent = nullptr);
+    explicit ConfirmDialog(QString str, QString title, QWidget *parent = nullptr);
     ~ConfirmDialog();
 
 private:

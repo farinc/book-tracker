@@ -63,7 +63,6 @@ target_sources(booktracker PRIVATE
   confirmdialog.ui
 )
 
-#set( CPACK_OUTPUT_CONFIG_FILE "${CMAKE_BINARY_DIR}/BundleConfig.cmake" )
 # add_custom_target( bundle COMMAND "${CMAKE_CPACK_COMMAND}" "-C" "$<CONFIGURATION>" "--config" "${CMAKE_BINARY_DIR}/BundleConfig.cmake" COMMENT "CPack CMake target")
 
 target_link_libraries(booktracker Qt5::Widgets nlohmann_json::nlohmann_json)

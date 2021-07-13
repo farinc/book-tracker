@@ -50,12 +50,13 @@ private:
  */
 class BookConstantItem: public Item {
 public:
-    BookConstantItem (const QString descritpion, double &constant);
+    BookConstantItem (const QString descritpion, double &constant, const QString unit);
     QVariant data(int column, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(int column) const override;
     bool setData(int column, const QVariant &data) override;
 private:
     const QString descritpion;
+    const QString unit;
     double &constant;
 };
 

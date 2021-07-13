@@ -134,7 +134,7 @@ void ReviewDialog::setupModel()
     }
 
     ui->treeView->setModel(model);
-    ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->treeView->header()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 void ReviewDialog::handleButtons(QAbstractButton *btn)

@@ -1,7 +1,5 @@
 find_package(Qt5Core REQUIRED)
 
-#
-
 # Retrieve the absolute path to qmake and then use that path to find
 # the windeployqt and macdeployqt binaries
 get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
@@ -15,6 +13,12 @@ endif()
 find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
 if(APPLE AND NOT MACDEPLOYQT_EXECUTABLE)
     message(FATAL_ERROR "macdeployqt not found")
+endif()
+
+find_program(LINUXDEPLOYQT_EXECUTABLE linuxdeployqt)
+if(UNIX AND NOT LINUXDEPLOYQT_EXECUTABLE)
+    message(ERROR "linuxdeployqt not found")
+    message("Be sure to pass in the correct path to executable with -DLINUXDEPLOYQT_EXECUTABLE")
 endif()
 
 # Add commands that copy the required Qt files to the same directory as the
@@ -49,7 +53,7 @@ function(windeployqt target)
         get_filename_component(filename "${lib}" NAME)
         add_custom_command(TARGET ${target} POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E
-                copy_if_different "${lib}" \"$<TARGET_FILE_DIR:${target}>/libs\"
+                copy_if_different "${lib}" \"$<TARGET_FILE_DIR:${target}>/bundle\"
             COMMENT "Copying ${filename}..."
         )
     endforeach()
@@ -60,7 +64,16 @@ endfunction()
 function(macdeployqt target)
     add_custom_command(TARGET ${target} POST_BUILD
         COMMAND "${MACDEPLOYQT_EXECUTABLE}"
-            \"$<TARGET_FILE_DIR:${target}>/libs\"
+            \"$<TARGET_FILE_DIR:${target}>/bundle\"
+            -always-overwrite
+        COMMENT "Deploying Qt..."
+    )
+endfunction()
+
+function(linuxdeployqt target)
+    add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND "${LINUXDEPLOYQT_EXECUTABLE}"
+            \"$<TARGET_FILE_DIR:${target}>/bundle\"
             -always-overwrite
         COMMENT "Deploying Qt..."
     )
@@ -76,6 +89,7 @@ macro(initBundle)
     set(CPACK_IFW_PACKAGE_TITLE "Installer for Book Tracker")
     set(CPACK_PACKAGE_FILE_NAME "installer")
     set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Installation Tool")
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
     set(CPACK_COMPONENTS_ALL base)
 
     include(CPack REQUIRED)
@@ -83,20 +97,26 @@ macro(initBundle)
 
     add_custom_command(
         TARGET booktracker POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/libs
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bundle
     )
 
-    if(WIN32 AND NOT UNIX)
+    # At this point, we grab the dependencies of the program. This is handled by different "deployers"
+    if(WIN32)
         set(CPACK_GENERATOR NSIS)
         set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
         set(CPACK_NSIS_DISPLAY_NAME "Book Tracker")
         windeployqt(booktracker)
     elseif(APPLE)
         macdeployqt(booktracter)
+    elseif(UNIX)
+        set(CPACK_GENERATOR External)
+        linuxdeployqt(booktracker)
     endif()
 
+    # Sets a task to place the shared libraries in the build directory "bundle" folder and place it in the install binary directory (where the binary is).
+    # Furthermore, the COMPONENT requirement makes it such that this only happens when the "base" conponent is activitated (which occurs during install)
     install(
-        DIRECTORY ${CMAKE_BINARY_DIR}/libs/
+        DIRECTORY ${CMAKE_BINARY_DIR}/bundle/
         DESTINATION ${CMAKE_INSTALL_BINDIR}
         COMPONENT base
     )
@@ -110,4 +130,4 @@ macro(initBundle)
 
 endmacro()
 
-mark_as_advanced(WINDEPLOYQT_EXECUTABLE MACDEPLOYQT_EXECUTABLE)
+mark_as_advanced(WINDEPLOYQT_EXECUTABLE MACDEPLOYQT_EXECUTABLE LINUXDEPLOYQT_EXECUTABLE)

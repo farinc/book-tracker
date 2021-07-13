@@ -41,7 +41,7 @@ Qt::ItemFlags BookItem::flags(int column) const
     return flags;
 }
 
-BookConstantItem::BookConstantItem(const QString descritpion, double &constant): descritpion(descritpion), constant(constant)
+BookConstantItem::BookConstantItem(const QString descritpion, double &constant, const QString unit): descritpion(descritpion), constant(constant), unit(unit)
 {}
 
 QVariant BookConstantItem::data(int column, int role) const
@@ -52,6 +52,7 @@ QVariant BookConstantItem::data(int column, int role) const
         {
         case 0: return descritpion;
         case 1: return constant;
+        case 2: return unit;
         }
     }else if(role == Qt::EditRole)
     {
