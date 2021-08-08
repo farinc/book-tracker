@@ -296,6 +296,7 @@ void MainWindow::displayStoreDisciption()
 
 void MainWindow::displayProps()
 {
+    ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     model->reset();
     model->setHeaderData({tr("Property"), tr("Value")});
 
@@ -309,7 +310,6 @@ void MainWindow::displayProps()
     model->addItem(item3);
 
     ui->treeView->setModel(model);
-    ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 void MainWindow::displayPageCount()
@@ -325,6 +325,8 @@ void MainWindow::displayTitle()
 
 void MainWindow::initUi()
 {
+    logic->changeStyle();
+
     //Setup the combo boxes with a default, non-selectable entry
 
     QStandardItemModel* model = qobject_cast<QStandardItemModel*>(ui->comboBookType->model());

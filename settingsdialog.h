@@ -32,11 +32,15 @@ class SettingsDialog : public QDialog
 public:
     explicit SettingsDialog(UiLogic *logic, QWidget *parent = nullptr);
     ~SettingsDialog();
+    void onStyleChange(std::string style);
 
 private slots:
     void onBrowse();
     void handleButtons(QAbstractButton *btn);
     void onSetSettings();
+    void onStyleSwitchDark();
+    void onStyleSwitchLight();
+    void onStyleSwitchSystem();
 
 private:
     Ui::SettingsDialog *ui;

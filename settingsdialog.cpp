@@ -1,5 +1,6 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
+#include "uilogic.h"
 #include "models.h"
 
 #include <QPushButton>
@@ -7,6 +8,7 @@
 #include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QDebug>
+#include <QApplication>
 
 
 SettingsDialog::SettingsDialog(UiLogic *logic, QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog), logic(logic), copySettings(logic->settings), model(new QSortFilterProxyModel())
@@ -15,6 +17,19 @@ SettingsDialog::SettingsDialog(UiLogic *logic, QWidget *parent) : QDialog(parent
 
     ui->lineEditBookDirectory->setText(QString::fromStdString(copySettings.bookDirectory));
     ui->lineEditSettings->setText(QString::fromStdString(copySettings.configDirectory));
+
+    if(copySettings.style == "dark")
+    {
+        ui->radioButton_dark->setChecked(true);
+    }
+    else if(copySettings.style == "light")
+    {
+        ui->radioButton_light->setChecked(true);
+    }
+    else if(copySettings.style == "system")
+    {
+        ui->radioButton_system->setChecked(true);
+    }
 
     auto header = new QHeaderView(Qt::Horizontal);
     header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
@@ -27,6 +42,9 @@ SettingsDialog::SettingsDialog(UiLogic *logic, QWidget *parent) : QDialog(parent
 
     connect(ui->buttonBox, &QDialogButtonBox::clicked, this, &SettingsDialog::handleButtons);
     connect(this, &SettingsDialog::accepted, this, &SettingsDialog::onSetSettings);
+    connect(ui->radioButton_dark, &QRadioButton::clicked, this, &SettingsDialog::onStyleSwitchDark);
+    connect(ui->radioButton_light, &QRadioButton::clicked, this, &SettingsDialog::onStyleSwitchLight);
+    connect(ui->radioButton_system, &QRadioButton::clicked, this, &SettingsDialog::onStyleSwitchSystem);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -60,6 +78,27 @@ void SettingsDialog::handleButtons(QAbstractButton *btn)
 void SettingsDialog::onSetSettings()
 {
     logic->settings = copySettings;
+}
+
+void SettingsDialog::onStyleChange(std::string style)
+{
+    logic->changeStyle(style);
+    copySettings.style = style;
+}
+
+void SettingsDialog::onStyleSwitchDark()
+{
+    onStyleChange("dark");
+}
+
+void SettingsDialog::onStyleSwitchLight()
+{
+    onStyleChange("light");
+}
+
+void SettingsDialog::onStyleSwitchSystem()
+{
+    onStyleChange("system");
 }
 
 void SettingsDialog::setupModel()

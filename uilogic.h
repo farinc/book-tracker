@@ -12,8 +12,9 @@ struct Settings
 {
     std::string configDirectory;
     std::string bookDirectory;
+    std::string style;
     bookdata::CostConstants bookconstants;
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Settings, bookDirectory, bookconstants);
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Settings, bookDirectory, style, bookconstants);
 };
 
 static QString getString(bookdata::BookType type)
@@ -91,6 +92,8 @@ void saveBook();
 void revertBook();
 void saveSettings();
 std::vector<bookdata::Book*> getLoadedBooks();
+void changeStyle(std::string style);
+void changeStyle();
 
 private:
 

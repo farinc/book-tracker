@@ -33,7 +33,7 @@ function(windeployqt target)
                 --no-compiler-runtime
                 --no-angle
                 --no-opengl-sw
-                --dir \"$<TARGET_FILE_DIR:${target}>/libs\"
+                --dir \"$<TARGET_FILE_DIR:${target}>/bundle\"
                 \"$<TARGET_FILE:${target}>\"
         COMMENT "Deploying Qt..."
     )
@@ -78,56 +78,5 @@ function(linuxdeployqt target)
         COMMENT "Deploying Qt..."
     )
 endfunction()
-
-macro(initBundle)
-
-    set(CPACK_PACKAGE_NAME "Book Tracker")
-    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A program to manage Amanda's Books")
-    set(CPACK_PACKAGE_VERSION ${CMAKE_PROJECT_VERSION})
-    set(CPACK_PACKAGE_INSTALL_DIRECTORY "BookTracker")
-    set(CPACK_PACKAGE_EXECUTABLES "booktracker;Book Tracker")
-    set(CPACK_IFW_PACKAGE_TITLE "Installer for Book Tracker")
-    set(CPACK_PACKAGE_FILE_NAME "installer")
-    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Installation Tool")
-    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
-    set(CPACK_COMPONENTS_ALL base)
-
-    include(CPack REQUIRED)
-    include(CPackComponent)
-
-    add_custom_command(
-        TARGET booktracker POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bundle
-    )
-
-    # At this point, we grab the dependencies of the program. This is handled by different "deployers"
-    if(WIN32)
-        set(CPACK_GENERATOR NSIS)
-        set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
-        set(CPACK_NSIS_DISPLAY_NAME "Book Tracker")
-        windeployqt(booktracker)
-    elseif(APPLE)
-        macdeployqt(booktracter)
-    elseif(UNIX)
-        set(CPACK_GENERATOR External)
-        linuxdeployqt(booktracker)
-    endif()
-
-    # Sets a task to place the shared libraries in the build directory "bundle" folder and place it in the install binary directory (where the binary is).
-    # Furthermore, the COMPONENT requirement makes it such that this only happens when the "base" conponent is activitated (which occurs during install)
-    install(
-        DIRECTORY ${CMAKE_BINARY_DIR}/bundle/
-        DESTINATION ${CMAKE_INSTALL_BINDIR}
-        COMPONENT base
-    )
-
-    cpack_add_component(
-        base
-        DISPLAY_NAME "Base Program"
-        DESCRIPTION "Install me"
-        REQUIRED
-    )
-
-endmacro()
 
 mark_as_advanced(WINDEPLOYQT_EXECUTABLE MACDEPLOYQT_EXECUTABLE LINUXDEPLOYQT_EXECUTABLE)

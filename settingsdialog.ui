@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>373</width>
-    <height>412</height>
+    <width>424</width>
+    <height>465</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,28 +20,17 @@
    <string>Settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
+   <item row="1" column="1">
+    <widget class="QRadioButton" name="radioButton_light">
      <property name="text">
-      <string>Book Directory</string>
+      <string>Light</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLineEdit" name="lineEditBookDirectory">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Settings File</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
+   <item row="7" column="0" colspan="3">
     <widget class="QLineEdit" name="lineEditSettings">
      <property name="text">
       <string/>
@@ -51,7 +40,24 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="9" column="0" colspan="3">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Reset|QDialogButtonBox::RestoreDefaults|QDialogButtonBox::Save</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QRadioButton" name="radioButton_dark">
+     <property name="text">
+      <string>Dark</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="3">
     <widget class="QTreeView" name="treeView">
      <property name="verticalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -67,18 +73,54 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="6" column="0" colspan="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Settings File</string>
      </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Reset|QDialogButtonBox::RestoreDefaults|QDialogButtonBox::Save</set>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="3">
+    <widget class="QLineEdit" name="lineEditBookDirectory">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Book Directory</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QRadioButton" name="radioButton_system">
+     <property name="text">
+      <string>System</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Style</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>radioButton_dark</tabstop>
+  <tabstop>radioButton_light</tabstop>
+  <tabstop>radioButton_system</tabstop>
+  <tabstop>lineEditBookDirectory</tabstop>
+  <tabstop>lineEditSettings</tabstop>
+  <tabstop>treeView</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -88,8 +130,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>293</y>
+     <x>263</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -104,8 +146,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>325</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

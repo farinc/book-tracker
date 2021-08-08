@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QTextStream>
 #include <QDebug>
+#include <QApplication>
 
 #include <nlohmann/json.hpp>
 
@@ -33,7 +34,7 @@ bool UiLogic::writeFile(json data, QString directory, QString filename)
             return false;
     }
 
-    QFile file(directory + QDir::separator() + filename);
+    QFile file(directory + "/" + filename);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;
 
@@ -53,7 +54,8 @@ json UiLogic::readFile(QFile &file)
 
     QTextStream in(&file);
     QString str = in.readAll();
-    json jsonObj = json::parse(str.toStdString());
+    json jsonObj;
+    jsonObj = json::parse(str.toStdString());
     return jsonObj;
 }
 
@@ -70,7 +72,7 @@ void UiLogic::getBooksOnDisks()
 
     for(const QString &filename : qAsConst(files))
     {
-        QFile bookFile(dirStr + QDir::separator() + filename);
+        QFile bookFile(dirStr + "/" + filename);
         json bookJson = readFile(bookFile);
         if(!bookJson.is_null())
         {
@@ -87,7 +89,7 @@ void UiLogic::getBooksOnDisks()
 void UiLogic::loadSettings()
 {
     Settings defaultSet = loadDefaultSettings();
-    QFile file(QString::fromStdString(defaultSet.configDirectory) + QDir::separator() + "settings.json");
+    QFile file(QString::fromStdString(defaultSet.configDirectory) + "/settings.json");
     json obj = readFile(file);
     if(!obj.is_null())
     {
@@ -114,6 +116,7 @@ Settings UiLogic::loadDefaultSettings()
         configPath.mkpath(configPath.path());
     }
     set.bookDirectory = dataPath.path().toStdString();
+    set.style = "system";
     set.configDirectory = configPath.path().toStdString();
     set.bookconstants = bookdata::constants;
 
@@ -135,6 +138,26 @@ std::vector<Book *> UiLogic::getLoadedBooks()
     }
 
     return listbooks;
+}
+
+void UiLogic::changeStyle(std::string style)
+{
+    if(style == "dark" || style == "light")
+    {
+        QFile file(QString(":/qdarkstyle/%1/style.qss").arg(QString::fromStdString(style)));
+        file.open(QFile::ReadOnly | QFile::Text);
+        QTextStream stream(&file);
+        qobject_cast<QApplication *>(QApplication::instance())->setStyleSheet(stream.readAll());
+    }
+    else
+    {
+        qobject_cast<QApplication *>(QApplication::instance())->setStyleSheet("");
+    }
+}
+
+void UiLogic::changeStyle()
+{
+    UiLogic::changeStyle(settings.style);
 }
 
 void UiLogic::saveBook()
@@ -175,7 +198,7 @@ void UiLogic::loadBook(const int &incomingID)
 
 void UiLogic::deleteBook(int id)
 {
-    QFile file(QString::fromStdString(settings.bookDirectory) + QDir::separator() + QString("book-%1.json").arg(id));
+    QFile file(QString::fromStdString(settings.bookDirectory) + "/" + QString("book-%1.json").arg(id));
     if(deleteFile(file))
     {
         delete books[id];
