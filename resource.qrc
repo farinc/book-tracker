@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>booktracker.ico</file>
+        <file>booktracker.svg</file>
+    </qresource>
+</RCC>

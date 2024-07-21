@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Book Tracker
+Exec=booktracker
+Icon=booktracker
+Type=Application
+Terminal=false
+Categories=Office;Utility
