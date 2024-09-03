@@ -3,13 +3,13 @@
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
   <property name="windowModality">
-   <enum>Qt::NonModal</enum>
+   <enum>Qt::WindowModality::NonModal</enum>
   </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>939</width>
+    <width>981</width>
     <height>595</height>
    </rect>
   </property>
@@ -41,10 +41,10 @@
     <item row="0" column="3">
      <widget class="QFrame" name="frame">
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::Shape::StyledPanel</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Shadow::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -124,7 +124,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -143,10 +142,10 @@
     <item row="0" column="1">
      <widget class="QFrame" name="frame_3">
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::Shape::StyledPanel</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Shadow::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
@@ -245,7 +244,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -272,7 +270,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -313,7 +310,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -338,7 +334,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -366,7 +361,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -443,7 +437,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -462,7 +455,7 @@
              <bool>true</bool>
             </property>
             <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
+             <enum>QAbstractSpinBox::ButtonSymbols::UpDownArrows</enum>
             </property>
             <property name="maximum">
              <number>1000</number>
@@ -481,7 +474,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -516,7 +508,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -573,7 +564,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -598,7 +588,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -673,7 +662,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -708,7 +696,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -743,7 +730,6 @@
              <font>
               <family>Arial</family>
               <pointsize>12</pointsize>
-              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
@@ -788,10 +774,10 @@
     <item row="0" column="0">
      <widget class="QFrame" name="frame_2">
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::Shape::StyledPanel</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Shadow::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
@@ -819,7 +805,7 @@
              <bool>true</bool>
             </property>
             <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
+             <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
             </property>
             <property name="prefix">
              <string>$</string>
@@ -832,7 +818,7 @@
              <bool>true</bool>
             </property>
             <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
+             <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
             </property>
             <property name="prefix">
              <string>$</string>
@@ -845,7 +831,7 @@
              <bool>true</bool>
             </property>
             <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
+             <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
             </property>
             <property name="prefix">
              <string>$</string>
@@ -858,7 +844,7 @@
              <bool>true</bool>
             </property>
             <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
+             <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
             </property>
             <property name="prefix">
              <string>$</string>
@@ -871,7 +857,7 @@
              <bool>true</bool>
             </property>
             <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
+             <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
             </property>
             <property name="prefix">
              <string>$</string>
@@ -959,7 +945,7 @@
              <bool>true</bool>
             </property>
             <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
+             <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
             </property>
             <property name="prefix">
              <string>$</string>
@@ -985,7 +971,7 @@
              <bool>true</bool>
             </property>
             <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
+             <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
             </property>
             <property name="prefix">
              <string>$</string>
@@ -998,7 +984,7 @@
              <bool>true</bool>
             </property>
             <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::UpDownArrows</enum>
+             <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
             </property>
             <property name="prefix">
              <string>$</string>
@@ -1075,8 +1061,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>939</width>
-     <height>31</height>
+     <width>981</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuOptions">
@@ -1118,7 +1104,312 @@
  <resources>
   <include location="resource.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>spinExtra</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>222</x>
+     <y>283</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinPageDimX</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>510</x>
+     <y>101</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinCoverDimY</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>605</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinPageDimY</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>605</x>
+     <y>101</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinCoverDimX</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>510</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editPageMaterial</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editCoverMaterial</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editThreadColor</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editEndPageColor</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>284</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editBox</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>314</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editSection</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinWeight</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinSpineDim</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>401</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBookType</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>430</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboStatus</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>460</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinSignitures</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>489</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinPagesPerSig</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>517</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinPages</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>571</x>
+     <y>545</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editExtra</sender>
+   <signal>textChanged()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setModified()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>823</x>
+     <y>469</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>490</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <slots>
   <slot>setModified()</slot>
  </slots>
