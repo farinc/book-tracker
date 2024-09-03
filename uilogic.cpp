@@ -54,9 +54,12 @@ json UiLogic::readFile(QFile &file)
 
     QTextStream in(&file);
     QString str = in.readAll();
-    json jsonObj;
-    jsonObj = json::parse(str.toStdString());
-    return jsonObj;
+    try {
+        return json::parse(str.toStdString()); 
+    } catch (const json::parse_error& e) {
+        qDebug() << e.what();
+    }
+    return json();
 }
 
 bool UiLogic::deleteFile(QFile &file)
@@ -76,10 +79,14 @@ void UiLogic::getBooksOnDisks()
         json bookJson = readFile(bookFile);
         if(!bookJson.is_null())
         {
-            Book indexedBook = bookJson;
-            if(Book::isValid(indexedBook))
-            {
-                books[indexedBook.bookID] = new Book(indexedBook);
+            try {
+                Book indexedBook = bookJson;
+                if(Book::isValid(indexedBook))
+                {
+                    books[indexedBook.bookID] = new Book(indexedBook);
+                }
+            } catch (const json::exception& e) {
+                qDebug() << e.what();
             }
         }
     }
