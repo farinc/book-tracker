@@ -79,14 +79,16 @@ void UiLogic::getBooksOnDisks()
         json bookJson = readFile(bookFile);
         if(!bookJson.is_null())
         {
+            Book indexedBook;
             try {
-                Book indexedBook = bookJson;
-                if(Book::isValid(indexedBook))
-                {
-                    books[indexedBook.bookID] = new Book(indexedBook);
-                }
+                indexedBook = bookJson;
             } catch (const json::exception& e) {
                 qDebug() << e.what();
+            }
+
+            if(Book::isValid(indexedBook))
+            {
+                books[indexedBook.bookID] = new Book(indexedBook);
             }
         }
     }
@@ -112,7 +114,7 @@ void UiLogic::loadSettings()
 Settings UiLogic::loadDefaultSettings()
 {
     Settings set;
-    QDir dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QDir dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir configPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     if(!dataPath.exists())
     {
