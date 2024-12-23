@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10...3.30)
-project(booktracker VERSION 3.3.1 LANGUAGES CXX)
+project(booktracker VERSION 3.3.2 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -22,7 +22,7 @@ endif()
 
 add_subdirectory(nlohmann_json)
 
-find_package(Qt5 5.15 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 6.8 COMPONENTS Widgets REQUIRED)
 
 add_executable(booktracker WIN32 booktracker.rc)
 
@@ -54,14 +54,14 @@ target_sources(booktracker PRIVATE
   resource.qrc
 )
 
-target_link_libraries(booktracker PUBLIC Qt5::Widgets PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(booktracker PUBLIC Qt6::Widgets PRIVATE nlohmann_json::nlohmann_json)
 install(TARGETS booktracker DESTINATION bin)
 install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
 
 include(InstallRequiredSystemLibraries)
 if(WIN32)
     # Determine the path to windeployqt by finding the path to qmake
-    get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
+    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
     get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
     find_program(_windeployqt windeployqt HINTS "${_qt_bin_dir}")
 
