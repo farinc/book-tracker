@@ -29,8 +29,6 @@ public:
      * @return If the data could be set, return true and otherwise false
      */
     virtual bool setData(int column, const QVariant &data) {return false;};
-
-    void hello();
 };
 
 /**

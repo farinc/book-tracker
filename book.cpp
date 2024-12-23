@@ -188,4 +188,25 @@ double Book::getTotal(const Book &book)
     return getExtraCosts(book) +  getBoardCost(book) + getPageCost(book) + getThreadRibbonCost(book) + getHeadbandCost(book) + getSuperCost(book) + getClothCost(book) + book.costExtra;
 }
 
+std::string toString(Status status)
+{
+    switch (status)
+    {
+    case Status::draft:
+        return "draft";
+    case Status::draftphoto:
+        return "draft w/ photo";
+    case Status::nophoto:
+        return "no photo";
+    case Status::nostatus:
+        return std::string();
+    case Status::published:
+        return "published";
+    case Status::sold:
+        return "sold";
+    default:
+        return std::string();
+    }
+}
+
 };

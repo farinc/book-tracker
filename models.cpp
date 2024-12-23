@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QDateTime>
 
+#include "book.h"
 #include "models.h"
 
 using json = nlohmann::json;
@@ -20,12 +21,16 @@ QVariant BookItem::data(int column, int role) const
             case 0:
                 return book.bookID;
             case 1:
-                return QDateTime::fromSecsSinceEpoch(book.lastEdit).toLocalTime().toString("MM/dd/yyyy h:mm ap");
+                return QString::fromStdString(bookdata::toString(book.status));
             case 2:
-                return QString::fromStdString(book.box);
+                return QDateTime::fromSecsSinceEpoch(book.lastEdit).toLocalTime().toString("h:m AP on M/d/yyyy");
             case 3:
+                return QString::fromStdString(book.box);
+            case 4:
                 return QString::fromStdString(book.section);
         }
+    } else if (role == Qt::UserRole) {
+        return book.bookID;
     }
 
     return QVariant();
@@ -141,7 +146,7 @@ QVariant BasicModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role == Qt::DisplayRole || role == Qt::EditRole)
+    if (role == Qt::DisplayRole || role == Qt::EditRole || role == Qt::UserRole)
     {
         Item *item = static_cast<Item*>(index.internalPointer());
         return item->data(index.column(), role);
@@ -200,9 +205,4 @@ void BasicModel::reset()
 void BasicModel::addItem(Item *item)
 {
     this->items.push_back(item);
-}
-
-void Item::hello()
-{
-    qDebug() << "helllooooo";
 }

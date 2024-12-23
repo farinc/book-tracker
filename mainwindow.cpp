@@ -303,10 +303,10 @@ void MainWindow::displayProps()
     PropItem *item1 = new PropItem(tr("Book ID"), {logic->book.bookID});
     model->addItem(item1);
 
-    PropItem *item2 = new PropItem(tr("Created On"), {QDateTime::fromSecsSinceEpoch(logic->book.creation)});
+    PropItem *item2 = new PropItem(tr("Created On"), {QDateTime::fromSecsSinceEpoch(logic->book.creation).toLocalTime().toString("h:m AP on M/d/yyyy")});
     model->addItem(item2);
 
-    PropItem *item3 = new PropItem(tr("Last Edited"), {QDateTime::fromSecsSinceEpoch(logic->book.lastEdit)});
+    PropItem *item3 = new PropItem(tr("Last Edited"), {QDateTime::fromSecsSinceEpoch(logic->book.lastEdit).toLocalTime().toString("h:m AP on M/d/yyyy")});
     model->addItem(item3);
 
     ui->treeView->setModel(model);
@@ -346,8 +346,31 @@ void MainWindow::initUi()
     ui->comboBookType->setCurrentIndex(0);
     ui->comboStatus->setCurrentIndex(0);
 
+    // Setup actions
     connect(ui->actionEdit, &QAction::triggered, this, &MainWindow::onActionEdit);
     connect(ui->actionNew, &QAction::triggered, this, &MainWindow::onActionNew);
     connect(ui->actionReview, &QAction::triggered, this, &MainWindow::onActionReview);
     connect(ui->actionSettings, &QAction::triggered, this, &MainWindow::onActionSettings);
+
+    // Setup modification signal logic
+    connect(ui->spinExtra, &QDoubleSpinBox::valueChanged, this, &MainWindow::setModified);
+    connect(ui->spinPageDimX, &QDoubleSpinBox::valueChanged, this, &MainWindow::setModified);
+    connect(ui->spinPageDimY, &QDoubleSpinBox::valueChanged, this, &MainWindow::setModified);
+    connect(ui->spinCoverDimX, &QDoubleSpinBox::valueChanged, this, &MainWindow::setModified);
+    connect(ui->spinCoverDimY, &QDoubleSpinBox::valueChanged, this, &MainWindow::setModified);
+    connect(ui->editPageMaterial, &QLineEdit::textChanged, this, &MainWindow::setModified);
+    connect(ui->editCoverMaterial, &QLineEdit::textChanged, this, &MainWindow::setModified);
+    connect(ui->editThreadColor, &QLineEdit::textChanged, this, &MainWindow::setModified);
+    connect(ui->editEndPageColor, &QLineEdit::textChanged, this, &MainWindow::setModified);
+    connect(ui->editBox, &QLineEdit::textChanged, this, &MainWindow::setModified);
+    connect(ui->editSection, &QLineEdit::textChanged, this, &MainWindow::setModified);
+    connect(ui->spinWeight, &QDoubleSpinBox::valueChanged, this, &MainWindow::setModified);
+    connect(ui->spinSpineDim, &QDoubleSpinBox::valueChanged, this, &MainWindow::setModified);
+    connect(ui->comboBookType, &QComboBox::currentIndexChanged, this, &MainWindow::setModified);
+    connect(ui->comboStatus, &QComboBox::currentIndexChanged, this, &MainWindow::setModified);
+    connect(ui->spinSignitures, &QSpinBox::valueChanged, this, &MainWindow::setModified);
+    connect(ui->spinPagesPerSig, &QSpinBox::valueChanged, this, &MainWindow::setModified);
+    connect(ui->editExtra, &QPlainTextEdit::textChanged, this, &MainWindow::setModified);
+
+    connect(ui->pushButtonCopy, &QPushButton::pressed, this, &MainWindow::copyDiscription);
 }

@@ -31,9 +31,9 @@ BookDialog::~BookDialog()
 
 void BookDialog::setupModel(std::vector<bookdata::Book*> &books)
 {
-    BasicModel *model = new BasicModel(4);
+    BasicModel *model = new BasicModel(5);
     connect(this, &BookDialog::reloadBooks, model, &BasicModel::reset);
-    model->setHeaderData({tr("Book ID"), tr("Last Edited"), tr("Box"), tr("Section")});
+    model->setHeaderData({tr("Book ID"), tr("Status"), tr("Last Edited"), tr("Box"), tr("Section")});
 
     for(Book *book : books)
     {
@@ -44,16 +44,13 @@ void BookDialog::setupModel(std::vector<bookdata::Book*> &books)
     sortModel->setSourceModel(model);
     sortModel->sort(1, Qt::AscendingOrder); //We sort first by ID...
     ui->treeView->setModel(sortModel);
-    ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
 }
 
 void BookDialog::onDoubleClicked(const QModelIndex &index)
 {
-    if(index.column() == 0)
-    {
-        int bookid = sortModel->data(index, Qt::DisplayRole).toInt();
-        emit loadBook(bookid);
-    }
+    int bookid = sortModel->data(index, Qt::UserRole).toInt();
+    emit loadBook(bookid);
 }
 
 void BookDialog::onDelete()

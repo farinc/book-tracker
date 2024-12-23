@@ -14,6 +14,8 @@ enum Status: int {
     nostatus, nophoto, draft, draftphoto, published, sold
 };
 
+std::string toString(Status status);
+
 NLOHMANN_JSON_SERIALIZE_ENUM( BookType, {
     {notype, nullptr},
     {traditional, "traditional"},
