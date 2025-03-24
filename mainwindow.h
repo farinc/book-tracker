@@ -32,11 +32,11 @@ private:
     void initUi();
 
     // update the ui
+    void display();
     void displayCosts();
     void displayStoreDisciption();
     void displayProps();
     void displayPageCount();
-    void displayTitle();
 
     // functions to create a new book or load one into the ui
 

@@ -139,7 +139,7 @@ void SettingsDialog::setupModel()
     BookConstantItem *item10 = new BookConstantItem(tr("Price of headband per inch"), constants.headbandPrice, "$");
     dmodel->addItem(item10);
 
-    BookConstantItem *item11 = new BookConstantItem(tr("Price of super per inch"), constants.superPrice, "$");
+    BookConstantItem *item11 = new BookConstantItem(tr("Price of super per sq. inch"), constants.superPrice, "$");
     dmodel->addItem(item11);
 
     BookConstantItem *item12 = new BookConstantItem(tr("Price of ribbon per inch"), constants.ribbonPrice, "$");

@@ -71,30 +71,29 @@ void MainWindow::copyToUI()
 {
     isEditting = true;
 
-    this->ui->spinPageDimX->setValue(logic->book.pageDim.width);
-    this->ui->spinPageDimY->setValue(logic->book.pageDim.height);
-    this->ui->spinCoverDimX->setValue(logic->book.coverDim.width);
-    this->ui->spinCoverDimY->setValue(logic->book.coverDim.height);
-    this->ui->spinSpineDim->setValue(logic->book.spine);
-    this->ui->spinWeight->setValue(logic->book.weight);
-    this->ui->spinSignitures->setValue(logic->book.signitures);
-    this->ui->spinExtra->setValue(logic->book.costExtra);
-    this->ui->spinPagesPerSig->setValue(logic->book.pagesPerSigniture);
-    this->ui->editEndPageColor->setText(QString::fromStdString(logic->book.endpageColor));
-    this->ui->editBox->setText(QString::fromStdString(logic->book.box));
-    this->ui->editSection->setText(QString::fromStdString(logic->book.section));
-    this->ui->editThreadColor->setText(QString::fromStdString(logic->book.threadColor));
-    this->ui->editCoverMaterial->setText(QString::fromStdString(logic->book.coverMaterial));
-    this->ui->editPageMaterial->setText(QString::fromStdString(logic->book.pageMaterial));
-    this->ui->comboBookType->setCurrentIndex(logic->book.bookType);
-    this->ui->comboStatus->setCurrentIndex(logic->book.status);
-    this->ui->editExtra->setPlainText(QString::fromStdString(logic->book.extra));
+    auto book = logic->book;
+    this->ui->spinPageDimX->setValue(book.pageDim.width);
+    this->ui->spinPageDimY->setValue(book.pageDim.height);
+    this->ui->spinCoverDimX->setValue(book.coverDim.width);
+    this->ui->spinCoverDimY->setValue(book.coverDim.height);
+    this->ui->spinSpineDim->setValue(book.spine);
+    this->ui->spinWeight->setValue(book.weight);
+    this->ui->spinSignitures->setValue(book.signitures);
+    this->ui->spinExtra->setValue(book.costExtra);
+    this->ui->spinPagesPerSig->setValue(book.pagesPerSigniture);
+    this->ui->editEndPageColor->setText(QString::fromStdString(book.endpageColor));
+    this->ui->editBox->setText(QString::fromStdString(book.box));
+    this->ui->editSection->setText(QString::fromStdString(book.section));
+    this->ui->editThreadColor->setText(QString::fromStdString(book.threadColor));
+    this->ui->editCoverMaterial->setText(QString::fromStdString(book.coverMaterial));
+    this->ui->editPageMaterial->setText(QString::fromStdString(book.pageMaterial));
+    this->ui->comboBookType->setCurrentIndex(book.bookType);
+    this->ui->comboStatus->setCurrentIndex(book.status);
+    this->ui->editExtra->setPlainText(QString::fromStdString(book.extra));
+    this->setWindowTitle(QString("Book %1 [*]").arg(logic->book.bookID));
+    this->setWindowModified(false);
 
-    displayCosts();
-    displayStoreDisciption();
-    displayProps();
-    displayPageCount();
-    displayTitle();
+    display();
 
     isEditting = false;
 }
@@ -120,6 +119,7 @@ void MainWindow::onLoadBook(const int &incomingID)
 void MainWindow::onSaveSettings()
 {
     logic->saveSettings();
+    copyToUI();
 }
 
 void MainWindow::onDeleteBooks(std::vector<int> books)
@@ -148,9 +148,7 @@ void MainWindow::setModified()
         }
     }
 
-    displayCosts();
-    displayPageCount();
-    displayStoreDisciption();
+    display();
 }
 
 void MainWindow::onActionEdit()
@@ -219,18 +217,28 @@ void MainWindow::copyToBook()
     logic->book.bookType = static_cast<BookType>(ui->comboBookType->currentIndex());
 }
 
+void MainWindow::display()
+{
+    displayCosts();
+    displayStoreDisciption();
+    displayProps();
+    displayPageCount();
+}
+
 void MainWindow::displayCosts()
 {
-    if(Book::isCalculatable(logic->book))
+    auto book = logic->book;
+    auto constants = logic->settings.bookconstants;
+    if(Book::isCalculatable(book))
     {
-        ui->spinBoard->setValue(Book::getBoardCost(logic->book));
-        ui->spinCloth->setValue(Book::getClothCost(logic->book));
-        ui->spinThread->setValue(Book::getThreadRibbonCost(logic->book));
-        ui->spinHeadband->setValue(Book::getHeadbandCost(logic->book));
-        ui->spinPaper->setValue(Book::getPageCost(logic->book));
-        ui->spinSuper->setValue(Book::getSuperCost(logic->book));
-        ui->spinMisc->setValue(Book::getExtraCosts(logic->book));
-        ui->spinTotal->setValue(Book::getTotal(logic->book));
+        ui->spinBoard->setValue(Book::getBoardCost(book, constants));
+        ui->spinCloth->setValue(Book::getClothCost(book, constants));
+        ui->spinThread->setValue(Book::getThreadRibbonCost(book, constants));
+        ui->spinHeadband->setValue(Book::getHeadbandCost(book, constants));
+        ui->spinPaper->setValue(Book::getPageCost(book, constants));
+        ui->spinSuper->setValue(Book::getSuperCost(book, constants));
+        ui->spinMisc->setValue(Book::getExtraCosts(book, constants));
+        ui->spinTotal->setValue(Book::getTotal(book, constants));
     }
     else
     {
@@ -247,17 +255,18 @@ void MainWindow::displayCosts()
 
 void MainWindow::displayStoreDisciption()
 {
-    if (Book::canHaveDiscription(logic->book))
+    auto book = logic->book;
+    if (Book::canHaveDiscription(book))
     {
         QString endpageColor, spineType, threadColor, coverMaterial, pageMaterial;
 
-        endpageColor = QString::fromStdString(logic->book.endpageColor);
-        threadColor = QString::fromStdString(logic->book.threadColor);
-        coverMaterial = QString::fromStdString(logic->book.coverMaterial);
-        pageMaterial = QString::fromStdString(logic->book.pageMaterial);
+        endpageColor = QString::fromStdString(book.endpageColor);
+        threadColor = QString::fromStdString(book.threadColor);
+        coverMaterial = QString::fromStdString(book.coverMaterial);
+        pageMaterial = QString::fromStdString(book.pageMaterial);
 
         QString spineStr;
-        spineType = QString::fromStdString(Book::getSpineType(logic->book));
+        spineType = QString::fromStdString(Book::getSpineType(book));
 
         if (spineType == "")
         {
@@ -278,13 +287,13 @@ void MainWindow::displayStoreDisciption()
             "Page: %8 in. by %9 in.\n"
             "%11 pages / %12 sides"
         ).arg(coverMaterial, spineStr, pageMaterial, endpageColor
-        ).arg(logic->book.coverDim.width
-        ).arg(logic->book.coverDim.height
-        ).arg(logic->book.spine
-        ).arg(logic->book.pageDim.width
-        ).arg(logic->book.pageDim.height
-        ).arg(Book::calculatePageCount(logic->book)
-        ).arg(Book::calculatePageCount(logic->book) * 2);
+        ).arg(book.coverDim.width
+        ).arg(book.coverDim.height
+        ).arg(book.spine
+        ).arg(book.pageDim.width
+        ).arg(book.pageDim.height
+        ).arg(Book::calculatePageCount(book)
+        ).arg(Book::calculatePageCount(book) * 2);
 
         ui->editDiscription->setPlainText(str);
     }
@@ -296,17 +305,18 @@ void MainWindow::displayStoreDisciption()
 
 void MainWindow::displayProps()
 {
+    auto book = logic->book;
     ui->treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     model->reset();
     model->setHeaderData({tr("Property"), tr("Value")});
 
-    PropItem *item1 = new PropItem(tr("Book ID"), {logic->book.bookID});
+    PropItem *item1 = new PropItem(tr("Book ID"), {book.bookID});
     model->addItem(item1);
 
-    PropItem *item2 = new PropItem(tr("Created On"), {QDateTime::fromSecsSinceEpoch(logic->book.creation).toLocalTime().toString("h:m AP on M/d/yyyy")});
+    PropItem *item2 = new PropItem(tr("Created On"), {QDateTime::fromSecsSinceEpoch(book.creation).toLocalTime().toString("h:m AP on M/d/yyyy")});
     model->addItem(item2);
 
-    PropItem *item3 = new PropItem(tr("Last Edited"), {QDateTime::fromSecsSinceEpoch(logic->book.lastEdit).toLocalTime().toString("h:m AP on M/d/yyyy")});
+    PropItem *item3 = new PropItem(tr("Last Edited"), {QDateTime::fromSecsSinceEpoch(book.lastEdit).toLocalTime().toString("h:m AP on M/d/yyyy")});
     model->addItem(item3);
 
     ui->treeView->setModel(model);
@@ -315,12 +325,6 @@ void MainWindow::displayProps()
 void MainWindow::displayPageCount()
 {
     this->ui->spinPages->setValue(Book::calculatePageCount(logic->book));
-}
-
-void MainWindow::displayTitle()
-{
-    this->setWindowTitle(QString("Book %1 [*]").arg(logic->book.bookID));
-    this->setWindowModified(false);
 }
 
 void MainWindow::initUi()

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10...3.30)
-project(booktracker VERSION 3.3.2 LANGUAGES CXX)
+project(booktracker VERSION 3.3.3 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)

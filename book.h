@@ -56,8 +56,6 @@ struct CostConstants {
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(CostConstants, paddingWidthBoard, paddingHeightBoard, paddingSpineLongTrad, paddingSpineQuarter, paddingSpineForSuper, sqInchBoardPrice, sheetPrice, sqInchClothPrice, threadLengthPrice, headbandPrice, superPrice, ribbonPrice, pvaCost, endpageCost);
 };
 
-extern CostConstants constants;
-
 struct Dimension {
     double width;
     double height;
@@ -103,14 +101,14 @@ public:
     static bool isValid(const Book &book);
 
     static std::string getSpineType(const Book &book);
-    static double getExtraCosts(const Book &book);
-    static double getBoardCost(const Book &book);
-    static double getPageCost(const Book &book);
-    static double getThreadRibbonCost(const Book &book);
-    static double getHeadbandCost(const Book &book);
-    static double getSuperCost(const Book &book);
-    static double getClothCost(const Book &book);
-    static double getTotal(const Book &book);
+    static double getExtraCosts(const Book &book, const CostConstants &constants);
+    static double getBoardCost(const Book &book, const CostConstants &constants);
+    static double getPageCost(const Book &book, const CostConstants &constants);
+    static double getThreadRibbonCost(const Book &book, const CostConstants &constants);
+    static double getHeadbandCost(const Book &book, const CostConstants &constants);
+    static double getSuperCost(const Book &book, const CostConstants &constants);
+    static double getClothCost(const Book &book, const CostConstants &constants);
+    static double getTotal(const Book &book, const CostConstants &constants);
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Book, bookID, signitures, pagesPerSigniture, lastEdit, creation, weight, spine, costExtra, box, section, threadColor, endpageColor, pageMaterial, coverMaterial, extra, coverDim, pageDim, status, bookType);
 };

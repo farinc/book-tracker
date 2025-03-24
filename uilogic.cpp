@@ -73,7 +73,7 @@ void UiLogic::getBooksOnDisks()
     QDir dir = QDir(dirStr);
     QStringList files = dir.entryList(QStringList() << "*.json", QDir::Files);
 
-    for(const QString &filename : qAsConst(files))
+    for(const QString &filename : std::as_const(files))
     {
         QFile bookFile(dirStr + "/" + filename);
         json bookJson = readFile(bookFile);
@@ -127,7 +127,7 @@ Settings UiLogic::loadDefaultSettings()
     set.bookDirectory = dataPath.path().toStdString();
     set.style = "system";
     set.configDirectory = configPath.path().toStdString();
-    set.bookconstants = bookdata::constants;
+    set.bookconstants = bookdata::CostConstants();
 
     return set;
 }

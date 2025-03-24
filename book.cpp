@@ -8,8 +8,6 @@ using json = nlohmann::json;
 
 namespace bookdata {
 
-CostConstants constants = CostConstants();
-
 Book::Book(int bookID)
 {
     this->bookID = bookID;
@@ -96,12 +94,12 @@ std::string Book::getSpineType(const Book &book)
     return spineType;
 }
 
-double Book::getExtraCosts(const Book &book)
+double Book::getExtraCosts(const Book &book, const CostConstants &constants)
 {
     return constants.pvaCost + constants.endpageCost;
 }
 
-double Book::getBoardCost(const Book &book)
+double Book::getBoardCost(const Book &book, const CostConstants &constants)
 {
     double paddedWidth = book.coverDim.width + constants.paddingWidthBoard;
     double paddedHeight = book.coverDim.height + constants.paddingHeightBoard;
@@ -110,20 +108,14 @@ double Book::getBoardCost(const Book &book)
     return sqInchBoard * constants.sqInchBoardPrice;
 }
 
-double Book::getPageCost(const Book &book)
+double Book::getPageCost(const Book &book, const CostConstants &constants)
 {
     int sheets = std::ceil(calculatePageCount(book) / 2);
-    bool isHalfSheet = book.pageDim.width <= 4.25 || book.pageDim.height <= 5;
-    double pricePages = sheets * constants.sheetPrice;
-    
-    if(isHalfSheet) {
-        return pricePages / 2;
-    }
-    
+    double pricePages = sheets * constants.sheetPrice;    
     return pricePages;
 }
 
-double Book::getThreadRibbonCost(const Book &book)
+double Book::getThreadRibbonCost(const Book &book, const CostConstants &constants)
 {
     if(book.bookType != BookType::stabstich){
         double threadLength = (book.signitures * book.coverDim.height) + book.coverDim.height;
@@ -136,11 +128,11 @@ double Book::getThreadRibbonCost(const Book &book)
         return priceThread;
         
     }else{
-        return book.coverDim.height * constants.ribbonPrice;
+        return book.coverDim.height * constants.ribbonPrice * 5;
     }
 }
 
-double Book::getHeadbandCost(const Book &book)
+double Book::getHeadbandCost(const Book &book, const CostConstants &constants)
 {
     if(book.bookType == BookType::traditional || book.bookType == BookType::quater){
         return book.spine * 2 * constants.headbandPrice;
@@ -149,7 +141,7 @@ double Book::getHeadbandCost(const Book &book)
     return 0;
 }
 
-double Book::getSuperCost(const Book &book)
+double Book::getSuperCost(const Book &book, const CostConstants &constants)
 {
     if(book.bookType == BookType::traditional || book.bookType == BookType::quater){
         double paddedSpine = book.spine + constants.paddingSpineForSuper;
@@ -160,7 +152,7 @@ double Book::getSuperCost(const Book &book)
     return 0;
 }
 
-double Book::getClothCost(const Book &book)
+double Book::getClothCost(const Book &book, const CostConstants &constants)
 {
     double paddedHeight = book.coverDim.height + constants.paddingHeightBoard;
     if(book.bookType == BookType::coptic || book.bookType == BookType::coptic2 || book.bookType == BookType::stabstich) {
@@ -183,9 +175,16 @@ double Book::getClothCost(const Book &book)
     return 0;
 }
 
-double Book::getTotal(const Book &book)
+double Book::getTotal(const Book &book, const CostConstants &constants)
 {
-    return getExtraCosts(book) +  getBoardCost(book) + getPageCost(book) + getThreadRibbonCost(book) + getHeadbandCost(book) + getSuperCost(book) + getClothCost(book) + book.costExtra;
+    return getExtraCosts(book, constants) +
+           getBoardCost(book, constants) +
+           getPageCost(book, constants) +
+           getThreadRibbonCost(book, constants) +
+           getHeadbandCost(book, constants) +
+           getSuperCost(book, constants) +
+           getClothCost(book, constants) +
+           book.costExtra;
 }
 
 std::string toString(Status status)
